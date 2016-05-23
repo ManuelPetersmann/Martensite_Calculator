@@ -18,7 +18,8 @@ classdef Base < Bravais_Lattice
         % for cubic crystal: components = miller indices of a plane whose normal is along that
         % vector, with the spacing of the plane given by the inverse of the magnitude of that vector.
     end
-    %
+    %----------------------------------------------------------------------
+    
     methods   
         % constructor
         function obj = Base( ) %basis )
@@ -35,10 +36,10 @@ classdef Base < Bravais_Lattice
         function obj = set.my_base(obj, components)     
             if size(components,1) ~= size(components,2)
                 error('Conventional basis must be a square matrix');
-            elseif det(components)^2 <= 0.0
+            elseif det(components) <= 0.0
                 error('Base matrix is singular!')
             else
-                    obj.my_base = components;
+                obj.my_base = components;
             end
         end
         %-------------------------------------------------------------------

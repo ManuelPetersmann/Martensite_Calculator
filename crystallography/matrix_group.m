@@ -63,8 +63,11 @@ n(:,22) = 1/sqrt(3)*(e1+e2-e3);
 n(:,23) = 1/sqrt(3)*(e1-e2+e3);
 n(:,24) = 1/sqrt(3)*(-e1+e2+e3);
 %
-r = coord_transforms;
-cubic_laue_group = r.rot_mat_axis_angle( n, alphas );
+cubic_laue_group = zeros(3,3,24);
+for i=1:size(n,2)
+cubic_laue_group(:,:,i) = rot_originaxis_angle( alphas(i), n(:,i) );
+end
+
 end
 %-------------------------------------------------------------------------
 % TODO check for equivalence with above definitions (from PyStructTrans)

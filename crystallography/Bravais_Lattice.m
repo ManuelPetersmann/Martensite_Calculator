@@ -69,8 +69,9 @@ classdef Bravais_Lattice
         %         bravais_type = input('choose bravais lattice') %later maybe make a
         %         GUI for that#
         function obj = set.Lp(obj, Lpars)
-            %             switch obj.Bravais_type % the number of lattice parameters must match the bravais type
-            %                 case 'cubic'
+                         switch obj.Bravais_type % the number of lattice parameters must match the bravais type
+                             case 'cubic'
+                                  obj.Lp(1:3) = Lpars;    
             %                     Par_num = [1, 0]; %number of different lengths and angles unequal 90°
             %                 case 'hexagonal'
             %                     Par_num = [2, 0];
@@ -79,19 +80,18 @@ classdef Bravais_Lattice
             %                 case 'triclinic'
             %                     Par_num = [3, 3];
             %                     %TODO implement other lattices if needed
-            %             end
+                         end
             %             for i = 1 : obj.Par_num(2)
             %                 val = input( ['choose angle(s) because the', ...
             %                     'assignment of an coordinate system is not unique: alpha:', ...
             %                     'angle between a-b, beta b-c, gamma c-a ']);
             %                 if isnumeric(Lattice_params{i})
-            %                     obj.Lattice_params{i} = val;
+            %                     obj.Lp{i} = val;
             %                 else
             %                     error('Value must be numeric')
             %                 end
             % deg2rad
             %             end
-            obj.Lp = Lpars;
         end
         %------------------------------------------------------------------
         function point_group = get.Point_group( obj )
