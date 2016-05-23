@@ -5,6 +5,7 @@ classdef Martensite < Base
         B % Bain strain 
         F = eye(3); % Deformation_gradient of transformation
         IPS % shape deformation matrix, habit-plane normal vector and 
+        %CM % lattice correspondance matrix 
         % displacement vector d stored in a 3x5 matrix. [3x3,3x1,3x1]
     end
     
@@ -29,9 +30,8 @@ classdef Martensite < Base
         end
         %-------------------------------------------------------------------
         function obj = set.R(obj, R_in)
-            %mf = matrix_functions;
-            R_in*R_in'
-            det(R_in)
+            %R_in*R_in'
+            %det(R_in)
             if in_O3(R_in);
                 obj.R = R_in;
             else
@@ -59,14 +59,14 @@ classdef Martensite < Base
         end
         end
         %-------------------------------------------------------------------
-%         function U = get.B(obj)
+%         function Bain = get.B(obj)
 %             % if the matrix is symmetric and positive definite
 %             % (A matrix is positive definite if all its associated
 %             % eigenvalues are positive)
 %             if abs(obj.F - obj.F') < 1.e-9  && eig( obj.F ) > 0
-%                 U = obj.F;
+%                 Bain = obj.F;
 %             else
-%                 U = polardecomposition(obj.F);
+%                 Bain = polardecomposition(obj.F);
 %             end
 %         end
         %------------------------------------------------------------------
@@ -88,8 +88,7 @@ classdef Martensite < Base
         %function def = F_from_atom_postions( lattice1, lattice2, A1, A2 )
         % Programm if needed, maybe not very reasonable...     
         %end
-        %------------------------------------------------------------------
-%       
+        %------------------------------------------------------------------     
 %         function getvariant( index ):
 %         % given the variant index return the according variant
 % 
@@ -97,36 +96,16 @@ classdef Martensite < Base
 %             self.calcvariants()
 %         return self.__Ulist[n - 1]        
         %-------------------------------------------------------------------   
-        function [] = calcvariants( U, Point_group)
-        % calculate all the variants of the transformation.
-        % store the matrices associated to each variant U_i
-        % and the indices of elements in the Laue group R_i that maps
-        % the initially given U1 to them. Also store Rotations that
-        % collapse to the same variant (if any)
-
-%         if self.__Ulist is None:
-%             if not self.isreversible():
-%                 raise AttributeError(
-%                     "variants for irreversible martensitic transformations have not been implemented yet"
-%                 )
-% 
-%             U1 = self.getU()
-%             ulist = [U1]
-%             idx = [[]]
-%             for i, Q in enumerate(self.__Laue.matrices()):
-%                 V = Q.dot(U1).dot(Q.T)
-%                 newU = True
-%                 for j, U in enumerate(ulist):
-%                     if np.allclose(U, V):
-%                         newU = False
-%                         idx[j].append(i)
-% 
-%                 if newU:
-%                     ulist.append(V)
-%                     idx.append([i])
-% 
-%             self.__Ulist = np.array(ulist)
-%             self.__Laueidx = np.array(idx)
+        function vars = variants(obj)
+            % calculate all symmetry related variants of the transformation.
+            % store the matrices associated to each variant U_i
+            % and the indices of elements in the Laue group R_i that maps
+            % the initially given U1 to them. Also store Rotations that
+            % collapse to the same variant (if any)
+            a = obj.Point_group;
+            for i=1:size(obj.Point_group.matrices,3)
+                vars(:,:,i) = a.matrices(:,:,i) * obj.B * a.matrices(:,:,i)';
+            end
         end
         %-------------------------------------------------------------------   
         %TODO        

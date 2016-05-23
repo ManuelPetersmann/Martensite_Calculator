@@ -1,0 +1,31 @@
+
+% highly symmetric mirror planes
+m()
+
+for j=1: % Anzahl mirror planes in martensite
+    
+    m_mart = ; % mirror plane in martensite
+    m_aust = inv(cp) * m_mart;
+    
+    for i = 1: %Anzahl slip systems
+        
+        d =
+        n =
+        
+        % S1 and S2 are opposite shears, I think inverse of shear matrix is
+        % shear in opposite direction also
+        S1 = get_shear_d_n( d, n, m);
+        S2 = get_shear_d_n( (-1.)*d, n, m);
+        
+        m_aust_sheared = inv(S)* m_mart;
+        
+        R = max_shear_rotation(m_aust, S);
+        
+        A = 0.5*( inv(R)*S1 + R*S2 )* B3; % composite block deformations
+        
+    end
+    
+    
+end
+
+end

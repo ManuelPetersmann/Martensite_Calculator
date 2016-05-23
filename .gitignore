@@ -1,5 +1,7 @@
 *.log
-\Literature
-integrate\
-material_data\
-plotting\
+Literature
+integrate
+twinning
+material_data
+plotting
+writing

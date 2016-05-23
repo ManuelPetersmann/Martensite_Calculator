@@ -1,4 +1,4 @@
-function out = rot(input, rot_mat)
+function out = rotate(input, rot_mat)
 if size(input) == [1, 3] %input must be a colon vector
     % Note that generally instead of the transpose here is an inverse, but
     % since for a rotatoin R*R'=I holds its the same
