@@ -1,5 +1,6 @@
 *.log
 Literature\
+\Literature
 integrate\
 material_data\
 plotting\
