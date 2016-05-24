@@ -21,7 +21,7 @@ e1 = V(:,old_idx(1));
 %e2 = V(:,old_idx(2));
 e3 = V(:,old_idx(3));
 
-if y1 > 1  ||  abs(1-y2) > 1.e-5
+if y1 > 1  ||  abs(1-y2) > 1.e-6
     error('Eigenvalues do not satisfy conditions y1<1 , y2=1 , y3>1 necessary for an invariant plane')
 end
 

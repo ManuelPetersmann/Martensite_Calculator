@@ -1,10 +1,11 @@
-function n_mirror = mirror_by_plane( n, basis1 )
+function vec_mirror = mirror_by_plane( n, vec, basis1 )
 % basis1 - basis vectors as colums
-% given a plane normal n computes the mirror matrix for this plane.
+% given a plane normal n first computes the mirror matrix for this plane.
+% And then calculates the mirror image of a vector vec with this matrix.
 % Note: the colums of a mapping are the transformations of the respective basis vectors
 
-%S = [cos(2*a), sin(2*a); 
-%     sin(2*a), cos(2*a)]
+% S = [cos(2*a), sin(2*a); 
+%      sin(2*a), cos(2*a)]
 
 % h holds the scalar products of the basis vectors and the plane normal
 % (Basiszerlegung)
@@ -19,6 +20,6 @@ for i = 1:3
         S(:,i) = basis1(:,i) + 2*lambda(i)*n;
 end
 
-n_mirror = S*n;
+vec_mirror = S*vec;
 
 end
