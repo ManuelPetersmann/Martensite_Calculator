@@ -29,6 +29,7 @@ B3 = [n1 0  0
         0  0  n3];
 martensite.B = B3;
 
+det(B3)
 %vars = martensite.variants()
 
 cp = B3*C_am;

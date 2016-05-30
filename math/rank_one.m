@@ -16,19 +16,7 @@ if abs(Ct - eye(3)) < 1.e-4
 end
 % otherwise automatically the eigenvalues are all positive!
 
-[V,D] = eig(A);
-% D... Diagonal matrix of eigenvalues
-% V... colum vectors are correspondig right eigenvectors i.e. A*V = V*D
-eigs = [D(1,1),D(2,2),D(3,3)]
-[eigs_sort, old_idx] = sort(eigs)
-% arrange eigenvectors to order of sorted eigenvectors
-y1 = eigs_sort(1)
-y2 = eigs_sort(2)
-y3 = eigs_sort(3)
-epsilon = sqrt(y3) - sqrt(y1);
-e1 = V(:,old_idx(1));
-%e2 = V(:,old_idx(2));
-e3 = V(:,old_idx(3));
+[ y1, y2, y3, e1, e2, e3 ] = sorted_eig_vals_and_vecs( B2 );
 
 if y1 > 1  ||  abs(1-y2) > 1.e-6
     error('Eigenvalues do not satisfy conditions y1<1 , y2=1 , y3>1 necessary for an invariant plane')
