@@ -1,16 +1,25 @@
 % calculate initial eigenvalues without shear modification
-[ lambda_1, lambda_2, lambda_3, lambda2_smaller1] = sorted_eig_vals_and_vecs( B3 );
+% Ehl: ? function should return the three eigenvectors ? 1st eigenvector is
+% now saved to lambda2_smaller1 --> what is it used for? --> changed, so that
+% eigenvectors are saved now (to ev_1 ev_2, ev_3)
+[ lambda_1, lambda_2, lambda_3, ev_1, ev_2, ev_3] = sorted_eig_vals_and_vecs( B3 );
 
+% epsilon is a criterion to check, if the transformation provides an
+% invariant plane --> eigenvalue lambda_2 ~= 1.0
 epsilon = 1.e-6;
+% Ehl: what is this value for?
 g_max = 50.0;
+
 [noSolution, lambda2_smaller1] = check_solution( lambda_1, lambda_2, lambda_3, epsilon);
 
-for im =1:size(m,1) % number of considered mirror planes in martensite
+for im = 1:size(m,1) % number of considered mirror planes in martensite
     
     m(im,:)
     
     m_mart = m(im,:); % mirror plane in martensite
-    m_aust = inverse(cp) * m_mart';
+    % express mirror plane from bcc-lattice(martensite) in fcc-lattice(austenite)
+    % see e.g. Qi. et al (2014) Eq.(22)
+    m_aust = inverse(cp) * m_mart'; 
     
     for is1 = 1:1 %(size(ds,1)-1) % loop for first slip system
         for is2 = 2:2 %(is1+1):size(ds,1) % loop for second one
@@ -18,15 +27,18 @@ for im =1:size(m,1) % number of considered mirror planes in martensite
             delta_g = 20.;
             g = 5.0;
             
+            % first system
             d1 = cp * ds(is1,:)';
             n1 = inverse(cp) * ns(is1,:)';
-            d11 = mirror_by_plane(d1, m_aust, eye(3));
-            n11 = mirror_by_plane(n1, m_aust, eye(3));
+            % Ehl: ?changed orde of d1/n1 and m_aust, in order to fit to the definition of the function mirror_by_plane 
+            % --> normal of the mirror plane comes in first ?
+            d11 = mirror_by_plane(m_aust, d1, eye(3));
+            n11 = mirror_by_plane(m_aust, n1, eye(3));
             % second system
             d2 = cp * ds(is2,:)';
             n2 = inverse(cp) * ns(is2,:)';
-            d22 = mirror_by_plane(d2, m_aust, eye(3));
-            n22 = mirror_by_plane(n2, m_aust, eye(3));
+            d22 = mirror_by_plane(m_aust, d2, eye(3));
+            n22 = mirror_by_plane(m_aust, n2, eye(3));
             
             % S1 and S2 are shears related by mirror symmetry
             S1  = d1  * n1';
