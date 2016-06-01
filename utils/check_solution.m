@@ -1,9 +1,9 @@
-function [ noSolution, lambda2_smaller1] = check_solution( lambda_1, lambda_2, lambda_3, epsilon )
+function [ isSolution, lambda2_smaller1] = check_solution( lambda_1, lambda_2, lambda_3, epsilon )
 % This function takes the eigenvalues of a matrix
 % and checks if it provides an invariant plane 
 % --> eigenvalue lambda_2 ~= 1.0 && lambda_1 < 1.0 && lambda_3 > 1.0
 
-noSolution = true;
+isSolution = false;
 
 % check if eigenvalue lambda_2 is near enough to 1.0 
 % --> deviation less than epsilon
@@ -18,7 +18,8 @@ if ( abs(lambda_2 - 1.) > epsilon )
 % else - lambda2 solution within precision  - check if the other eigenvalues
 % straddle lambda2 = 1, i.e. lambda1 > 1. , lambda3 > 1. 
 else if (lambda_1 < 1.)  && (lambda_3 > 1.)
-        noSolution = false;
+        isSolution = true;
+        lambda2_smaller1 = 5.; % assign any value so no error occurs
     end
 end
 
