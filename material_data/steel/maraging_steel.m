@@ -24,9 +24,9 @@ n1 = (a_mart/a_aust)*sqrt(2);
 n3 = a_mart / a_aust; % this is one form of three possible for the bain strain
 % Der mittlere Eigenwert ist hier also n1. Dieser soll auf eins getuned
 % werden. Die differenz ist also (n1-1).
-B3 = [n1 0  0   
-        0  n1 0
-        0  0  n3];
+B3 = [n1 0    0   
+       0  n1  0
+       0  0  n3];
 martensite.B = B3;
 
 det(B3)
