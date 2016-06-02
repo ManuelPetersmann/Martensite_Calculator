@@ -2,7 +2,7 @@
 % Ehl: ? function should return the three eigenvectors ? 1st eigenvector is
 % now saved to lambda2_smaller1 --> what is it used for? --> changed, so that
 % eigenvectors are saved now (to ev_1 ev_2, ev_3)
-[ lambda_1, lambda_2, lambda_3, ev_1, ev_2, ev_3] = sorted_eig_vals_and_vecs( B3 );
+[ lambda_1, lambda_2, lambda_3, e1, e2, e3] = sorted_eig_vals_and_vecs( B3 );
 
 epsilon = 1.e-9;
 g_min = 9.5; % minimum number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
