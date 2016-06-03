@@ -1,6 +1,6 @@
 % calculate initial eigenvalues without shear modification
 % Ehl: ? function should return the three eigenvectors ? 1st eigenvector is
-% now saved to lambda2_smaller1 --> what is it used for? --> changed, so that
+% was saved to lambda2_smaller1 --> what is it used for? --> changed, so that
 % eigenvectors are saved now (to ev_1 ev_2, ev_3)
 [ lambda_1, lambda_2, lambda_3, e1, e2, e3] = sorted_eig_vals_and_vecs( B3 );
 
@@ -25,13 +25,19 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
             % first system
             d1 = cp * ds(is1,:)';
             n1 = inverse(cp) * ns(is1,:)';
-            d11 = mirror_by_plane(d1, m_aust, eye(3));
-            n11 = mirror_by_plane(n1, m_aust, eye(3));
+            % Ehl: mirror_by_plane recieves the plane normal as 1st argument
+            % and the vector to be mirrored as 2nd argument
+            % --> therefore change the vectors in call of function?!
+            d11 = mirror_by_plane(m_aust, d1, eye(3));
+            n11 = mirror_by_plane(m_aust, n1, eye(3));
             % second system
             d2 = cp * ds(is2,:)';
             n2 = inverse(cp) * ns(is2,:)';
-            d22 = mirror_by_plane(d2, m_aust, eye(3));
-            n22 = mirror_by_plane(n2, m_aust, eye(3));
+            % Ehl: mirror_by_plane recieves the plane normal as 1st argument
+            % and the vector to be mirrored as 2nd argument
+            % --> therefore change the vectors in call of function?!
+            d22 = mirror_by_plane(m_aust, d2, eye(3));
+            n22 = mirror_by_plane(m_aust, n2, eye(3));
             
             % S1 and S2 are shears related by mirror symmetry
             S1  = d1  * n1';
@@ -69,7 +75,11 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
                 % solutions = double( solve( cf, g) );   %, 'Real', true);
                 
                 % get new results
-                [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F );
+                % Ehl: in rank_one_kachaturyan wird F2 = F'*F verwendet ... so auch in der Veroeff.
+                % rank_one_kachaturyan liefert dann andere Eigenwerte und läuft auf einen Fehler, weil der mittlere Eigenwert nicht nahe genug bei 1.0
+                % deswegen hier F2 = F'*F ?
+                F2 = (F'*F);
+                [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F2 );
                 
                 %% check if solution has been found or how it changed if its not sufficient
                 [ isSolution , lambda2_smaller1_new] = check_solution(lambda_1, lambda_2, lambda_3, epsilon);
@@ -94,8 +104,34 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
             if isSolution
                 %[ y1 ] = sorted_eig_vals_and_vecs( F ) % , y2, y3, e1, e2, e3]
                 isSolution = false;
-                [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan( F )
-                [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one(F, eye(3) )
+                % Ehl: in order to distinguish between the upper epsilon as criterion for the search-algorithm
+                % and epsilon_0 as the magnitude of the shear (see paper Kachaturyan)
+                % --> change of the return value 
+                [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan( F );
+%                 [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one(F, eye(3) )
+
+                % Ehl formatted output of the results
+                fprintf('==================================================\n')
+                fprintf('= results of calculation for a slip-system that  =\n')
+                fprintf('= provides an invariant plane (after kachaturyan)=\n')
+                fprintf('==================================================\n')
+                fprintf('magnitude of shear: \n epsilon_0 = %1.4f \n', eps_0)
+                fprintf('normal to habit plane (unit vector) - 1st solution: \n n_1 = \n')
+                disp (n1)
+                fprintf('normal to habit plane (unit vector) - 2nd solution: \n n_2 = \n')
+                disp (n2)
+                fprintf('shear direction of transformation (unit vector) - 1st solution: \n l_1 = \n')
+                disp (a1)
+                fprintf('shear direction of transformation (unit vector) - 2nd solution: \n l_2 = \n')
+                disp (a2)
+                fprintf('rotation matrix (for invariant planar match with parent) - 1st solution: \n R_I1 = \n')
+                disp(Q1)
+                fprintf('rotation matrix (for invariant planar match with parent) - 2nd solution: \n R_I2 = \n')
+                disp(Q2)
+                fprintf('==================================================\n')
+                
+                eps_0;
+    
             end
 %             %% if the solution for g is very high or low respectively, do not consider it
 %             solution = solutions;
