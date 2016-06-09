@@ -4,9 +4,12 @@
 % eigenvectors are saved now (to ev_1 ev_2, ev_3)
 [ lambda_1, lambda_2, lambda_3, e1, e2, e3] = sorted_eig_vals_and_vecs( B3 );
 
+isol = 0; % counter for number of solutions
 epsilon = 1.e-9;
 g_min = 9.5; % minimum number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 g_initial = 300.0;
+I = eye(3);
+
 [isSolution, lambda2Bain_smallerl] = check_solution( lambda_1, lambda_2, lambda_3, epsilon);
 
 for im =1:1 %size(m,1) % number of considered mirror planes in martensite
@@ -28,16 +31,16 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
             % Ehl: mirror_by_plane recieves the plane normal as 1st argument
             % and the vector to be mirrored as 2nd argument
             % --> therefore change the vectors in call of function?!
-            d11 = mirror_by_plane(m_aust, d1, eye(3));
-            n11 = mirror_by_plane(m_aust, n1, eye(3));
+            d11 = mirror_by_plane(m_aust, d1, I);
+            n11 = mirror_by_plane(m_aust, n1, I);
             % second system
             d2 = cp * ds(is2,:)';
             n2 = inverse(cp) * ns(is2,:)';
             % Ehl: mirror_by_plane recieves the plane normal as 1st argument
             % and the vector to be mirrored as 2nd argument
             % --> therefore change the vectors in call of function?!
-            d22 = mirror_by_plane(m_aust, d2, eye(3));
-            n22 = mirror_by_plane(m_aust, n2, eye(3));
+            d22 = mirror_by_plane(m_aust, d2, I);
+            n22 = mirror_by_plane(m_aust, n2, I);
             
             % S1 and S2 are shears related by mirror symmetry
             S1  = d1  * n1';
@@ -60,18 +63,20 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
                 % symbolic inv() is possible
                 
                 % calculate first double shear matrix
-                S = eye(3) + (1./g)*(S1 + S11);
+                % Ehl: renamed in order to distinguish from S1 and S2
+                S_one = I + (1./g)*(S1 + S11);
+                S_two = I + (1./g)*(S2 + S22);
                 % calculate the sheared mirrorplane
-                m_aust_sheared = inverse( S )* m_mart';
+                m_aust_sheared = inverse( S_one )* m_mart';
                 
                 % calculate the rotation of the mirror plane vector due
                 % to the shear
-                R = max_shear_rotation(m_aust, S);
+                R = max_shear_rotation(m_aust, S_one);
                 % Construct the net deformation gradient from the two
                 % sheared sides
-                F = 0.5*( inverse(R)*S + R*(eye(3) + (1./g)*(S2 + S22)) ) * B3; % composite block deformations
+                F = 0.5*( inverse(R)*S_one + R*S_two ) * B3; % composite block deformations
                 
-                % cf = sym( det( F - eye(3) ) ) == 0;
+                % cf = sym( det( F - I ) ) == 0;
                 % solutions = double( solve( cf, g) );   %, 'Real', true);
                 
                 % get new results
@@ -102,37 +107,41 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
             end % end while
             
             if isSolution
+                isol = isol + 1; % increase counter for number of solutions found
                 %[ y1 ] = sorted_eig_vals_and_vecs( F ) % , y2, y3, e1, e2, e3]
                 isSolution = false;
                 % Ehl: in order to distinguish between the upper epsilon as criterion for the search-algorithm
                 % and epsilon_0 as the magnitude of the shear (see paper Kachaturyan)
                 % --> change of the return value 
                 [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan( F );
-%                 [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one(F, eye(3) )
+%                 [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one(F, I )
 
-                % Ehl formatted output of the results
-                fprintf('==================================================\n')
-                fprintf('= results of calculation for a slip-system that  =\n')
-                fprintf('= provides an invariant plane (after kachaturyan)=\n')
-                fprintf('==================================================\n')
-                fprintf('magnitude of shear: \n epsilon_0 = %1.4f \n', eps_0)
-                fprintf('normal to habit plane (unit vector) - 1st solution: \n n_1 = \n')
-                disp (n1)
-                fprintf('normal to habit plane (unit vector) - 2nd solution: \n n_2 = \n')
-                disp (n2)
-                fprintf('shear direction of transformation (unit vector) - 1st solution: \n l_1 = \n')
-                disp (a1)
-                fprintf('shear direction of transformation (unit vector) - 2nd solution: \n l_2 = \n')
-                disp (a2)
-                fprintf('rotation matrix (for invariant planar match with parent) - 1st solution: \n R_I1 = \n')
-                disp(Q1)
-                fprintf('rotation matrix (for invariant planar match with parent) - 2nd solution: \n R_I2 = \n')
-                disp(Q2)
-                fprintf('==================================================\n')
                 
-                eps_0;
-    
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % further checks if solution is appropriate
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % calculation of Lattice-Transformations
+                % EhL: at this point R is equal to the unity-matrix ... doesn't seem to be correct?
+                AL1 = Q2 * inverse(R) * B3;
+                AL2 = Q2 * R * B3;
+                
+                % calculation of misorientation-angle \theta_p between the closed-packed planes of \alpha and \gamma
+                plgamma = [1 1 1];
+                plalpha = AL1 * plgamma';
+%                 theta_p = acosd(dot(plgamma,plalpha)/(norm(plgamma)*norm(plalpha)))
+                theta_p = calc_misorientation_angle(plgamma, plalpha)
+
+                % save solution
+                sol(isol) = solution(eps_0, a1, a2, n1, n2, Q1, Q2, g, theta_p);
+                
+                % formatted output of the results
+                fprintf('solution %i :\n', isol)
+%                 sol_output(sol(isol));                
+                
             end
+            
+
+            
 %             %% if the solution for g is very high or low respectively, do not consider it
 %             solution = solutions;
 %             if solution > 10
@@ -147,8 +156,13 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
 %             shear_amount(nr,2) = nr;
             
             
-        end
-    end
+        end % end of loop for second slip system
+    end % end of loop for first slip system
+    
+    % search solution with lowest misorientation-angle between {111}_gamma and {011}_alpha
+    isol_lma = find_lowest_misorientation_angle(sol)
+            
+    g;
     
 end
 

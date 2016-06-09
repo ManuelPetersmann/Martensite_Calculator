@@ -41,7 +41,7 @@ classdef Martensite < Base
         %-------------------------------------------------------------------
         function obj = set.F(obj, F_in)
         % In the case of martensitic transformations, a further condition has to be satisfied;
-        % the lattice transformation strain must also be an invariant–line strain if the interface is
+        % the lattice transformation strain must also be an invariantï¿½line strain if the interface is
         % to be glissile (see christian, crocker - dislocations and lattice transformations - Dislocations in crystals vol 3).
         % Also F cannot be uniquely determined becasause there is an infinite number of
         % Lattice correspondances ai = F*bi. 

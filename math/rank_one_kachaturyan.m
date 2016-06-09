@@ -19,7 +19,7 @@ end
 
 eps_0 = sqrt(y3) - sqrt(y1);
 
-% Ehl: changed name here because later a1 one is calculated and then used again
+% Ehl: changed names here because later a1 is calculated and afterwards used again
 ah1 = y3*sqrt( (1- y1^2)/(y3^2-y1^2) )*e1; 
 ah3 = y1*sqrt( (y3^2 -1)/(y3^2-y1^2) )*e3;
 % 
@@ -35,7 +35,7 @@ n2 = nh3 - nh1;
 a1 = ah3 - ah1;
 a2 = ah3 + ah1;
 %
-%Ehl: rotation matrices? --> Eq.(9) ?
+% Ehl: rotation matrices? --> Eq.(9) ?
 Q1 = (eye(3) + eps_0*(a1 * n1'))*inv(B);
 Q2 = (eye(3) + eps_0*(a2 * n2'))*inv(B);
 %
