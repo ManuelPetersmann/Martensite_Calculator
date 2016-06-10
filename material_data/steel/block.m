@@ -1,4 +1,4 @@
-% run appropriate file for considered material
+% run appropriate file for considered material first
 maraging_steel;
 
 % calculate initial eigenvalues without shear modification
@@ -15,7 +15,7 @@ I = eye(3);
 
 [isSolution, lambda2Bain_smallerl] = check_solution( lambda_1, lambda_2, lambda_3, epsilon);
 
-for im =1:1 %size(m,1) % number of considered mirror planes in martensite
+for im = 1:size(m,1) % number of considered mirror planes in martensite
     
     m(im,:)
     
@@ -150,7 +150,7 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
                   
                   plalpha = AL1 * plgamma';
                   
-                  theta_p = calc_misorientation_angle(plgamma, plalpha)
+                  theta_p = calc_misorientation_angle(plgamma, plalpha);
                   
                   if( theta_p < theta_p_closest )
                     theta_p_closest = theta_p;
@@ -186,14 +186,17 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
             
             
         end % end of loop for second slip system
-    end % end of loop for first slip system
+    end % end of loop for first slip system 
     
-    % search solution with lowest misorientation-angle between {111}_gamma and {011}_alpha
-    isol_lma = find_lowest_misorientation_angle(sol);
+end % end of loop over considered mirror planes in martensite
+
+% number of potential solutions found
+fprintf('number of potential solutions found: n_sol = %i :\n', isol)
+
+% search solution with lowest misorientation-angle between {111}_gamma and {011}_alpha
+isol_lma = find_lowest_misorientation_angle(sol);
     
-    % formatted output of the solution with lowest misorientation angle
-    fprintf('lowest misorientation angle - solution %i :\n', isol_lma)
-    sol_output(sol(isol_lma));   
-    
-end
+% formatted output of the solution with lowest misorientation angle
+fprintf('lowest misorientation angle - solution %i :\n', isol_lma)
+sol_output(sol(isol_lma)); 
 
