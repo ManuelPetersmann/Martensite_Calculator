@@ -1,3 +1,6 @@
+% run appropriate file for considered material
+maraging_steel;
+
 % calculate initial eigenvalues without shear modification
 % Ehl: ? function should return the three eigenvectors ? 1st eigenvector is
 % was saved to lambda2_smaller1 --> what is it used for? --> changed, so that
@@ -125,19 +128,45 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
                 AL1 = Q2 * inverse(R) * B3;
                 AL2 = Q2 * R * B3;
                 
-                % calculation of misorientation-angle \theta_p between the closed-packed planes of \alpha and \gamma
-                plgamma = [1 1 1];
-                plalpha = AL1 * plgamma';
-%                 theta_p = acosd(dot(plgamma,plalpha)/(norm(plgamma)*norm(plalpha)))
-                theta_p = calc_misorientation_angle(plgamma, plalpha)
-
+                % calculation of misorientation-angle \theta_p between 
+                % the closed-packed planes (cpp) of \alpha and \gamma lattice
+                
+                theta_p_closest = 999.9; % init. angle for comparison of angles between different cpp
+                plgamma_closest = [0 0 0]; % init. normal vector of cpp in aust. for lowest misorientation angle
+                plalpha_closest = [0 0 0]; % init. normal vector of cpp in mart. for lowest misorientation angle
+                
+                for i = 1:4 % loop over 4 cpp of aust.
+                  
+                  switch i % switch to different cpp
+                    case 1
+                      plgamma = [1 1 1];
+                    case 2
+                      plgamma = [-1 1 1];
+                    case 3
+                      plgamma = [1 -1 1];
+                    otherwise
+                      plgamma = [1 1 -1];
+                  end
+                  
+                  plalpha = AL1 * plgamma';
+                  
+                  theta_p = calc_misorientation_angle(plgamma, plalpha)
+                  
+                  if( theta_p < theta_p_closest )
+                    theta_p_closest = theta_p;
+                    plgamma_closest = plgamma;
+                    plalpha_closest = plalpha;
+                  end
+                  
+                end % end of loop over 4 cpp of austenite
+                                    
                 % save solution
-                sol(isol) = solution(eps_0, a1, a2, n1, n2, Q1, Q2, g, theta_p);
+                sol(isol) = solution(eps_0, a1, a2, n1, n2, Q1, Q2, g, ...
+                  theta_p_closest, plgamma_closest, plalpha_closest);
                 
                 % formatted output of the results
-                fprintf('solution %i :\n', isol)
+%                 fprintf('solution %i :\n', isol)
 %                 sol_output(sol(isol));                
-                
             end
             
 
@@ -160,9 +189,11 @@ for im =1:1 %size(m,1) % number of considered mirror planes in martensite
     end % end of loop for first slip system
     
     % search solution with lowest misorientation-angle between {111}_gamma and {011}_alpha
-    isol_lma = find_lowest_misorientation_angle(sol)
-            
-    g;
+    isol_lma = find_lowest_misorientation_angle(sol);
+    
+    % formatted output of the solution with lowest misorientation angle
+    fprintf('lowest misorientation angle - solution %i :\n', isol_lma)
+    sol_output(sol(isol_lma));   
     
 end
 
