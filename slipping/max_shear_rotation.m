@@ -6,7 +6,7 @@ ms = S*m;
 dot(m,ms) / (norm(m)*norm(ms));
 phi = acos( dot(m,ms) / (norm(m)*norm(ms)) ); % verify notation for symbolic
 
-if abs(phi) < 1.e-9
+if abs(phi) < 1.e-9 % check if this is reasonable #################################
     R = eye(3);
 else    
     m_u = m / norm(m);
@@ -16,7 +16,7 @@ else
     % u = ( 1/sin(phi) ) * collect(det( cat(1,[1 1 1], m_u, ms_u) ) , g);
     u = ( 1./sin(phi) ) * cross( m_u , ms_u );
     
-    R = rot_originaxis_angle( phi, u );
+    R = rot_originaxis_angle( rad2deg(phi), u ); % check if same angles are used
 end
 
 end
