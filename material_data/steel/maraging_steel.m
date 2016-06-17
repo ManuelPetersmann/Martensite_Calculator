@@ -16,7 +16,7 @@ martensite.Lp = a_mart *[1 1 1];  % 2.8807346
 % Correspondance Matrix for B3 Bain
 C_am = [0.5,  -0.5,  0.;
         0.5,   0.5,  0.;
-        0.,    0.,   1.] ; 
+        0.,    0.,   1.]; 
 %correspondance_matrix(austenite, martensite, m1, m2);
 
 % define Bain-strain

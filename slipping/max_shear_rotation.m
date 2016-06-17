@@ -3,7 +3,7 @@ function R = max_shear_rotation( m, S )
 % calculates the rotation matrix for the vector n due to the shear.
 
 ms = S*m;
-dot(m,ms) / (norm(m)*norm(ms));
+dot(m,ms) / (norm(m)*norm(ms)); %Ehl: what is the purpose of this line?
 phi = acos( dot(m,ms) / (norm(m)*norm(ms)) ); % verify notation for symbolic
 
 if abs(phi) < 1.e-9 % check if this is reasonable #################################
