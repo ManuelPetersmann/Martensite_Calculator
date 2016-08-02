@@ -1,7 +1,9 @@
 function Rot = rot_originaxis_angle( alpha, n )
-% rotation through origin axis
-% alternative to eulerangle rotation
-alpha = alpha*(pi/180); %umrechnen von Grad aus Argument auf Radianten für cos und sin      
+% call: rot_originaxis_angle( alpha, n )
+% rotation through origin axis, alternative to eulerangle rotation
+% alpha is in degree!!! 
+
+alpha = alpha*(pi/180); % grad to radians      
 n1=n(1);
 n2=n(2);
 n3=n(3);

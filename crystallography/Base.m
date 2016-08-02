@@ -69,7 +69,7 @@ classdef Base < Bravais_Lattice
             % a lattice invariant transformation i.e., a unimodular matrix
             % of integers. 
             %matfuncs = matrix_functions();
-            mu = B2 * inv(B1);
+            mu = B2 * inverse(B1);
             if abs(det(mu) - 1.) <  1.e-9
                 bool = true;
             else

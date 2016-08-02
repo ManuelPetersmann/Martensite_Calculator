@@ -42,7 +42,7 @@ e1 = [1 0 0];
 e2 = [0 1 0];
 e3 = [0 0 1];
 %
-% the 6 -180° rotations around the face diagonals
+% the 6 -180 degree rotations around the face diagonals
 alphas(11:16) = 180;
 n(:,11) = 1/sqrt(2)*(e1+e2);
 n(:,12) = 1/sqrt(2)*(e1-e2);

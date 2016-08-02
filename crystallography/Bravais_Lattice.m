@@ -1,4 +1,4 @@
-classdef Bravais_Lattice
+classdef Bravais_Lattice < handle
     % Every operation is in accordance with the International tables of
     % crystallography Vol A, A1
     
@@ -24,7 +24,7 @@ classdef Bravais_Lattice
         C
         % conventional crystallographic = covariant = real basis = direct lattice
         % c_i stored as C = [c1;c2;c3], (such that as many angles as 
-        % possible amout to 90°. e.g.
+        % possible amout to 90 degree. e.g.
         % primitive lattice --> conventional lattice = primitive (e.g. primitive cubic),
         % otherwise "centered" e.g. face centered cubic.
         % note that for e.g. monoclinic, one conventional basis vector is
@@ -72,7 +72,7 @@ classdef Bravais_Lattice
                          switch obj.Bravais_type % the number of lattice parameters must match the bravais type
                              case 'cubic'
                                   obj.Lp(1:3) = Lpars;    
-            %                     Par_num = [1, 0]; %number of different lengths and angles unequal 90°
+            %                     Par_num = [1, 0]; %number of different lengths and angles unequal 90ï¿½
             %                 case 'hexagonal'
             %                     Par_num = [2, 0];
             %                 case 'monoclinic'
@@ -117,11 +117,14 @@ classdef Bravais_Lattice
         end
         %------------------------------------------------------------------
         function value = get.E(obj)
-            % generate the base matrix for primitive cell of 3D Bravais lattices
+            % generate the base matrix "E" for primitive cell of 3D Bravais lattices
             % it is stored in E(:,:,1)
             % in E(:,:,2) the conversion matrix W from the primitive P to the 
-            % conventional base C is stored, i.e.:  C = W*P
-            % See - e.g. Int. Table. Cryst. Vol A, p.81-83
+            % conventional base C is stored like: C = E*W
+            % this is different to the internaltional tables Cryst. Vol A, p.81-83 
+            % I took it from the python code pytrans from github and verified 
+            % it for bcc to fcc.
+            
             switch obj.Bravais_type
                 case 'cubic'
                     switch obj.Centering
@@ -255,7 +258,7 @@ classdef Bravais_Lattice
         %------------------------------------------------------------------
         function base = get.C(obj)
             if size(obj.E,3) == 2
-                base = obj.E(:,:,2)*obj.E(:,:,1);
+                base = obj.E(:,:,1)* inverse( obj.E(:,:,2) );
             else
                 base = obj.E(:,:,1);
             end
