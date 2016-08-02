@@ -1,7 +1,7 @@
 function P = basis_relation( basis1, basis2 )
 mf = matrix_functions;
 P = basis1 * inv( basis2 );
-% Difference between here and Ulrich Müller:
+% Difference between here and Ulrich MÃ¼ller:
 % He writes: basis1 = basis2 * P -> the Basis Vectors are assembled as row
 % vectors in the matrices. Here it is written: basis1=P*basis2 -> the Basis
 % Vectors are assembled as colum vectors in the matrices. 
