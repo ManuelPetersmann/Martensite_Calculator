@@ -40,7 +40,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
             % vector from orientation relations given as families
             if nargin >= 7 % varargin = { 1- Type of array entry object, 2- Solution_array, 3- OR-family, 4-max tolerated deviation from OR, 
                 obj.array   = varargin{1}; % 5- dynamic property name for least_misorientation-angle, 6- dynamic property name for least_misorientation-vector, 
-                if nargin == 8             % 7- dynamic property name for OR family / or 'n' or 'a' for property, 8- bool for planes = true (otherwise directions), }
+                if nargin == 8             % 7- dynamic property name for OR family / or 'h' or 'a' for property, 8- bool for planes = true (otherwise directions), }
                         obj.addprop( varargin{7} );
                         obj.( varargin{7} ) = varargin{3};
                 end

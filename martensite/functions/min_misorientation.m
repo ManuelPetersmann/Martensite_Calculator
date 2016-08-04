@@ -12,10 +12,12 @@ for j = 1 : size(vecs,1)
     vec1 = vecs(j,:);
     if nargin < 3
         vec2 = comp; % comparison between family and one vector only
-    elseif plane == true % nargin == 3 --> comp = LT
-        vec2 = vec1 * inverse(comp);
     else
-        vec2 = vec1 * comp'; % direction transformation
+        if plane == true % nargin == 3 --> comp = LT
+            vec2 = vec1 * inverse(comp);
+        else
+            vec2 = vec1 * comp'; % direction transformation
+        end
     end
     
     theta_new = get_angle(vec1, vec2); % returns angle in degree

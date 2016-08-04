@@ -1,4 +1,4 @@
-function [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one(F, G)
+function [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G)
 % solves the equation for an invariant interface:
 % Q*F - G = a \otimes n
 % where A and B are two mappings (homogeneous deformations)
@@ -30,30 +30,30 @@ eps_0 = sqrt(y3) - sqrt(y1);
 ah1 = sqrt( y3 * (1-y1) / (y3-y1) ) * e1; 
 ah3 = sqrt( y1 * (y3-1) / (y3-y1) ) * e3;
 % 
-nh1 =  (-1)*sqrt(1-y1) * G' *e1;
-nh3 =       sqrt(y3-1) * G' *e3;
+hh1 =  (-1)*sqrt(1-y1) * G' *e1;
+hh3 =       sqrt(y3-1) * G' *e3;
 %
 coef = ((sqrt(y3)-sqrt(y1)) / (sqrt(y3-y1)));
 % there are two solutions (different sign!)
-nn1 = coef* (nh1 + nh3);
-nn2 = coef* (nh1 - nh3);%%%%%%%%%%%%
+hh1 = coef* (hh1 + hh3);
+hh2 = coef* (hh1 - hh3);%%%%%%%%%%%%
 %
 % rho unequal 0 is a constant such that |n| =1 
-roh1 = norm(nn1,2);
-roh2 = norm(nn2,2); % euclidic Norm
+roh1 = norm(hh1,2);
+roh2 = norm(hh2,2); % euclidic Norm
 %
 a1 = (ah1 + ah3); %roh1 * 
 a2 = (ah1 - ah3); %roh2 * 
 %
-n1 = nn1/roh1;
-n2 = nn2/roh2;
+h1 = hh1/roh1;
+h2 = hh2/roh2;
 %
 % Rotations relationg the deformations on either side
 % If B = Identity then determines how a thin plate of the crystal created
 % the invariant line strain "B*R" or "F" or "A0" should be reoriented to 
 % achieve an invariant planar match with the parent.
-Q1 = (G + eps_0*(a1 * n1'))*inverse(F);
-Q2 = (G + eps_0*(a2 * n2'))*inverse(F);
+Q1 = (G + eps_0*(a1 * h1'))*inverse(F);
+Q2 = (G + eps_0*(a2 * h2'))*inverse(F);
 %
 end
 

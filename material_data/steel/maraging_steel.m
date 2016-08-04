@@ -25,14 +25,14 @@ C_am = [0.5,  -0.5,  0.;
 %correspondance_matrix(austenite, martensite, m1, m2);
 
 % define Bain-strain
-n1 = (a_mart/a_aust)*sqrt(2);
-n3 = a_mart / a_aust; % this is one form of three possible for the bain strain
+eta1 = (a_mart/a_aust)*sqrt(2);
+eta3 = a_mart / a_aust; % this is one form of three possible for the bain strain
 
 % Der mittlere Eigenwert ist hier also n1. Dieser soll auf 1.0 getuned
 % werden. Die differenz ist also (n1-1).
-B3 = [n1 0    0   
-       0  n1  0
-       0  0  n3];
+B3 = [eta1 0    0   
+       0  eta1  0
+       0  0  eta3];
 martensite.U = B3;
 
 display('Volume change in percent is:');
@@ -81,19 +81,19 @@ theta_p_sols = Solution_array( Slip_solution(), all_sols, cpps_gamma, theta_p_ma
 
 % reduce soltuions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
-%g_min = 10.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
-%g_min_sols = Solution_array( Slip_solution(), theta_p_sols, 'g', g_min, 'min'); 
+% g_min = 10.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
+% g_min_sols = Solution_array( Slip_solution(), theta_p_sols, 'g', g_min, 'min'); 
 
 % reduce soltuions to ones with eps < ???. 
 % eps_max = 20.;
-% % Construct reduced array 
+% Construct reduced array 
 % eps_max_solutions = Solution_array( Slip_solution(), all_sols, 'eps', eps_max, 'max' ); 
 
 
 theta_n_max = 10.; % maximum misorientation angle of habit-plane to {111}_gamma
 % specify family near to which habit plane solutions should be searched
 % calculation of theta_n - deviation of solution from {111}
-cpp_deviation_sols = Solution_array( Slip_solution(), theta_p_sols, cpps_gamma, theta_n_max, 'theta_n', 'closest_to_n', 'n'); 
+cpp_deviation_sols = Solution_array( Slip_solution(), theta_p_sols, cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h'); 
 % cpp_deviation_sols = Solution_array( Slip_solution(), all_sols, cpps_gamma, theta_n_max, 'theta_a', 'closest_to_a', 'a'); 
 % alternatively {557}_gamma could be used here see Iwashita 2011
 

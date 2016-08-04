@@ -112,14 +112,17 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
             if is_possible_solution
                 %% calculate solution
                 % calculate invariant plane vector n_i etc.
-                [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one(F, I );
+                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I );
+                %[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one_kachaturyan2(F)
+                %h1
+                %h2
                 % Note habit plane solutions come in pairs!
                 
                 isol = isol + 2; % increase counter for number of solutions found
                 
-                % Create Slip_solution objects and append them to object array
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, n1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, n2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
+                % Create Slip_solution objects and append them to object array 
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
                 
 %                 if isol == 12
 %                     break

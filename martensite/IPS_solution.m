@@ -6,7 +6,7 @@ classdef IPS_solution < dynamicprops
         G = zeros(3); % this should be the reference deformation, e.g. Identiy for austenite, or fixed U_i for twins
         id = 0;
         eps = 0.; % strain: lambda_3 - lambda_1 or sqrt respectively depending on convention
-        n = [0. 0. 0.]'; % normal vector to habit plane (unit vector)
+        h = [0. 0. 0.]'; % normal vector to habit plane (unit vector)
         a = [0. 0. 0.]'; % shear direction of transformation (unit vector)
         Q = zeros(3); % rotation matrix (for invariant planar match between domains of homogeneous deformation F and G
         LT = zeros(3); % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
@@ -19,7 +19,7 @@ classdef IPS_solution < dynamicprops
     
     methods
         % constructor: The constructor can return only a single argument.
-        function obj = IPS_solution( varargin ) % F, G, id, eps, a, n, Q, LT)
+        function obj = IPS_solution( varargin ) % F, G, id, eps, a, h, Q, LT)
             if isempty(varargin)
                 return; % no argument constructor
             end
@@ -29,8 +29,8 @@ classdef IPS_solution < dynamicprops
                 obj.G  = varargin{2};
                 obj.id = varargin{3};
                 obj.eps= varargin{4};
-                obj.n  = varargin{5};
-                obj.a  = varargin{6};
+                obj.a  = varargin{5};
+                obj.h  = varargin{6};
                 obj.Q  = varargin{7};
                 obj.LT = varargin{8}; % the lattice transformation = Q*Bain is given here directly so that the class does not need the Bain strain as property (only needed for this)
             end

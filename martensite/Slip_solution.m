@@ -14,7 +14,7 @@ classdef Slip_solution < IPS_solution
     
     methods
         % constructor
-        function obj = Slip_solution( varargin ) % F, G, id, eps_0, a, n, Q, LT, g, d1, n1, d2, n2 )
+        function obj = Slip_solution( varargin ) % F, G, id, eps_0, a, h, Q, LT, g, d1, n1, d2, n2 )
             %
             if nargin == 0 % =  if isempty(varargin), return;end
                 % no argument constructor
