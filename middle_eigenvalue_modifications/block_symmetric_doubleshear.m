@@ -6,7 +6,7 @@ function [solutions] = block_symmetric_doubleshear(B, cp, ms, ns, ds )
 
 %% initalize some other vars
 solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-epsilon = 1.e-9; % accuracy for middle valued eigenvalue
+epsilon = 1.e-12; % accuracy for middle valued eigenvalue
 g_min = 4.;
 g_initial = 100.0; 
 delta_g_initial = 5.; % must be set reasonably so that a solution is found i.e. g_min not to high, delta_g not to high either
@@ -111,11 +111,41 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
             
             if is_possible_solution
                 %% calculate solution
+%                 det_F = det(F)
+%                 det_R = det(R)
+%                 det_S = det(S)
+%                 det_S_mirror = det(S_mirror)
                 % calculate invariant plane vector n_i etc.
-                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I );
-                %[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one_kachaturyan2(F)
-                %h1
-                %h2
+%                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I ) % here the determinant of F changes for the second solution... the first is the second of Khachaturyan...
+%                 Q1
+%                 a1
+%                 h1
+%                 Q2
+%                 a2
+%                 h2
+%                 det_ST1 = det( Q1*F)
+%                 det_ST2 = det( Q2*F)
+                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one_kachaturyan2(F);
+%                 Q1
+%                 a1
+%                 h1
+%                 Q2
+%                 a2
+%                 h2
+                
+%                 det_LT1 = det( Q1*B)
+%                 det_LT2 = det( Q2*B)
+%                 det_ST1 = det( Q1*F)
+%                 det_ST2 = det( Q2*F)
+%                 a1
+%                 a22
+%                 a2
+%                 a11
+%                 h1
+%                 h22
+%                 h2
+%                 h11
+
                 % Note habit plane solutions come in pairs!
                 
                 isol = isol + 2; % increase counter for number of solutions found
@@ -124,7 +154,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
                 solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
                 
-%                 if isol == 12
+%                 if isol == 6
 %                     break
 %                 end
                 
@@ -139,11 +169,11 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
             end
             
         end % end of loop for second slip system
-%         if isol == 12
+%         if isol == 6
 %             break
 %        end
     end % end of loop for first slip system
-%     if isol == 12
+%     if isol == 6
 %         break
 %    end
     

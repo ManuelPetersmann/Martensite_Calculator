@@ -74,16 +74,21 @@ classdef Martensite < Base
 %             self.calcvariants()
 %         return self.__Ulist[n - 1]        
         %-------------------------------------------------------------------   
-        function vars = symmetry_variants(obj, variant)
+        function vars = symmetry_related(obj, variant)
             % calculate all symmetry related variants of the transformation
             % from one initial "variant"
             % store the matrices associated to variant_i
             % and the indices of elements in the Laue group R_i that maps
             % the initially given U1 to them. Also store Rotations that
             % collapse to the same variant (if any)
-
-            for i=1:size(obj.Point_group.matrices,3)
-                vars(:,:,i) = obj.Point_group.matrices(:,:,i) * variant * a.matrices(:,:,i)';
+            if sum(size( variant )) == 4
+                for i=1:size(obj.Point_group.matrices,3)
+                    vars(:,i) = obj.Point_group.matrices(:,:,i) * variant; % active rotation
+                end
+            else
+                for i=1:size(obj.Point_group.matrices,3)
+                    vars(:,:,i) = obj.Point_group.matrices(:,:,i) * variant * obj.Point_group.matrices(:,:,i)';
+                end
             end
         end
         %-------------------------------------------------------------------   

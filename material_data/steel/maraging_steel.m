@@ -26,7 +26,7 @@ C_am = [0.5,  -0.5,  0.;
 
 % define Bain-strain
 eta1 = (a_mart/a_aust)*sqrt(2);
-eta3 = a_mart / a_aust; % this is one form of three possible for the bain strain
+eta3 = a_mart / a_aust; % this is one form of three pcossible for the bain strain
 
 % Der mittlere Eigenwert ist hier also n1. Dieser soll auf 1.0 getuned
 % werden. Die differenz ist also (n1-1).
@@ -36,7 +36,7 @@ B3 = [eta1 0    0
 martensite.U = B3;
 
 display('Volume change in percent is:');
-(det(B3)- 1)*100
+detB3 = det(B3)
 
 %vars = martensite.variants()
 
@@ -81,19 +81,19 @@ theta_p_sols = Solution_array( Slip_solution(), all_sols, cpps_gamma, theta_p_ma
 
 % reduce soltuions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
-% g_min = 10.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
-% g_min_sols = Solution_array( Slip_solution(), theta_p_sols, 'g', g_min, 'min'); 
+g_min = 13.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
+g_min_sols = Solution_array( Slip_solution(), theta_p_sols, 'g', g_min, 'min'); 
 
 % reduce soltuions to ones with eps < ???. 
-% eps_max = 20.;
+eps_max = 0.4;
 % Construct reduced array 
-% eps_max_solutions = Solution_array( Slip_solution(), all_sols, 'eps', eps_max, 'max' ); 
+eps_max_solutions = Solution_array( Slip_solution(), g_min_sols, 'eps', eps_max, 'max' ); 
 
 
-theta_n_max = 10.; % maximum misorientation angle of habit-plane to {111}_gamma
+theta_n_max = 2.; % maximum misorientation angle of habit-plane to {111}_gamma
 % specify family near to which habit plane solutions should be searched
 % calculation of theta_n - deviation of solution from {111}
-cpp_deviation_sols = Solution_array( Slip_solution(), theta_p_sols, cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h'); 
+cpp_deviation_sols = Solution_array( Slip_solution(), eps_max_solutions, cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h'); 
 % cpp_deviation_sols = Solution_array( Slip_solution(), all_sols, cpps_gamma, theta_n_max, 'theta_a', 'closest_to_a', 'a'); 
 % alternatively {557}_gamma could be used here see Iwashita 2011
 
@@ -113,11 +113,44 @@ NW = all_from_family_perms( [1 2 1], false );
 theta_NW_sols = Solution_array( Slip_solution(), theta_KS_sols, NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
 
 % to sort fully reduced solution for most important criterion 
-theta_NW_sols.sort( 'theta_p' ); % sort in ascending order for specific property
+theta_NW_sols.sort( 'theta_p' ) % sort in ascending order for specific property
+
+% Best solution - determine Habit planes for all symmetry related variants
+% for interactions.
+hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
+
+%% Averaged shape deformation of all "good" solutions (if they are quite similar, which is the case here)
+
+% ST_ave = zeros(3);
+% for i = 1: size( Ni9_theta_NW_sols.array, 2 )
+%     ST_ave = ST_ave + abs( Ni9_theta_NW_sols.array(i).ST );
+% end
+% ST_ave = ST_ave / size( Ni9_theta_NW_sols.array, 2 );
+
+% Round ST_ave and modify the diagonal values of ST_ave such that det(ST)
+% is right which yields approximately
 
 
+% ST_ave = [ 1.0785    0.0784    0.0782
+%            0.0911    1.0914    0.0912
+%            0.1469    0.1470    0.8534 ]
+      
+ST_mine = [ 1.0700    0.0710   -0.0710
+            0.0710    1.0725   -0.0710
+            0.1250    0.1250    0.8800 ]
+        
+delta_detB3_detST_mine = det( ST_mine ) - det(B3)
 
-%% printing of solutions with specified constraints
+ST_s = martensite.symmetry_related( ST_mine );
+
+%write_strain_from_ST( filename, ST_s, 1 ) % write strains in largestrain
+
+%for i = 1:size(ST_s,3)
+%    strains(:,:,i) = 0.5*(ST_s(:,:,i)' * ST_s(:,:,i) - eye(3) );
+%end
+%strains
+
+
   
 
 

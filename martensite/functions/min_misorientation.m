@@ -7,6 +7,7 @@ function [ theta, closest_from_vecs] = min_misorientation( vecs, comp, plane )
 % specifying wheter the mapping is applied to planes (true) or directions (false). 
 
 theta = 999.9; % init. angle for comparison of angles between different cpp
+closest_from_vecs = zeros(1,3);
 
 for j = 1 : size(vecs,1)
     vec1 = vecs(j,:);
@@ -26,6 +27,9 @@ for j = 1 : size(vecs,1)
         closest_from_vecs = vec1;
     end
 end
+
+if closest_from_vecs == zeros(1,3)
+    error('No solution with specified Orientation relation tolerance')
 
 end
 

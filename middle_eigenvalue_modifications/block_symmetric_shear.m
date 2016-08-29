@@ -6,7 +6,7 @@ function [solutions] = block_symmetric_shear(B, cp, ms, ns, ds )
 
 %% initalize some other vars
 solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-epsilon = 1.e-9; % accuracy for middle valued eigenvalue
+epsilon = 1.e-12; % accuracy for middle valued eigenvalue
 g_min = 5.;
 g_initial = 150.0;
 I = eye(3);
@@ -111,8 +111,8 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
             if is_possible_solution
                 %% calculate solution
                 % calculate invariant plane vector n_i etc.
-                [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one(F, I );
-                %[eps_01, a11, a21, n11, n21, Q11, Q21] = rank_one_kachaturyan( F )
+                %[eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one(F, I );
+                [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan2( F );
 
                 % Note habit plane solutions come in pairs!
                 
