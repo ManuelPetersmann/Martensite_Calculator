@@ -23,5 +23,5 @@ Rz_2strich = [ cos(phi1)  sin(phi1)  0;
 %
 rot_mat = Rz * Rx_strich * Rz_2strich;
 %
-rot_mat = rot(input, rot_mat);
+%rot_mat = rot(input, rot_mat);
 end

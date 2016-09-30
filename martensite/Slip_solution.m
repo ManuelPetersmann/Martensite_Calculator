@@ -9,7 +9,8 @@ classdef Slip_solution < IPS_solution
         d1 = [0. 0. 0.];
         d2 = [0. 0. 0.];
         n1 = [0. 0. 0.];
-        n2 = [0. 0. 0.];        
+        n2 = [0. 0. 0.];     
+        m  = [0. 0. 0.]; % mirror plane of block solution
     end % end of properties
     
     methods
@@ -35,6 +36,10 @@ classdef Slip_solution < IPS_solution
             if nargin > 11
                 obj.d2 = varargin{1,12};
                 obj.n2 = varargin{1,13};
+            end
+            %
+            if nargin > 13
+                obj.m = varargin{1,14};
             end
         end
         

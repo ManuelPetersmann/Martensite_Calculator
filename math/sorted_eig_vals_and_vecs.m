@@ -2,7 +2,6 @@ function [ y1, y2, y3, e1, e2, e3] = sorted_eig_vals_and_vecs( Ct )
 % This function takes a matrix and returns its eigenvalues in ascending 
 % order as well as the corresponding (normalized!) eigenvectors 
 
-
 [V,D] = eig( Ct );
 % D... Diagonal matrix of eigenvalues
 % V... colum vectors are correspondig right eigenvectors i.e. A*V = V*D

@@ -25,7 +25,7 @@ for j = 1:size(array, dim)
             bool = true;
             break
         end
-    elseif abs(subarray - entry ) < 1.e-4
+    elseif abs(subarray - entry ) < 1.e-2
         bool = true;
         break
     end

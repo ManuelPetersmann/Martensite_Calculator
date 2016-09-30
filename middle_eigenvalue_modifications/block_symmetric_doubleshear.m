@@ -6,7 +6,7 @@ function [solutions] = block_symmetric_doubleshear(B, cp, ms, ns, ds )
 
 %% initalize some other vars
 solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-epsilon = 1.e-12; % accuracy for middle valued eigenvalue
+epsilon = 1.e-11; % accuracy for middle valued eigenvalue
 g_min = 4.;
 g_initial = 100.0; 
 delta_g_initial = 5.; % must be set reasonably so that a solution is found i.e. g_min not to high, delta_g not to high either
@@ -14,10 +14,16 @@ delta_g_initial = 5.; % must be set reasonably so that a solution is found i.e. 
 I = eye(3);
 isol = 0; % counter for number of solutions
 
+%k = 0.5 % stepwidth scaling factor
+
+
+
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
 [ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
 [~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, epsilon);
+
+lambda2_old = lambda_2;
 
 %% loop over mirror planes and slip systems
 for im = 1:size(ms,1) % number of considered mirror planes in martensite
@@ -60,7 +66,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
             % g = g_initial / 1./(norm(d11)*norm(n11));
             is_possible_solution = false;
             lambda2_smaller1 = lambda2_smaller1_initial;
-            while ( ~is_possible_solution && (g > g_min) )  % if the solution for g is very high or low respectively, do not consider it
+            while ( ~ is_possible_solution && (g > g_min) )  % if the solution for g is very high or low respectively, do not consider it
                 
                 if g > g_initial
                     error('this should not happen - fix code...')
@@ -84,19 +90,35 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 % Construct the net deformation gradient from the two
                 % sheared sides
                 F = 0.5*( R*S + inverse(R)*S_mirror ) * B; % composite block deformations, matrix multiplication is distributive
+                
                 % get new results
                 [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
                 
                 %% check if solution has been found or how it changed if its not sufficient
                 [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
                 
+                if(abs(lambda2_old - lambda_2) < 1.e-15)
+                    break
+                end
+                
                 % change the search direction and reduce step intervall if lambda2
                 % passes one but is not in the required precision range.
                 if lambda2_smaller1 ~= lambda2_smaller1_new
-                    delta_g = (-1./2.) * delta_g;
+                    delta_g = - 0.5 * delta_g;              % Einbau intelligenter Schrittweitensteuerung wenn kein Fortschritt - haben es versucht, sind gescheitert... added break
                     %error('passed 1...')
                 end
+                
+                
+%                 if abs( g - 17.253552526231005 ) < 1.e-15
+%                     is_possible_solution;
+%                     lambda2_smaller1;
+%                     lambda2_smaller1_new
+%                     x = 1;
+%                 end
+                
                 lambda2_smaller1 = lambda2_smaller1_new;
+                
+                lambda2_old = lambda_2;
                 
                 % change g value.
                 g = g - delta_g;
@@ -151,21 +173,10 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 isol = isol + 2; % increase counter for number of solutions found
                 
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:) );
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:), m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), ds(is2,:), ns(is2,:), m_aust' );
                 
-%                 if isol == 6
-%                     break
-%                 end
-                
-                % calculate additional information, especially for the  block structure
-                % Lattice transformations of the two variants
-                %                     AL1 = Q(:,:,sol) * R  * B;         % first variant
-                %                     AL2 = Q(:,:,sol) * inverse(R) * B; % second variant
-                %
-                %                     % Shape transformations of the two variants
-                %                     F1 = Q(:,:,sol) * R          * S * B;         % first variant
-                %                     F2 = Q(:,:,sol) * inverse(R) * S * B; % second variant
+
             end
             
         end % end of loop for second slip system

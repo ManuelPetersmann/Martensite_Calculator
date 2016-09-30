@@ -6,20 +6,21 @@ function R = max_shear_rotation( m, S )
 ms = inverse(S)' * m;
 
 phi = abs( acos( dot(m,ms) / (norm(m)*norm(ms)) ) );
-%rad2deg(phi)
+% rad2deg(phi)
 
 if rad2deg(phi) > 90 % cos(phi) < 0
     error('A simple shear cannot produce an angle >90, error! check code!')
 end
 
-if phi < 1.e-9
+if phi < 1.e-8
     R = eye(3);
 else
     m_u = m / norm(m);
     ms_u = ms / norm(ms);
     u = ( 1./sin(phi) ) * cross( ms_u , m_u ); % sense of rotation is from ms to m
     % Rechtssystem via cross product ensured
-    R = rot_originaxis_angle( rad2deg(phi), u );
+    u(4) = phi;
+    R =  vrrotvec2mat( u ); %rot_originaxis_angle( rad2deg(phi), u );
 end
 
 

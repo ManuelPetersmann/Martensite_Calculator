@@ -1,4 +1,4 @@
-function [] = write_strain_from_ST( filename, mat_array, large )
+function [strain] = write_strain_from_ST( filename, mat_array, large )
 % call: write_strain_from_ST( file_name, mat_array, large )
 
 if nargin < 3

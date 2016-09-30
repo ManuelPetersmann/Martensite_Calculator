@@ -6,7 +6,7 @@ function [ isSolution, lambda2_smaller1] = check_IPS_solution( lambda_1, lambda_
 % can be specified. The default is 1.e-9 
 
 if nargin < 4
-    epsilon = 1.e-9;
+    epsilon = 1.e-12;
 end
 
 isSolution = false;

@@ -73,24 +73,25 @@ all_sols = block_symmetric_doubleshear( B3, cp, ms, ns, ds);
 %    theta_KS and theta_NW
 % -) shape strain - eps_0 - must be small
 
+
 cpps_gamma = all_from_family_perms( [1 1 1] );
 % 'misorientation of c.p.p martensite to austenite';
-theta_p_max = 2.; % maximum misorientation angle of cpps gamma & alpha - due to Qi,Khachaturyan 2013
+theta_p_max = 90.; %3.; % maximum misorientation angle of cpps gamma & alpha - due to Qi,Khachaturyan 2013
 % misorientation-angle theta_p between the closed-packed planes (cpp) of alpha {110} and gamma {111} lattice
 theta_p_sols = Solution_array( Slip_solution(), all_sols, cpps_gamma, theta_p_max, 'theta_p', 'closest_to_cpp', 'cpps_gamma', true);
 
 % reduce soltuions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
-g_min = 13.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
+g_min = 5.; %13.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
 g_min_sols = Solution_array( Slip_solution(), theta_p_sols, 'g', g_min, 'min'); 
 
 % reduce soltuions to ones with eps < ???. 
-eps_max = 0.4;
+eps_max = 100.; % 0.4;
 % Construct reduced array 
 eps_max_solutions = Solution_array( Slip_solution(), g_min_sols, 'eps', eps_max, 'max' ); 
 
 
-theta_n_max = 2.; % maximum misorientation angle of habit-plane to {111}_gamma
+theta_n_max = 90.; %2.; % maximum misorientation angle of habit-plane to {111}_gamma
 % specify family near to which habit plane solutions should be searched
 % calculation of theta_n - deviation of solution from {111}
 cpp_deviation_sols = Solution_array( Slip_solution(), eps_max_solutions, cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h'); 
@@ -114,6 +115,7 @@ theta_NW_sols = Solution_array( Slip_solution(), theta_KS_sols, NW, theta_NW_max
 
 % to sort fully reduced solution for most important criterion 
 theta_NW_sols.sort( 'theta_p' ) % sort in ascending order for specific property
+theta_NW_sols.array(1) % print out best solution
 
 % Best solution - determine Habit planes for all symmetry related variants
 % for interactions.
