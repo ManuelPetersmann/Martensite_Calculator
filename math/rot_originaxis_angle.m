@@ -2,7 +2,7 @@ function Rot = rot_originaxis_angle( alpha, n )
 % call: rot_originaxis_angle( alpha, n )
 % rotation through origin axis, alternative to eulerangle rotation
 % alpha is in degree!!! 
-% this is the same function as matlabs build in vrrotvec2mat( [1. 1. 1. deg2rad(-45.) ])
+% this is the same function as matlabs build in vrrotvec2mat
 
 
 n = n / norm(n);

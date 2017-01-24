@@ -1,6 +1,11 @@
-function [ W_int ] = interaction_energy( epsilon1, epsilon2, n, E, nu )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+function [ W_int ] = interaction_energy_interface_operator( epsilon1, epsilon2, n, E, nu )
+% call: interaction_energy( psilon1, epsilon2, n, E, nu )
+% epsilons: strains on either side of the flat interface
+% n - interface normal, E...Youngs modulus, nu...Poissons ratio
+% Interaction energy between Variants due to Siredey and Patoor 1999 IJSS Part-I,
+% also see % Walpole 1969 JMPS (...Composite...) and
+% Hill 1983 JMPS (Interfacial operators...)
+% using interface operators (extension to anisotropic elasticity possible...)
 
 lam = nu*E / ((1+nu)*(1-2*nu));
 mu = E / (2*(1+nu));
