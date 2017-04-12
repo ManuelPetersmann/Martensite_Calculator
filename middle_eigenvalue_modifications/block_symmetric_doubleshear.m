@@ -137,7 +137,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %                 det_R = det(R)
 %                 det_S = det(S)
 %                 det_S_mirror = det(S_mirror)
-                % calculate invariant plane vector n_i etc.
+%                 calculate invariant plane vector n_i etc.
 %                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I ) % here the determinant of F changes for the second solution... the first is the second of Khachaturyan...
 %                 Q1
 %                 a1

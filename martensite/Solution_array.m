@@ -15,8 +15,9 @@ classdef Solution_array < dynamicprops % subclass of handle class
             end
             %
             if nargin == 5 % to construct subarrays with minimal/maximal g and eps values
+                % as well as ones with specified maximum change of determinant
                 % varargin = {1-Type of array entry object, 2
-                % -Solution_array object, 3- object property, 4-maximal
+                % -Solution_array object, 3- object property, 4-extremum
                 % value for reduction of solutions, 5- string specifying
                 % if value from 4 is the allowed maximum 'max or minimum 'min'
                 obj.array = varargin{1};
@@ -29,6 +30,13 @@ classdef Solution_array < dynamicprops % subclass of handle class
                     end
                     if strcmp( varargin{5}, 'min')
                         if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal toleratred value
+                            foundnr = foundnr + 1;
+                            obj.array(foundnr) = varargin{2}.array(i);
+                        end
+                    end
+                    if strcmp( varargin{3}, 'det')
+                        % determiannt should not change more than some value in varargin{4}
+                        if ( det(varargin{2}.array(i).F) - varargin{5}) <  varargin{4}
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end

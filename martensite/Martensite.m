@@ -81,10 +81,12 @@ classdef Martensite < Base
             % and the indices of elements in the Laue group R_i that maps
             % the initially given U1 to them. Also store Rotations that
             % collapse to the same variant (if any)
-            if sum(size( variant )) == 4
+            if sum(size( variant )) == 4 % size(variant) = [1,3]
                 for i=1:size(obj.Point_group.matrices,3)
                     vars(:,i) = obj.Point_group.matrices(:,:,i) * variant; % active rotation
                 end
+            elseif sum(size( variant )) == 12; %[3,3,3,3] % For 4th order tensor
+                rotateTensor4(obj.Point_group.matrices(:,:,i), variant)
             else
                 for i=1:size(obj.Point_group.matrices,3)
                     vars(:,:,i) = obj.Point_group.matrices(:,:,i) * variant * obj.Point_group.matrices(:,:,i)';

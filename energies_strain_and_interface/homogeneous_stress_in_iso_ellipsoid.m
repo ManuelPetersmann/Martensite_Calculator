@@ -8,6 +8,7 @@ G = E / 2*(1. + nu);
 dev_ec = deviator( epsilon_c );
 dev_et = deviator( epsilon_t );
 
+% Equation 2.7 Eshelby 1957
 sigma_i = lame1*(trace(epsilon_c) - trace(epsilon_t))*eye(3) + 2*G*(dev_ec - dev_et);
 
 end

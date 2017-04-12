@@ -1,16 +1,16 @@
 function S = eshelby_tensor_ellipsoid( nu, a,b,c )
 % call: eshelby_tensor_ellipsoid(G,nu,a,b,c)
 % This function takes the Poissons ratio....nu and the half axis lengths
-% of an ellipsoid: a < b < c and calculates the Eshelby tensor
+% of an ellipsoid: a > b > c and calculates the Eshelby tensor
 
-a2 = a.^2;
-b2 = b.^2;
-c2 = c.^2;
+a2 = a^2;
+b2 = b^2;
+c2 = c^2;
 l2 = [a2,b2,c2];
 
 theta = 1./sin( sqrt(1.- c2/a2) );
 
-k = sqrt(a2 + b2) / sqrt(a2 - c2);
+k = sqrt(a2 - b2) / sqrt(a2 - c2);
 
 % solve incomplete elliptic integral of the second kind E(theta,k) 
 % https://de.mathworks.com/help/symbolic/mupad_ref/elliptice.html
@@ -69,7 +69,10 @@ S(2,2,3,3) = Q* c2* I_ij(4) - R*Ib;
 S(3,3,1,1) = Q* a2* I_ij(5) - R*Ic;
 S(3,3,2,2) = Q* b2* I_ij(6) - R*Ic;
 %
-% S_ijkl = S_jikl   but    S_ijkl not S_klij - see Bower solidmechanics
+% The Eshelby tensor satisfies minor symmetries
+% S_ijkl = S_jikl = S_ijlk   
+% but in general no major symmetries
+% S_ijkl not S_klij - see e.g. Bower solidmechanics
 %
 [ S(1,2,1,2) , S(2,1,1,2) ] = deal( 0.5*Q*(a2+b2)*I_ij(1) + 0.5*R*(Ia + Ib) );
 % S(1,2,2,1), S(2,1,2,1) - would have major symmetry  
