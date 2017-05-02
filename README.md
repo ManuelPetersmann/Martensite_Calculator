@@ -8,10 +8,12 @@ The code is written in an OOP Framework in Matlab R2013 to facilitate the select
 
 * [**Manuel Petersmann**](https://github.com/ManuelPetersmann)
 * [**Ulrich Ehlenbröker**](https://github.com/UlrichEhlenbroeker)
+* [**Alexander Sannikov**](https://github.com/AlexanderSannikov)
 
 <!--
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 --!>
+
 ## Getting Started
 
 Download or clone the repository. Navigate to the directory using the Matlab GUI or the `cd` command.
