@@ -14,7 +14,7 @@ The code is written in an OOP Framework in Matlab R2013 to facilitate the select
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 --!>
 
-## Getting Started
+##  Getting Started
 
 Download or clone the repository. Navigate to the directory using the Matlab GUI or the `cd` command.
 Right-click the folder in the current folder sidebar on the right side of the GUI and 
@@ -56,7 +56,7 @@ Zebodo DOI
 
 ## License
 
-This project is licensed under the - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under GPL v3 - see the [LICENSE.md](LICENSE.md) file for details
 
 Created by Manuel Petersmann 2017
 
