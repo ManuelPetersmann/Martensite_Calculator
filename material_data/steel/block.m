@@ -7,12 +7,8 @@ maraging_steel;
 % eigenvectors are saved now (to ev_1 ev_2, ev_3)
 [ lambda_1, lambda_2, lambda_3, e1, e2, e3] = sorted_eig_vals_and_vecs( B3 );
 
-<<<<<<< HEAD
-epsilon = 1.e-13;
-=======
 isol = 0; % counter for number of solutions
 epsilon = 1.e-9;
->>>>>>> origin/Ulrich
 g_min = 9.5; % minimum number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 g_initial = 300.0;
 I = eye(3);
@@ -69,17 +65,11 @@ for im = 1:size(m,1) % number of considered mirror planes in martensite
                 end
                 
                 % calculate first double shear matrix
-<<<<<<< HEAD
-                S = eye(3) + (1./g)*(S1 + S11); 
-                % calculate the sheared mirrorplane
-                m_aust_sheared = inverse( S )* m_mart'; % should this even use the whole matrix #####
-=======
                 % Ehl: renamed in order to distinguish from S1 and S2
                 S_one = I + (1./g)*(S1 + S11);
                 S_two = I + (1./g)*(S2 + S22);
                 % calculate the sheared mirrorplane
                 m_aust_sheared = inverse( S_one )* m_mart';
->>>>>>> origin/Ulrich
                 
                 % calculate the rotation of the mirror plane vector due
                 % to the shear
@@ -88,20 +78,9 @@ for im = 1:size(m,1) % number of considered mirror planes in martensite
                 % sheared sides
                 F = 0.5*( inverse(R)*S_one + R*S_two ) * B3; % composite block deformations
                 
-<<<<<<< HEAD
                 % get new results
                 [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
-=======
-                % cf = sym( det( F - I ) ) == 0;
-                % solutions = double( solve( cf, g) );   %, 'Real', true);
-                
-                % get new results
-                % Ehl: in rank_one_kachaturyan wird F2 = F'*F verwendet ... so auch in der Veroeff.
-                % rank_one_kachaturyan liefert dann andere Eigenwerte und läuft auf einen Fehler, weil der mittlere Eigenwert nicht nahe genug bei 1.0
-                % deswegen hier F2 = F'*F ?
-                F2 = (F'*F);
-                [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F2 );
->>>>>>> origin/Ulrich
+
                 
                 %% check if solution has been found or how it changed if its not sufficient
                 [ isSolution , lambda2_smaller1_new] = check_solution(lambda_1, lambda_2, lambda_3, epsilon);
@@ -124,21 +103,10 @@ for im = 1:size(m,1) % number of considered mirror planes in martensite
             end % end while
             
             if isSolution
-<<<<<<< HEAD
-                display('Khachaturyan');
-                [e0, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan( F )
-                display('Ball');
-                [a1, a2, n1, n2, Q1, Q2] = rank_one(F, eye(3) )
-=======
-                isol = isol + 1; % increase counter for number of solutions found
-                %[ y1 ] = sorted_eig_vals_and_vecs( F ) % , y2, y3, e1, e2, e3]
-                isSolution = false;
-                % Ehl: in order to distinguish between the upper epsilon as criterion for the search-algorithm
-                % and epsilon_0 as the magnitude of the shear (see paper Kachaturyan)
-                % --> change of the return value 
-                [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan( F );
-%                 [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one(F, I )
 
+                isol = isol + 1; % increase counter for number of solutions found
+                [eps_0, a1, a2, n1, n2, Q1, Q2] = rank_one_kachaturyan( F );
+                [epsilon, a1, a2, n1, n2, Q1, Q2] = rank_one(F, I )
                 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % further checks if solution is appropriate
@@ -187,7 +155,6 @@ for im = 1:size(m,1) % number of considered mirror planes in martensite
                 % formatted output of the results
 %                 fprintf('solution %i :\n', isol)
 %                 sol_output(sol(isol));                
->>>>>>> origin/Ulrich
             end
             
 
