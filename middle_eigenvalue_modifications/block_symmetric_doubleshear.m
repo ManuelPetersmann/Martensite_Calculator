@@ -147,7 +147,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %                 h2
 %                 det_ST1 = det( Q1*F)
 %                 det_ST2 = det( Q2*F)
-                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one_kachaturyan2(F);
+                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I);
 %                 Q1
 %                 a1
 %                 h1

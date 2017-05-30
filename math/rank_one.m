@@ -34,8 +34,10 @@ hh1 =  sqrt( (1-y1) / (y3-y1) ) * G' *e1;
 hh3 =  sqrt( (y3-1) / (y3-y1) ) * G' *e3;
 %
 % there are two solutions (different sign!)
-h1 = (-1)*hh1 + hh3;
-h2 = (-1)*hh1 - hh3;
+h1 = hh3 + hh1;
+h2 = hh3 - hh1;
+%h1 = (-1)*hh1 + hh3;
+%h2 = (-1)*hh1 - hh3;
 if (abs(norm(h1) -1.) > 1.e-4 ) || (abs(norm(h2) -1.) > 1.e-4 )
     error('h vector not unit vector')
 end
@@ -47,8 +49,10 @@ end
 %h1 = hh1/roh1;
 %h2 = hh3/roh2;
 %
-a1 = (ah1 + ah3); %* roh1; 
-a2 = (ah1 - ah3); %* roh2; 
+a1 = ah3 - ah1;
+a2 = ah3 + ah1;
+% a1 = (ah1 + ah3); %* roh1; 
+% a2 = (ah1 - ah3); %* roh2; 
 %
 % Rotations relating the deformations on either side
 % If G = Identity then determines how a thin plate of the crystal created
