@@ -1,7 +1,6 @@
 function [ y1, y2, y3, e1, e2, e3] = sorted_eig_vals_and_vecs( Ct )
 % This function takes a matrix and returns its eigenvalues in ascending 
-% order and the corresponding eigenvectors 
-
+% order as well as the corresponding (normalized!) eigenvectors 
 
 [V,D] = eig( Ct );
 % D... Diagonal matrix of eigenvalues
@@ -15,6 +14,9 @@ y3 = eigs_sort(3);
 e1 = V(:,old_idx(1));
 e2 = V(:,old_idx(2));
 e3 = V(:,old_idx(3));
+e1 = e1 / norm(e1);
+e2 = e2 / norm(e2);
+e3 = e3 / norm(e3);
 
 end
 

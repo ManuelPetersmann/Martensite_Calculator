@@ -1,11 +1,17 @@
 function Rot = rot_originaxis_angle( alpha, n )
-% rotation through origin axis
-% alternative to eulerangle rotation
-alpha = alpha*(pi/180); %umrechnen von Grad aus Argument auf Radianten für cos und sin      
+% call: rot_originaxis_angle( alpha, n )
+% rotation through origin axis, alternative to eulerangle rotation
+% alpha is in degree!!! 
+% this is the same function as matlabs build in vrrotvec2mat
+
+
+n = n / norm(n);
+
+alpha = alpha*(pi/180); % grad to radians      
 n1=n(1);
 n2=n(2);
 n3=n(3);
-         
+       
 Rot = [(n1^2)*(1-cos(alpha))+cos(alpha)      n1*n2*(1-cos(alpha))-n3*sin(alpha)      n1*n3*(1-cos(alpha))+n2*sin(alpha)
         n2*n1*(1-cos(alpha))+n3*sin(alpha)   (n2^2)*(1-cos(alpha))+cos(alpha)         n2*n3*(1-cos(alpha))-n1*sin(alpha)
         n3*n1*(1-cos(alpha))-n2*sin(alpha)   n3*n2*(1-cos(alpha))+n1*sin(alpha)       (n3^2)*(1-cos(alpha))+cos(alpha)];

@@ -1,12 +1,11 @@
 classdef Martensite < Base 
     
-    properties
-        R % rotational part of the deformation 
-        B % Bain strain 
-        F = eye(3); % Deformation_gradient of transformation
-        IPS % shape deformation matrix, habit-plane normal vector and 
-        %CM % lattice correspondance matrix 
-        % displacement vector d stored in a 3x5 matrix. [3x3,3x1,3x1]
+    properties(Access = public)
+        %R % rotational part of the 
+        U % = B - Bain strain /  Transformation stretch tensor - hermitian part of the deformation gradient
+        F = eye(3); % Deformation_gradient of transformation - To determine hermitian part via polar decomposition e.g. for NiTi
+        % e_mart = F * e_aust
+        IPS % IPS_solution object containing: shape deformation matrix, habit-plane normal vector a.s.o see in class directly  
     end
     
     methods
@@ -17,73 +16,52 @@ classdef Martensite < Base
         %TODO implement loadobject
         % function obj = joadobj( file )
         %------------------------------------------------------------------
-        function obj = set.B(obj, B_in)
+        function obj = set.U(obj, B_in)
             if abs(B_in - B_in') < 1.e-9
                 if eig( B_in ) > 0
-                    obj.B = B_in;
+                    obj.U = B_in;
                 else
-                    error('Specified Bain strain not positive definit')
+                    error('Specified Bain strain not positive definite')
                 end
             else
                 error('Specified Bain strain not symmetric')
             end
         end
         %-------------------------------------------------------------------
-        function obj = set.R(obj, R_in)
-            %R_in*R_in'
-            %det(R_in)
-            if in_O3(R_in);
-                obj.R = R_in;
+        function obj = set.F(obj, F)
+            % In the case of martensitic transformations, a further condition has to be satisfied;
+            % the lattice transformation strain must also be an invariant line strain if the interface is
+            % to be glissile (see christian, crocker - dislocations and lattice transformations - Dislocations in crystals vol 3).
+            % Also F cannot be uniquely determined because there is an infinite number of
+            % Lattice correspondances ai = F*bi.
+            % Moreover, we limit ourselves to deformations that preserve orientation,
+            % i.e. those with det(F) > 0 (tripe products have the same sign)
+            if det(F_in) < 0.
+                error('det(F) < 0, non-orientation preserving transformation')
             else
-                error('Specified Rotation is not a proper orthogonal Matrix')
+                obj.F = F;
             end
         end
         %-------------------------------------------------------------------
-        function obj = set.F(obj, F_in)
-        % In the case of martensitic transformations, a further condition has to be satisfied;
-        % the lattice transformation strain must also be an invariant�line strain if the interface is
-        % to be glissile (see christian, crocker - dislocations and lattice transformations - Dislocations in crystals vol 3).
-        % Also F cannot be uniquely determined becasause there is an infinite number of
-        % Lattice correspondances ai = F*bi. 
-        % Moreover, we limit ourselves to deformations that preserve orientation,
-        % i.e. those with det(F) > 0 (tripe products have the same sign)
-        if det(F_in) < 0.
-            error('det(F) < 0, non-orientation preserving transformation')
-        else
-            % TODO maybe add condition of invariant line strain for glissile
-            % interface
-            obj.F = F_in;
-            [U, rot] = polardecomposition(F_in);
-            obj.R = rot;
-            obj.B = U;
-        end
+        function Bain = get.U(obj)
+            % if the matrix is symmetric and positive definite
+            % (A matrix is positive definite if all its associated
+            % eigenvalues are positive)
+            if abs(obj.F - obj.F') < 1.e-9  && eig( obj.F ) > 0 % if deformation gradient has been set already
+                Bain = obj.F;
+            else
+                Bain = polardecomposition(obj.F);
+            end
         end
         %-------------------------------------------------------------------
-%         function Bain = get.B(obj)
-%             % if the matrix is symmetric and positive definite
-%             % (A matrix is positive definite if all its associated
-%             % eigenvalues are positive)
-%             if abs(obj.F - obj.F') < 1.e-9  && eig( obj.F ) > 0
-%                 Bain = obj.F;
+%         function def = get.F(obj)
+%             display('testtest')
+%             if abs(obj.F - eye(3)) < 1.e-5
+%                 def = eye(3);
 %             else
-%                 Bain = polardecomposition(obj.F);
+%                 def = obj.B * obj.R;
 %             end
 %         end
-        %------------------------------------------------------------------
-%         function rot = get.R(obj)
-%             if abs(obj.F - obj.F') < 1.e-9  && eig( obj.F ) > 0
-%                 [~, rot] = polardecomposition(obj.F);
-%             end
-%         end
-        %------------------------------------------------------------------
-        function def = get.F(obj)
-            display('testtest')
-            if abs(obj.F - eye(3)) < 1.e-5
-                def = eye(3);
-            else
-                def = obj.B * obj.R;
-            end
-        end
         %------------------------------------------------------------------
         %function def = F_from_atom_postions( lattice1, lattice2, A1, A2 )
         % Programm if needed, maybe not very reasonable...     
@@ -96,15 +74,23 @@ classdef Martensite < Base
 %             self.calcvariants()
 %         return self.__Ulist[n - 1]        
         %-------------------------------------------------------------------   
-        function vars = variants(obj)
-            % calculate all symmetry related variants of the transformation.
-            % store the matrices associated to each variant U_i
+        function vars = symmetry_related(obj, variant)
+            % calculate all symmetry related variants of the transformation
+            % from one initial "variant"
+            % store the matrices associated to variant_i
             % and the indices of elements in the Laue group R_i that maps
             % the initially given U1 to them. Also store Rotations that
             % collapse to the same variant (if any)
-            a = obj.Point_group;
-            for i=1:size(obj.Point_group.matrices,3)
-                vars(:,:,i) = a.matrices(:,:,i) * obj.B * a.matrices(:,:,i)';
+            if sum(size( variant )) == 4 % size(variant) = [1,3]
+                for i=1:size(obj.Point_group.matrices,3)
+                    vars(:,i) = obj.Point_group.matrices(:,:,i) * variant; % active rotation
+                end
+            elseif sum(size( variant )) == 12; %[3,3,3,3] % For 4th order tensor
+                rotateTensor4(obj.Point_group.matrices(:,:,i), variant)
+            else
+                for i=1:size(obj.Point_group.matrices,3)
+                    vars(:,:,i) = obj.Point_group.matrices(:,:,i) * variant * obj.Point_group.matrices(:,:,i)';
+                end
             end
         end
         %-------------------------------------------------------------------   
@@ -134,6 +120,24 @@ classdef Martensite < Base
         end
     end % methods end
 end % class end
+
+%         function obj = set.R(obj, R_in)
+%             %R_in*R_in'
+%             %det(R_in)
+%             if in_O3(R_in);
+%                 obj.R = R_in;
+%             else
+%                 error('Specified Rotation is not a proper orthogonal Matrix')
+%             end
+%         end
+        %------------------------------------------------------------------
+%         function rot = get.R(obj)
+%             if abs(obj.F - obj.F') < 1.e-9  && eig( obj.F ) > 0
+%                 [~, rot] = polardecomposition(obj.F);
+%             end
+%         end
+        %------------------------------------------------------------------
+
    
 % Verify - The following probably only holds if the basis remains the same:
 % function bool = unextended( vec, B )

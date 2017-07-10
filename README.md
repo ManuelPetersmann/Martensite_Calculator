@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Martensite_Calculatur
 
 Matlab Code for the Calculation of invariant plane-strains incorporating Slip and Twinning
@@ -64,3 +65,7 @@ Created by Manuel Petersmann 2017
 * Inspiration
 * etc
 -->
+=======
+# Martensite_Crystallography
+Matlab Code for the Calculation of invariant plane-strains incorporationg Slip and Twinning
+>>>>>>> 654faf9562e283dfe4b1dd6b832044546f23ce13
