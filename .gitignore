@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 *.log
 Literature
 saves_local
@@ -8,13 +7,3 @@ twinning
 plotting
 writing
 \material_data
-=======
-*.log
-GUI
-Literature
-integrate
-twinning
-plotting
-writing
-\material_data
->>>>>>> 654faf9562e283dfe4b1dd6b832044546f23ce13
