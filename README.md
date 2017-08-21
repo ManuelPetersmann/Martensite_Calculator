@@ -36,10 +36,10 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 If you use our code for your own research, we would be grateful if you cite it via
 Zebodo DOI
 ```
-@article{Martensite_Calculator2017,
-	title={On the proper set of crystallographic variants for micromechanical calculations},
-	author={Petersmann, Manuel and Ehlenbröker, Ulrich},
-	journal={Scripta Materialia},
+@article{lath_mart_2017,
+	title={Blocky lath martensite: Theory, Experiment and Modelling},
+	author={Petersmann, Manuel and Ehlenbröker, Ulrich and Sannikov, Alexander and Antretter, Thomas and Mahnken, Rolf and Cailletaud, Georges},
+	journal={to be submittet},
 	year={2017}
 }
 ```
