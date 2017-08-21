@@ -30,6 +30,11 @@ nnn = [0. 0. 0.];
 ddd = [0. 0. 0.];
 for i = 1:size(nn,1)
     for j = 1:size(dd,1)
+        if abs( dot(m_e, l_e) ) > 1e-5
+            % criterion moved from function "reduce_ambiguous_slipsystems" to here
+            % 31.7.2017
+            continue
+        end
         nnn(nr,:) = nn(i,:); 
         ddd(nr,:) = dd(j,:);
         nr = nr +1;
@@ -38,7 +43,8 @@ end
 %length( nnn )
 %length( ddd )
 
-%% reduction to unequivalent systems 
+%% reduction to unequivalent systems and those with slip-plane vector
+%  to slip direction
 [n_red, d_red] = reduce_ambiguous_slipsystems( nnn, ddd );
 %
 display('Number of individual slip systems is:')

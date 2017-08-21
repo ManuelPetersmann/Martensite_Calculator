@@ -11,11 +11,12 @@ for x = 1:size(all_planes,1)
     contained = false;
     m_e = all_planes(x,:);
     l_e = all_directions(x,:);
+    % moved the 5 lines below to the function "independent_slip_systems"
     % sort out permutations where m and l are not mutually perpendicular
     % hence this combination is not a valid slip system
-    if abs( dot(m_e, l_e) ) > 1e-5
-        continue
-    end
+    %if abs( dot(m_e, l_e) ) > 1e-5
+    %    continue
+    %end
     
     % if its a valid system - check if this system has already been found
     for y = 1:size(reduced_planes,1)

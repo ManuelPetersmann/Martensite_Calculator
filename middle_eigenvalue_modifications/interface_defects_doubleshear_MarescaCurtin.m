@@ -30,8 +30,8 @@ beta_initial = 20.;
 delta_beta_initial = 0.25; % must be set reasonably so that a solution is found
 I = eye(3);
 isol = 0; % counter for number of solutions
-R_psi = eye(3); % initialization
-R_phi = eye(3); % initialization
+R_psi = zeros(3); % initialization
+R_phi = zeros(3); % initialization
 
 %k = 0.5 % stepwidth scaling factor
 
@@ -74,17 +74,13 @@ for is1 = 1:size(ds_P2,1) % loop over all slip systems for P^(2)
         % second system - already in fcc, don't have to be transformed
         d_P3 = ds_P3(is2,:)';
         n_P3 = ns_P3(is2,:)';
+        % d_P3 = cp * ds_P3(is2,:)';
+        % n_P3 = inverse(cp)' * ns_P3(is2,:)';
         
-% % %         % second system 
-% % %         d_P3 = cp * ds_P3(is2,:)';
-% % %         n_P3 = inverse(cp)' * ns_P3(is2,:)';
-        
-
         % display('normed run');
         %             S1  = (d1  * n1') * 1./(norm(d1)*norm(n1));
         %             S2  = (d2  * n2') * 1./(norm(d2)*norm(n2));
-        
-            
+                 
         %% modify shear value in Blocks until lambda2 = 1
         delta_beta = delta_beta_initial;
         beta = beta_initial;
@@ -106,7 +102,7 @@ for is1 = 1:size(ds_P2,1) % loop over all slip systems for P^(2)
             % and the average step height beta
             % calculate the shears P^(2) and P^(3) and with these the observed shear P^(1)
             
-            % calculate P^(2) 
+            % calculate P^(2) --- constant for given OR
             P2 = I + m2 * (d_P2*n_P2');
             
             % calculate P^(3)

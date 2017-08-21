@@ -30,7 +30,6 @@ isol = 0; % counter for number of solutions
 %k = 0.5 % stepwidth scaling factor
 
 
-
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
 [ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );

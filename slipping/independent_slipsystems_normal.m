@@ -31,6 +31,8 @@ nnn = [0. 0. 0.];
 ddd = [0. 0. 0.];
 for i = 1:size(nn,1)
     for j = 1:size(dd,1)
+        % sort out permutations where m and l are not mutually perpendicular
+        % hence this combination is not a valid slip system
         if(dot(nn(i,:),dd(j,:)) == 0) % check if vectors are orthogonal
             nnn(nr,:) = nn(i,:); 
             ddd(nr,:) = dd(j,:); 

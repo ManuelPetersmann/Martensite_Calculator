@@ -4,5 +4,7 @@ function [ angle ] = angle_from_rotmatrix( R )
 
 angle = acos( (trace(R) - eye(3)) / 2. );
 
+
+
 end
 

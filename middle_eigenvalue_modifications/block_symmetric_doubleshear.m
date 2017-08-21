@@ -76,11 +76,14 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 % 1/g (i.e. the lattice has a step after each g planes after the shear)
                 % calculate double shear matrizes
                 
-                % shears are not commutative: Sx = (I + S1)*(I + S2) \uneq Sy = (I + S2)*(I + S1)
+                % shears are not commutative in large/finite strain: Sx = (I + S1)*(I + S2) \uneq Sy = (I + S2)*(I + S1)
+                % Using a small/infinite strain assumption (reasonable
+                % since slip should be small) the order does not matter.
                 % S = (I + (1./g)*S1)*(I + (1./g)*S2)
                 % S_mirror = (I + (1./g)*S11)*(I + (1./g)*S22)
-                % verified that like Khachaturyan writes it, it is the same
-                % as the above multiplied version, if the first shear comes first
+                % verified that like Khachaturyan writes it, the order does not matter
+                % i.e. the small strain assumption is justified!  
+                
                 S =  I + (1./g)* (S1 + S2);
                 S_mirror = I + (1./g)* (S11 + S22);
                 
@@ -107,8 +110,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                     delta_g = - 0.5 * delta_g;              % Einbau intelligenter Schrittweitensteuerung wenn kein Fortschritt - haben es versucht, sind gescheitert... added break
                     %error('passed 1...')
                 end
-                
-                
+                             
 %                 if abs( g - 17.253552526231005 ) < 1.e-15
 %                     is_possible_solution;
 %                     lambda2_smaller1;
