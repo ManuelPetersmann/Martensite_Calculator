@@ -187,8 +187,8 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 isol = isol + 2; % increase counter for number of solutions found
                 
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds_P2(is1,:), ns_P2(is1,:), ds_P3(is2,:), ns_P3(is2,:), m_aust' );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds_P2(is1,:), ns_P2(is1,:), ds_P3(is2,:), ns_P3(is2,:), m_aust' );
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds_P2(is1,:), ns_P2(is1,:), g, ds_P3(is2,:), ns_P3(is2,:), m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds_P2(is1,:), ns_P2(is1,:), g, ds_P3(is2,:), ns_P3(is2,:), m_aust' );
                 
 
             end
@@ -205,7 +205,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 end % end of loop over considered mirror planes in martensite
 
 
-fprintf('number of potential solutions found: n_sol = %i :\n', isol)
+fprintf('Total number of solutions for lambda_2 = 1 found is: n_sol = %i :\n', isol)
 
 end
 

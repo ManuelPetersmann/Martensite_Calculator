@@ -5,7 +5,8 @@ classdef Slip_solution < IPS_solution
     % maximal two slip systems possible
     
     properties (Access = public)
-        g = 0.0 % slip plane spacing (m in paper)
+        g1 = 0.0 % slip plane spacing first shear (g1=g2=m in paper)
+        g2 = 0.0 % slip plane spacing second shear 
         d1 = [0. 0. 0.];
         d2 = [0. 0. 0.];
         n1 = [0. 0. 0.];
@@ -28,18 +29,19 @@ classdef Slip_solution < IPS_solution
             obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, a, n, Q, LT
             %
             if nargin > 9
-                obj.g = varargin{1,9};
+                obj.g1 = varargin{1,9};  % initially here was only one g - equal for both slips
                 obj.d1 = varargin{1,10};
                 obj.n1 = varargin{1,11};
             end
             %
             if nargin > 11
-                obj.d2 = varargin{1,12};
-                obj.n2 = varargin{1,13};
+                obj.g2 = varargin{1,12};
+                obj.d2 = varargin{1,13};
+                obj.n2 = varargin{1,14};
             end
             %
-            if nargin > 13
-                obj.m = varargin{1,14};
+            if nargin > 14
+                obj.m = varargin{1,15};
             end
         end
         

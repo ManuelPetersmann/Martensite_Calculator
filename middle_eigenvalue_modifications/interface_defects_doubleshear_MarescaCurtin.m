@@ -9,13 +9,11 @@ function [solutions] = interface_defects_doubleshear_MarescaCurtin(B, cp, ns_P2,
 % Input variables:
 % B    - Bain strain, 
 % cp   - B*Correspondance matrix, 
-% ns_2 - slip planes for 1st lattice defect --> P^(2)
+% ns_2 - slip planes for 1st lattice defect --> P^(2)f
 % ds_2 - slip directions for 1st lattice defect --> P^(2)
 % ns_3 - slip planes for 2nd lattice defect --> P^(3)
 % ds_3 - slip directions for 2nd lattice defect --> P^(3)
 % phi  - prescribed orientation relationship
-% a_mart - lattice constant of martensite
-% a_aust - lattice constant of austenite
 %
 %
 % Output variables:
@@ -196,8 +194,8 @@ for is1 = 1:size(ds_P2,1) % loop over all slip systems for P^(2)
             isol = isol + 2; % increase counter for number of solutions found
             
             % Create Slip_solution objects and append them to object array
-            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, beta, ds_P2(is1,:), ns_P2(is1,:), ds_P3(is2,:), ns_P3(is2,:));
-            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, beta, ds_P2(is1,:), ns_P2(is1,:), ds_P3(is2,:), ns_P3(is2,:));
+            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, 1./m2, ds_P2(is1,:), ns_P2(is1,:), beta/sqrt(1.5), ds_P3(is2,:), ns_P3(is2,:));
+            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, 1./m2, ds_P2(is1,:), ns_P2(is1,:), beta/sqrt(1.5), ds_P3(is2,:), ns_P3(is2,:));
             
             
         end
@@ -212,7 +210,7 @@ end % end of loop for first slip system
 %    end
 
 
-fprintf('number of potential solutions found: n_sol = %i :\n', isol)
+fprintf('Total number of solutions for lambda_2 = 1 found is: n_sol = %i :\n', isol)
 
 end
 

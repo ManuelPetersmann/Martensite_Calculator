@@ -1,10 +1,12 @@
 function [ theta, closest_from_vecs] = min_misorientation( vecs, comp, plane )
 % call: [theta, closest] = misorientation( vecs1, comp=vecs2/lattice_transformation, theta_max, plane)
 % given an array of vectors "vecs1" representing families of directions or planes
-% calculates the minimum misorientation angle "theta" (in degrees) between them and the array comp(arison) 
-% and gives the family member for it. Alternatively a comp can be alattice_transformation
+% calculates the minimum misorientation angle "theta" (in degrees) between
+% them and the vector comp(arison) and gives the family member for it. 
+% Alternatively "comp" can be a lattice transformation
 % matrix, used with a third argument "plane", a boolean 
-% specifying wheter the mapping is applied to planes (true) or directions (false). 
+% specifying wheter the mapping is applied to planes (true) or directions (false)
+% to determine angles between vectors in the parent and product phase.
 
 theta = 999.9; % init. angle for comparison of angles between different cpp
 closest_from_vecs = zeros(1,3);

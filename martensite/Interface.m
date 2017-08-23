@@ -1,5 +1,4 @@
 classdef Interface
-
     
     properties
         v % probe vector of interface
@@ -11,7 +10,7 @@ classdef Interface
             % depending on the definition of reference in the direction of a 
             % probe vector v [3,1] lying in the interface
             if ref_to_new
-                Bc = (inverse(S1) - inverse(S2) * v;
+                Bc = (inverse(S1) - inverse(S2) ) * v;
             else
                 Bc = (S1 - S2) * v;
             end

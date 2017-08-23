@@ -193,7 +193,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 end % end of loop over considered mirror planes in martensite
 
 
-fprintf('number of potential solutions found: n_sol = %i :\n', isol)
+fprintf('Total number of solutions for lambda_2 = 1 found is: n_sol = %i :\n', isol)
 
 end
 
