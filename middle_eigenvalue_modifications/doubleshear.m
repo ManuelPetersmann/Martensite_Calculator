@@ -5,18 +5,10 @@ function [solutions] = doubleshear(B, ns, ds, cp)
 % returns object array of solutions for IPSs.
 
 if nargin < 4
-    cp = eye(3); % if the slip systems are given 
+    cp = eye(3); % if both slip systems are given in the austenite already
 end
 
-%% initalize some other vars
-solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-epsilon = 1.e-12; % accuracy for middle valued eigenvalue
-g_min = 4.;
-g_initial = 100.0; 
-delta_g_initial = 5.; % must be set reasonably so that a solution is found i.e. g_min not to high, delta_g not to high either
-% here it reaches as lowest g=5 with delta_g = 5. everything lower will be disregarded
-I = eye(3);
-isol = 0; % counter for number of solutions
+numerical_parameters;
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
@@ -31,7 +23,6 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         % first system
         d1 = cp * ds(is1,:)'; % martensite.vec_from_coords( ds(is1,:) )'; - not necessary for cubic lattice
         n1 = inverse(cp)' * ns(is1,:)';
-
         % second system
         d2 = cp * ds(is2,:)';
         n2 = inverse(cp)' * ns(is2,:)';

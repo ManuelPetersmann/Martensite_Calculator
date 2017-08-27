@@ -17,18 +17,6 @@ function [solutions] = block_symmetric_doubleshear_specific_slipsys(B, cp, ms, n
 % solutions - object array of solutions for IPSs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% initalize some other vars
-solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-epsilon = 1.e-11; % accuracy for middle valued eigenvalue
-g_min = 4.;
-g_initial = 100.0; 
-delta_g_initial = 5.; % must be set reasonably so that a solution is found i.e. g_min not to high, delta_g not to high either
-% here it reaches as lowest g=5 with delta_g = 5. everything lower will be disregarded
-I = eye(3);
-isol = 0; % counter for number of solutions
-
-%k = 0.5 % stepwidth scaling factor
-
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
@@ -39,7 +27,6 @@ lambda2_old = lambda_2;
 
 %% loop over mirror planes and slip systems
 for im = 1:size(ms,1) % number of considered mirror planes in martensite
-    
     m_mart = ms(im,:); % mirror plane in martensite
     m_aust = inverse(cp)' * m_mart'; % transformed plane in austenite
     
@@ -111,28 +98,19 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 %% check if solution has been found or how it changed if its not sufficient
                 [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
                 
-                if(abs(lambda2_old - lambda_2) < 1.e-15)
-                    break
-                end
+                % lambda2_old = lambda_2;
+                % here i tested other eps...
+                %if(abs(lambda2_old - lambda_2) < 1.e-15)
+                %    break
+                %end
                 
                 % change the search direction and reduce step intervall if lambda2
                 % passes one but is not in the required precision range.
                 if lambda2_smaller1 ~= lambda2_smaller1_new
                     delta_g = - 0.5 * delta_g;              % Einbau intelligenter Schrittweitensteuerung wenn kein Fortschritt - haben es versucht, sind gescheitert... added break
                     %error('passed 1...')
-                end
-                
-                
-%                 if abs( g - 17.253552526231005 ) < 1.e-15
-%                     is_possible_solution;
-%                     lambda2_smaller1;
-%                     lambda2_smaller1_new
-%                     x = 1;
-%                 end
-                
+                end                
                 lambda2_smaller1 = lambda2_smaller1_new;
-                
-                lambda2_old = lambda_2;
                 
                 % change g value.
                 g = g - delta_g;
