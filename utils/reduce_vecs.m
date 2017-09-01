@@ -6,7 +6,7 @@ function reduced = reduce_vecs( vecs, negatives )
 % should be sorted out (true) e.g. because the vector [1 2 3] equals [-1 -2 -3]
 
 if nargin < 2
-    negatives = true;
+    negatives = false; % edited to false ---  29.08.17 Manuel
 end
 
 unique_entries = 0 ;

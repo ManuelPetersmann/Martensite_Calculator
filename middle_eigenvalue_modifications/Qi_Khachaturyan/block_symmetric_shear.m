@@ -5,12 +5,9 @@ function [solutions] = block_symmetric_shear(B, cp, ms, ns, ds )
 % returns object array of solutions for IPSs.
 
 %% initalize some other vars
-solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-epsilon = 1.e-12; % accuracy for middle valued eigenvalue
-g_min = 5.;
-g_initial = 150.0;
-I = eye(3);
-isol = 0; % counter for number of solutions
+solutions = Solution_array( Slip_solution_doubleshear() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+
+numerical_parameters;
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
@@ -54,7 +51,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %             S22 = (d22 * n22') ;
             
             %% modify shear value in Blocks until lambda2 = 1
-            delta_g = 2.;
+            delta_g = delta_g_initial;
             g = g_initial;
             % g = g_initial / 1./(norm(d11)*norm(n11));
             is_possible_solution = false;

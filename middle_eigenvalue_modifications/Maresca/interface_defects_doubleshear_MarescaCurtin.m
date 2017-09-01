@@ -20,6 +20,8 @@ function [solutions] = interface_defects_doubleshear_MarescaCurtin(B, cp, ns_P2,
 % solutions - object array of solutions for IPSs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+solutions = Solution_array( Slip_solution_doubleshear() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+
 numerical_parameters;
 beta_min = 1.; % average step heigth of a physical interface must be greater than one fcc planar spacing
 beta_initial = 20.; 

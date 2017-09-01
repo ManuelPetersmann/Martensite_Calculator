@@ -1,47 +1,33 @@
-classdef Slip_solution < IPS_solution
+classdef Slip_solution_multishear < IPS_solution
     % slip-solution:
     % class for the found slip-system(s), slip amount - g solutions, for the
     % modification of the stretch tensor to yield an IPS
     % maximal two slip systems possible
     
     properties (Access = public)
-        g1 = 0.0 % slip plane spacing first shear (g1=g2=m in paper)
-        g2 = 0.0 % slip plane spacing second shear 
-        d1 = [0. 0. 0.];
-        d2 = [0. 0. 0.];
-        n1 = [0. 0. 0.];
-        n2 = [0. 0. 0.];     
-        m  = [0. 0. 0.]; % mirror plane of block solution
+        shear_mags = []; % slip plane spacings of shears
+        ds = []; % shear directions
+        ns = []; % according shear plane normals    
     end % end of properties
     
     methods
         % constructor
-        function obj = Slip_solution( varargin ) % F, G, id, eps_0, a, h, Q, LT, g, d1, n1, d2, n2 )
+        function obj = Slip_solution_multishear( varargin ) % F, G, id, eps_0, a, h, Q, LT,   ---  g, d1, n1, d2, n2 )
             %
             if nargin == 0 % =  if isempty(varargin), return;end
                 % no argument constructor
                 super_args = {};            
             end
-            if nargin > 9
+            if nargin > 8
                 super_args = { varargin{1}, varargin{2}, varargin{3}, varargin{4}, varargin{5}, varargin{6}, varargin{7}, varargin{8} };
             end
             %
             obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, a, n, Q, LT
             %
-            if nargin > 9
-                obj.g1 = varargin{1,9};  % initially here was only one g - equal for both slips
-                obj.d1 = varargin{1,10};
-                obj.n1 = varargin{1,11};
-            end
-            %
-            if nargin > 11
-                obj.g2 = varargin{1,12};
-                obj.d2 = varargin{1,13};
-                obj.n2 = varargin{1,14};
-            end
-            %
-            if nargin > 14
-                obj.m = varargin{1,15};
+            if nargin > 8
+                obj.shear_mags = varargin{1,9};  
+                obj.ds = varargin{1,10};
+                obj.ns = varargin{1,11};
             end
         end
         

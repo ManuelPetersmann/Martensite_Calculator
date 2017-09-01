@@ -3,10 +3,14 @@ function [ S ] = Burgers_Bogers_shears( ) %a_aust, a_mart )
 
 a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
 a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
+% a_aust / a_mart
 
 I = eye(3);
-% The first shear is a_gamma/18 [1-2-1] (equals 1/3*unit-vector) on every (11-1)_gamma plane 
-% and the second shear is a_gamma/16 [-12-1] (equals 0.375*unit-vector) on every (111)_gamma plane
+% The first shear is a_gamma/18 [1-2-1] (equals sqrt(6)/18*unit-vector) on every (11-1)_gamma plane 
+% and the second shear is a_gamma/16 [-12-1] (equals sqrt(6)/16*unit-vector) on every (111)_gamma plane
+
+a_aust/18. % = a_gamma/18
+a_aust/16 % = a_gamma/16
 
 %plane_families_P2 =     [ [1 1 0] ];
 %direction_families_P2 = [ [1 1 1] ];
@@ -25,8 +29,8 @@ S2  = (d2  * n2') ;
 % immer genau 0-matrix
 % S =  (I + g1 * S1) * (I + g2 * S2)
 S =  (I + g1 * S1 + g2 * S2);
-[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(S,eye(3));
-eps_0
+[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(S,eye(3))
+%eps_0
 
 [U,R] = polardecomposition( S );
 % Interstingly this deformation automatically has an eigenvalue of 1

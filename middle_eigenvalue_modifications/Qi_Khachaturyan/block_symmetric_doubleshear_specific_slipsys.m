@@ -1,10 +1,25 @@
-function [solutions] = block_symmetric_doubleshear(B, cp, ms, ns, ds )
-% call: block_symmetric_doubleshear(B, cp, ms, ns, ds)
-% B... Bain strain, cp - B*Correspondance matrix, ms...mirror planes in
-% alpha', ns...slip system normals in alpha, ds... slip directios in alpha
-% returns object array of solutions for IPSs.
+function [solutions] = block_symmetric_doubleshear_specific_slipsys(B, cp, ms, ns_P2, ds_P2, ns_P3, ds_P3 )
+% call: block_symmetric_doubleshear_specific_slipsys(B, cp, ms, ns_P2, ds_P2, ns_P3, ds_P3 )
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Calculation of shape deformation following: Qi et al 
+% but with input of slip systems for calculations in Maresca & Curtin
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Input variables:
+% B    - Bain strain, 
+% cp   - B*Correspondance matrix, 
+% ms   - highly symmetric mirror planes from bcc
+% ns_P2 - slip planes for 1st lattice defect --> P^(2)
+% ds_P2 - slip directions for 1st lattice defect --> P^(2)
+% ns_P3 - slip planes for 2nd lattice defect --> P^(3)
+% ds_P3 - slip directions for 2nd lattice defect --> P^(3)
+%
+% Output variables:
+% solutions - object array of solutions for IPSs
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 numerical_parameters;
+solutions = Solution_array( Slip_solution_doubleshear() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
@@ -15,23 +30,24 @@ lambda2_old = lambda_2;
 
 %% loop over mirror planes and slip systems
 for im = 1:size(ms,1) % number of considered mirror planes in martensite
-    
     m_mart = ms(im,:); % mirror plane in martensite
     m_aust = inverse(cp)' * m_mart'; % transformed plane in austenite
     
-    % loop over slip system combinations
-    for is1 = 1:(size(ds,1)-1) % loop for first slip system
-        for is2 = (is1+1):size(ds,1) % loop for second one
+    % loop over slip system combinations: 
+    % each case one slip from P^(2) + one from P^(3)
+    for is1 = 1:size(ds_P2,1) % loop over all slip systems for P^(2)
+        for is2 = 1:size(ds_P3,1) % loop over slip systems for P^(3)
             
             % ############  transform bcc systems to austenite ############
             % first system
-            d1 = cp * ds(is1,:)'; % martensite.vec_from_coords( ds(is1,:) )'; - not necessary for cubic lattice
-            n1 = inverse(cp)' * ns(is1,:)';
+            d1 = cp * ds_P2(is1,:)'; % martensite.vec_from_coords( ds(is1,:) )'; - not necessary for cubic lattice
+            n1 = inverse(cp)' * ns_P2(is1,:)';
             d11 = mirror_by_plane(m_aust, d1, I);
             n11 = mirror_by_plane(m_aust, n1, I);
-            % second system
-            d2 = cp * ds(is2,:)';
-            n2 = inverse(cp)' * ns(is2,:)';
+            
+            % second system - already in fcc, don't have to be transformed
+            d2 = ds_P3(is2,:)';
+            n2 = ns_P3(is2,:)';
             d22 = mirror_by_plane(m_aust, d2, I);
             n22 = mirror_by_plane(m_aust, n2, I);
             % S_i and S_ii are shears related by mirror symmetry
@@ -54,9 +70,8 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
             % g = g_initial / 1./(norm(d11)*norm(n11));
             is_possible_solution = false;
             lambda2_smaller1 = lambda2_smaller1_initial;
-            while ( ~ is_possible_solution && (g > g_min) )  
-                % if the solution for g is very high or low respectively,
-                % do not consider it                
+            while ( ~ is_possible_solution && (g > g_min) )  % if the solution for g is very high or low respectively, do not consider it
+                
                 if g > g_initial
                     error('this should not happen - fix code...')
                 end
@@ -65,14 +80,11 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 % 1/g (i.e. the lattice has a step after each g planes after the shear)
                 % calculate double shear matrizes
                 
-                % shears are not commutative in large/finite strain: Sx = (I + S1)*(I + S2) \uneq Sy = (I + S2)*(I + S1)
-                % Using a small/infinite strain assumption (reasonable
-                % since slip should be small) the order does not matter.
+                % shears are not commutative: Sx = (I + S1)*(I + S2) \uneq Sy = (I + S2)*(I + S1)
                 % S = (I + (1./g)*S1)*(I + (1./g)*S2)
                 % S_mirror = (I + (1./g)*S11)*(I + (1./g)*S22)
-                % verified that like Khachaturyan writes it, the order does not matter
-                % i.e. the small strain assumption is justified!  
-                
+                % verified that like Khachaturyan writes it, it is the same
+                % as the above multiplied version, if the first shear comes first
                 S =  I + (1./g)* (S1 + S2);
                 S_mirror = I + (1./g)* (S11 + S22);
                 
@@ -88,31 +100,21 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 
                 %% check if solution has been found or how it changed if its not sufficient
                 [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
-                
-                % earlier break from while loop so that g does not get
-                % changed any more
-                if is_possible_solution
-                    break
-                end
-                %            lambda2_old = lambda_2;
 
+                % earlier break from while loop...
+                %if(abs(lambda2_old - lambda_2) < 1.e-15)
+                %    break
+                %end                           
+                % lambda2_old = lambda_2;
                 
                 % change the search direction and reduce step intervall if lambda2
                 % passes one but is not in the required precision range.
                 if lambda2_smaller1 ~= lambda2_smaller1_new
                     delta_g = - 0.5 * delta_g;              % Einbau intelligenter Schrittweitensteuerung wenn kein Fortschritt - haben es versucht, sind gescheitert... added break
                     %error('passed 1...')
-                    lambda2_smaller1 = lambda2_smaller1_new;
-                end
-
-                             
-%                 if abs( g - 17.253552526231005 ) < 1.e-15
-%                     is_possible_solution;
-%                     lambda2_smaller1;
-%                     lambda2_smaller1_new
-%                     x = 1;
-%                 end
-                                
+                end                
+                lambda2_smaller1 = lambda2_smaller1_new;
+                
                 % change g value.
                 g = g - delta_g;
                 % find g (shear magnitude - m in Paper Qi, Khachaturyan 2014)
@@ -140,7 +142,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %                 h2
 %                 det_ST1 = det( Q1*F)
 %                 det_ST2 = det( Q2*F)
-                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I); %_kachaturyan2(F);
+                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I);
 %                 Q1
 %                 a1
 %                 h1
@@ -166,8 +168,8 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 isol = isol + 2; % increase counter for number of solutions found
                 
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution_doubleshear(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), g, ds(is2,:), ns(is2,:), m_aust' );
-                solutions.array( isol )   =  Slip_solution_doubleshear(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), g, ds(is2,:), ns(is2,:), m_aust' );
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds_P2(is1,:), ns_P2(is1,:), g, ds_P3(is2,:), ns_P3(is2,:), m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds_P2(is1,:), ns_P2(is1,:), g, ds_P3(is2,:), ns_P3(is2,:), m_aust' );
                 
 
             end
@@ -182,6 +184,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %    end
     
 end % end of loop over considered mirror planes in martensite
+
 
 fprintf('Total number of solutions for lambda_2 = 1 found is: n_sol = %i :\n', isol)
 

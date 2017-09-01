@@ -25,7 +25,7 @@ if ( abs(lambda_2 - 1.) > epsilon )
 % straddle lambda2 = 1, i.e. lambda1 > 1. , lambda3 > 1. 
 elseif ( (lambda_1 < 1.)  && (lambda_3 > 1.) )
         isSolution = true;
-        lambda2_smaller1 = 5.; % assign any value so no error occurs
+        lambda2_smaller1 = 999999.; % assign any value so no error occurs
 end
 
 end
