@@ -16,8 +16,6 @@ solutions = Solution_array( Slip_solution() );
 numerical_parameters;
 
 %% transform product phase slip systems to parent phase and combine all in one array
-%ds = zeros(1,3);
-%ns = zeros(1,3);
 if nargin == 3 % only parent phase slip systems
     ds = ds_product;
     ns = ns_product;
@@ -27,26 +25,27 @@ if nargin > 3
         % transform product phase slip systems to parent phase ones
         ds(is,:) = cp * ds_product(is,:)';
         ns(is,:) = inverse(cp)' * ns_product(is,:)';
-    end
+    end    
 end
 if nargin == 6  % if both parent and product phase systems are given
     ds = cat(1,ds,ds_parent);
     ns = cat(1,ns,ns_parent);
+    % for outputting found slip systems in miller indizes
+    ds_product = cat(1,ds_product,ds_parent);
+    ns_product = cat(1,ns_product,ds_parent);
 end
 
-% no normed vectors in Khachaturyans approach!!
+    % to write integer values into solutions
 for jj = 1:size(ds,1)
-    ds(jj,:) = ds(jj,:) / norm(ds(jj,:));
-    ns(jj,:) = ns(jj,:) / norm(ns(jj,:));
-    S(:,:,jj)  = (ds(jj,:)' * ns(jj,:) ); 
+    S(:,:,jj)  = ( ds(jj,:) / norm(ds(jj,:)) )' * (ns(jj,:) / norm(ns(jj,:)) ); 
 end
 
-display( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) ) ] )
+display( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) ) ], ' nr of solutions cannot be greater than 2-times this value' )
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
 [ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
-[~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, epsilon);
+[~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
 delta_lambda2_to_1_initial = abs(1. - lambda_2);
 
 % loop over slip system combinations
@@ -55,7 +54,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         % modify shear value in Blocks until lambda2 = 1
         %ds(is2,:)
         %ns(is2,:)
-        old_min_delta_lambda2_to_1 = delta_lambda2_to_1_initial
+        old_min_delta_lambda2_to_1 = delta_lambda2_to_1_initial;
         delta_eps = delta_eps_initial;
         eps1 = eps_initial;
         eps2 = eps_initial;
@@ -69,10 +68,10 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 error('this should not happen - fix code...')
             end
             
-            S1 =  S_accummulated * (I + (eps1 + delta_eps) * S(:,:,is1) );  
+            S1 =  S_accummulated * (I + delta_eps* S(:,:,is1) );  
             F = B * S1;
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
-            [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
+            [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
             if is_possible_solution
                 break
             end
@@ -82,7 +81,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             F = B * S2; % here it has been tested that the order of multiplication does not matter
                         % since the Bain is pure stretch and SS is a small strain
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
-            [ is_possible_solution , lambda2_smaller1_shear2] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
+            [ is_possible_solution , lambda2_smaller1_shear2] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
             if is_possible_solution
                 break
             end
@@ -112,7 +111,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 end
             end
             
-            if delta_eps < epsilon/1000. %1.e-10
+            if delta_eps < tolerance 
                 break
             end          
             % find g (shear magnitude - m in Paper Qi, Khachaturyan 2014)
@@ -126,20 +125,21 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         if is_possible_solution
             %% calculate solution
             % calculate invariant plane vector n_i etc.
-            [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I );
+            [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
             % Note habit plane solutions come in pairs!
             
             isol = isol + 2; % increase counter for number of solutions found
             if mod(isol,500)==0
                 isol
+                %pause(1);
             end
-            g = [eps1; eps2];
-            d = [ds(is1,:); ds(is2,:)];
-            n = [ns(is1,:); ns(is2,:)];
+            eps_s = [eps1; eps2];
+            d = [ds_product(is1,:); ds_product(is2,:)];
+            n = [ns_product(is1,:); ns_product(is2,:)];
             
             % Create Slip_solution objects and append them to object array
-            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, n, d );
-            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, n ,d );
+            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, n, d );
+            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, n ,d );
         end
         
     end % end of loop for second slip system
