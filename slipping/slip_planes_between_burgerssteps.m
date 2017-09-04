@@ -1,4 +1,4 @@
-function [ m ] = slip_planes_between_burgersstep( b, eps, plane_miller ) %, lattice) - up do now d only for cubic lattice!
+function [ m ] = slip_planes_between_burgerssteps( b, eps, plane_miller ) %, lattice) - up do now d only for cubic lattice!
 % call: slip_planes_between_burgersstep( b, eps, plane_miller)
 % b... Burgers vector of slip system (miller indizes)
 % eps... shear magnitude of simple shear given below
@@ -11,10 +11,12 @@ function [ m ] = slip_planes_between_burgersstep( b, eps, plane_miller ) %, latt
 % The function is based on the Intercept theorem (simple shear with unit
 % vectors vs variable vectors) and the distance between lattice planes
 
-% TODO add other crystal systems!
-d = 1/norm(plane_miller);
-
-m = norm(b) / (eps * d);
+for i = 1:length(eps)
+    % TODO add other crystal systems!
+    d(i) = 1/norm(plane_miller(i));
+    
+    m(i) = norm(b(i)) / (eps(i) * d(i));
+end
 
 
 end

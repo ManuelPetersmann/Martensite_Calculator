@@ -1,18 +1,21 @@
-classdef Slip_solution_multishear < IPS_solution
+classdef Slip_solution < IPS_solution
     % slip-solution:
-    % class for the found slip-system(s), slip amount - g solutions, for the
-    % modification of the stretch tensor to yield an IPS
-    % maximal two slip systems possible
+    % class for the used slip-system(s) to modify a stretch tensor to yield an IPS
+    % variable amounts of slip systems possible
     
     properties (Access = public)
-        shear_mags = []; % slip plane spacings of shears
-        ds = []; % shear directions
-        ns = []; % according shear plane normals    
+        eps_s = [0.]; % shear magnitudes of normed shear dyads S
+        s = [0. 0. 0.]; % slip direction first shear (miller indizes)
+        m = [0. 0. 0.]; % slip plane normal first glide system (miller indizes)
+        mirror_plane  = [0. 0. 0.]; % mirror plane of block solution
     end % end of properties
+    properties (Dependent)
+        g; % average nr of slip planes between burgers vector steps 
+    end
     
     methods
         % constructor
-        function obj = Slip_solution_multishear( varargin ) % F, G, id, eps_0, a, h, Q, LT,   ---  g, d1, n1, d2, n2 )
+        function obj = Slip_solution( varargin ) % F, G, id, eps_0, a, h, Q, LT, g, d1, n1, d2, n2 )
             %
             if nargin == 0 % =  if isempty(varargin), return;end
                 % no argument constructor
@@ -25,11 +28,20 @@ classdef Slip_solution_multishear < IPS_solution
             obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, a, n, Q, LT
             %
             if nargin > 8
-                obj.shear_mags = varargin{1,9};  
-                obj.ds = varargin{1,10};
-                obj.ns = varargin{1,11};
+                obj.eps_s = varargin{1,9};  % initially here was only one g - equal for both slips
+                obj.s = varargin{1,10};
+                obj.m = varargin{1,11};
+            end
+            %
+            if nargin > 11 % this is only used if a direct averaged block habit plane condition is used as proposed by Qi and Khachaturyan 2014 Acta
+                obj.mirror_plane = varargin{1,11};
             end
         end
+        
+        function gg = get.g(obj)
+            gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m );
+        end
+        
         
         % function for formatted output of a solution
 %         function sol_output(solution)

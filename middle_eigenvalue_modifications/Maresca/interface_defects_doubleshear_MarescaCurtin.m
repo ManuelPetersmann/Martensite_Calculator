@@ -20,7 +20,7 @@ function [solutions] = interface_defects_doubleshear_MarescaCurtin(B, cp, ns_P2,
 % solutions - object array of solutions for IPSs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-solutions = Solution_array( Slip_solution_doubleshear() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+solutions = Solution_array( Slip_solution ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
 
 numerical_parameters;
 beta_min = 1.; % average step heigth of a physical interface must be greater than one fcc planar spacing
@@ -51,7 +51,7 @@ S = R_phi * R_psi * B;
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
 [ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
-[~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, epsilon);
+[~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
 
 lambda2_old = lambda_2;
     
@@ -114,7 +114,7 @@ for is1 = 1:size(ds_P2,1) % loop over all slip systems for P^(2)
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
             
             %% check if solution has been found or how it changed if its not sufficient
-            [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
+            [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
             
             if(abs(lambda2_old - lambda_2) < 1.e-15)
                 break
@@ -156,7 +156,7 @@ for is1 = 1:size(ds_P2,1) % loop over all slip systems for P^(2)
             %                 h2
             %                 det_ST1 = det( Q1*F)
             %                 det_ST2 = det( Q2*F)
-            [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I);
+            [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I,tolerance);
             %                 Q1
             %                 a1
             %                 h1

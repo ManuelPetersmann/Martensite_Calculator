@@ -23,13 +23,13 @@ classdef Solution_array < dynamicprops % subclass of handle class
                 obj.array = varargin{1};
                 for i = 1:size( varargin{2}.array, 2)
                     if strcmp( varargin{5}, 'max')
-                        if varargin{2}.array(i).(varargin{3}) < varargin{4} % = maximal toleratred value
+                        if varargin{2}.array(i).(varargin{3}) < varargin{4} % = maximal toleratred eps value
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
                     end
                     if strcmp( varargin{5}, 'min')
-                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal toleratred value
+                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal toleratred g value
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end

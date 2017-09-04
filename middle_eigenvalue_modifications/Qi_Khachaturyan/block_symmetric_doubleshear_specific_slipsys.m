@@ -18,13 +18,13 @@ function [solutions] = block_symmetric_doubleshear_specific_slipsys(B, cp, ms, n
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 numerical_parameters;
-solutions = Solution_array( Slip_solution_doubleshear() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
 
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
 [ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
-[~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, epsilon);
+[~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
 
 lambda2_old = lambda_2;
 
@@ -99,7 +99,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
                 
                 %% check if solution has been found or how it changed if its not sufficient
-                [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, epsilon);
+                [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
 
                 % earlier break from while loop...
                 %if(abs(lambda2_old - lambda_2) < 1.e-15)
@@ -142,7 +142,7 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %                 h2
 %                 det_ST1 = det( Q1*F)
 %                 det_ST2 = det( Q2*F)
-                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I);
+                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I,tolerance);
 %                 Q1
 %                 a1
 %                 h1
@@ -166,10 +166,11 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 % Note habit plane solutions come in pairs!
                 
                 isol = isol + 2; % increase counter for number of solutions found
-                
+                d = [ds_P2(is1,:), ds_P3(is2,:)];
+                n = [ns_P2(is1,:), ns_P3(is2,:)];
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds_P2(is1,:), ns_P2(is1,:), g, ds_P3(is2,:), ns_P3(is2,:), m_aust' );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds_P2(is1,:), ns_P2(is1,:), g, ds_P3(is2,:), ns_P3(is2,:), m_aust' );
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, d, n, m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, d, n, m_aust' );
                 
 
             end

@@ -1,4 +1,4 @@
-function [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G)
+function [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
 % solves the equation for an invariant interface:
 % Q*F - G = a \otimes n
 % where A and B are two mappings (homogeneous deformations)
@@ -9,18 +9,22 @@ function [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G)
 % "n" is the normal to the invariant interface
 % see Bhattacharya - Microstructure of Martensites p.69
 
+if nargin < 3
+    tolerance = 1.e-8;
+end
+
 % check if this gives the same result as that of khachaturyan 
 % if it does then this is more general since here the vectors
 % are normed automatically
 
 Ct = inverse(G)'*(F'*F)*inverse(G); 
-if abs(Ct - eye(3)) < 1.e-4
+if abs(Ct - eye(3)) < tolerance
     error('There is no solution')
 end
 % otherwise automatically the eigenvalues are all positive!
 [ y1, y2, y3, e1, ~, e3 ] = sorted_eig_vals_and_vecs( Ct );
 
-if (y1 > 1. ||  abs(1-y2) > 1.e-8  ||  y3 < 1.)
+if (y1 > 1. ||  abs(1-y2) > tolerance  ||  y3 < 1.)
     error('Eigenvalues do not satisfy conditions y1 < 1 , y2 = 1 , y3 > 1 necessary for an invariant plane')
 end
 
@@ -38,7 +42,7 @@ h1 = hh3 + hh1;
 h2 = hh3 - hh1;
 % h1 = (-1)*hh1 + hh3;
 % h2 = (-1)*hh1 - hh3;
-if (abs(norm(h1) -1.) > 1.e-4 ) || (abs(norm(h2) -1.) > 1.e-4 )
+if (abs(norm(h1) -1.) > tolerance ) || (abs(norm(h2) -1.) > 1.e-4 )
     error('h vector not unit vector')
 end
 %

@@ -5,9 +5,9 @@ classdef IPS_solution < dynamicprops
         F = zeros(3); % e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
         G = zeros(3); % this should be the reference deformation, e.g. Identiy for austenite, or fixed U_i for twins
         id = 0;
-        eps = 0.; % strain: lambda_3 - lambda_1 or sqrt respectively depending on convention
+        eps_ips = 0.; % strain: lambda_3 - lambda_1 or sqrt respectively depending on convention
         h = [0. 0. 0.]'; % normal vector to habit plane (unit vector)
-        a = [0. 0. 0.]'; % shear direction of transformation (unit vector)
+        d = [0. 0. 0.]'; % shear direction of transformation (unit vector)
         Q = zeros(3); % rotation matrix (for invariant planar match between domains of homogeneous deformation F and G
         LT = zeros(3); % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
         %LT; % = RB = ...R von IPS condition
@@ -28,8 +28,8 @@ classdef IPS_solution < dynamicprops
                 obj.F = varargin{1};
                 obj.G  = varargin{2};
                 obj.id = varargin{3};
-                obj.eps= varargin{4};
-                obj.a  = varargin{5};
+                obj.eps_ips= varargin{4};
+                obj.d  = varargin{5};
                 obj.h  = varargin{6};
                 obj.Q  = varargin{7};
                 obj.LT = varargin{8}; % the lattice transformation = Q*Bain is given here directly so that the class does not need the Bain strain as property (only needed for this)
