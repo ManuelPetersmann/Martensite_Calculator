@@ -11,13 +11,15 @@ function [ eps ] = normed_shearmag_from_planes_between_burgerssteps( b, m, plane
 % The function is based on the Intercept theorem (simple shear with unit
 % vectors vs variable vectors) and the distance between lattice planes
 
-% TODO add other crystal systems!
-d = 1/norm(plane_miller);
-
-eps = norm(b) / (m*d);
-
-% m = norm(b) / (eps * d);
-
+for i = 1:length(m)
+    % TODO add other crystal systems! and generalize Burgers vector with
+    % lattice parameters in this function
+    d(i) = 1/norm(plane_miller(i,:));
+    
+    eps(i) = norm(b(i,:)) / (m*d);
+    
+    % m = norm(b) / (eps * d);
+end
 
 end
 

@@ -151,11 +151,6 @@ if is_possible_solution
     %
     dsfound = ds_product(found,:);
     nsfound = ns_product(found,:);
-    %dsfound = ds(found,:);
-    %nsfound = ns(found,:);
-    
-    % if for comparison 
-    % g = slip_planes_between_burgerssteps( dsfound, eps, nsfound )
     
     % Create Slip_solution objects and append them to object array
     solutions.array( isol-1 ) =  Slip_solution_multishear(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, shear_magsfound, dsfound, nsfound );
