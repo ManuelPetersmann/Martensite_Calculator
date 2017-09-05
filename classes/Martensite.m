@@ -1,11 +1,13 @@
 classdef Martensite < Base 
     
     properties(Access = public)
+        % TODO - define lattice correspondence here! 
+        %
         %R % rotational part of the 
         U % = B - Bain strain /  Transformation stretch tensor - hermitian part of the deformation gradient
-        F = eye(3); % Deformation_gradient of transformation - To determine hermitian part via polar decomposition e.g. for NiTi
+        %F = eye(3); % Deformation_gradient of transformation - To determine hermitian part via polar decomposition e.g. for NiTi
         % e_mart = F * e_aust
-        IPS % IPS_solution object containing: shape deformation matrix, habit-plane normal vector a.s.o see in class directly  
+        IPS_solutions % solution_array object containing containing IPS_solution objects (see respective classes)  
     end
     
     methods
@@ -28,7 +30,9 @@ classdef Martensite < Base
             end
         end
         %-------------------------------------------------------------------
-        function obj = set.F(obj, F)
+% 09.05.2017----TODO - remove or adopt so that it fits with IPS_solution
+%
+%       function obj = set.F(obj, F)
             % In the case of martensitic transformations, a further condition has to be satisfied;
             % the lattice transformation strain must also be an invariant line strain if the interface is
             % to be glissile (see christian, crocker - dislocations and lattice transformations - Dislocations in crystals vol 3).
@@ -36,12 +40,12 @@ classdef Martensite < Base
             % Lattice correspondances ai = F*bi.
             % Moreover, we limit ourselves to deformations that preserve orientation,
             % i.e. those with det(F) > 0 (tripe products have the same sign)
-            if det(F_in) < 0.
-                error('det(F) < 0, non-orientation preserving transformation')
-            else
-                obj.F = F;
-            end
-        end
+%            if det(F_in) < 0.
+%                error('det(F) < 0, non-orientation preserving transformation')
+%            else
+%                obj.F = F;
+%            end
+%        end
         %-------------------------------------------------------------------
         function Bain = get.U(obj)
             % if the matrix is symmetric and positive definite

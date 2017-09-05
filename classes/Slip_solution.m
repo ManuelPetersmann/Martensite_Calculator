@@ -39,7 +39,7 @@ classdef Slip_solution < IPS_solution
         end
         
         function gg = get.g(obj)
-            gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m, obj.bravais );
+            gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m, obj.Bravais_type );
         end
         
         

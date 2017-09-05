@@ -1,9 +1,9 @@
-classdef IPS_solution %< dynamicprops
+classdef IPS_solution < dynamicprops & Martensite % needs to be derived from dynamicprops because slip_solution can dynamically add e.g. OR directions!
     %
     % SOLUTION - Baseclass for solutions of the IPS equation: Q*F - G = eps0 * (a \dyad n)
     
     properties (Access = public)
-        F = zeros(3); % e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
+        F_ips = zeros(3); % e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
         G = zeros(3); % this should be the reference deformation, e.g. Identiy for austenite, or fixed U_i for twins
         id = 0;
         eps_ips = 0.; % strain: lambda_3 - lambda_1 or sqrt respectively depending on convention
@@ -26,7 +26,7 @@ classdef IPS_solution %< dynamicprops
             end
             %
             if nargin == 8 % constructor from solution arguments
-                obj.F = varargin{1};
+                obj.F_ips = varargin{1};
                 obj.G  = varargin{2};
                 obj.id = varargin{3};
                 obj.eps_ips= varargin{4};
@@ -39,7 +39,7 @@ classdef IPS_solution %< dynamicprops
         
         %%
         function shape_transformation = get.ST( obj )
-            shape_transformation = obj.Q * obj.F; % = G + eps_0 ( a \dyad n )
+            shape_transformation = obj.Q * obj.F_ips; % = G + eps_0 ( a \dyad n )
         end
         %
         %         function lattice_transformation = get.LT( obj )

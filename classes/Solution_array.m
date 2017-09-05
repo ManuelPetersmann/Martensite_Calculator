@@ -36,7 +36,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
                     end
                     if strcmp( varargin{3}, 'det')
                         % determiannt should not change more than some value in varargin{4}
-                        if ( det(varargin{2}.array(i).F) - varargin{5}) <  varargin{4}
+                        if ( det(varargin{2}.array(i).F_ips) - varargin{5}) <  varargin{4}
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
