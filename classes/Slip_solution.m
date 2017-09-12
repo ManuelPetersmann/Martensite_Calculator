@@ -5,8 +5,8 @@ classdef Slip_solution < IPS_solution
     
     properties (Access = public)
         eps_s = [0.]; % shear magnitudes of normed shear dyads S
-        s = [0. 0. 0.]; % slip direction first shear (miller indizes)
-        m = [0. 0. 0.]; % slip plane normal first glide system (miller indizes)
+        s = [0. 0. 0.]; % slip directions of shears (miller indizes)
+        m = [0. 0. 0.]; % slip plane normals of glide system (miller indizes)
         mirror_plane  = [0. 0. 0.]; % mirror plane of block solution
     end % end of properties
     properties (Dependent)
@@ -39,7 +39,7 @@ classdef Slip_solution < IPS_solution
         end
         
         function gg = get.g(obj)
-            gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m, obj.Bravais_type );
+            gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m, 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         
         

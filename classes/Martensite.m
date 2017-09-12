@@ -1,13 +1,18 @@
 classdef Martensite < Base 
     
     properties(Access = public)
-        % TODO - define lattice correspondence here! 
-        %
         %R % rotational part of the 
-        U % = B - Bain strain /  Transformation stretch tensor - hermitian part of the deformation gradient
-        %F = eye(3); % Deformation_gradient of transformation - To determine hermitian part via polar decomposition e.g. for NiTi
+        U; % = B - Bain strain / structural-/Transformation stretch tensor - hermitian part of the deformation gradient
+        F; % Deformation_gradient of transformation - To determine hermitian part via polar decomposition e.g. for NiTi
         % e_mart = F * e_aust
-        IPS_solutions % solution_array object containing containing IPS_solution objects (see respective classes)  
+        C_am; % lattice correspondence (similar to OR and comprising U!)
+        % TODO - integrate function -  correspondence_matrix_components(lattice1, lattice2, m1, m2, use_planes)
+        % to determine lattice correspondence - or see X. Chen Paper or
+        % their Code - for now we take the hard coded Bain-correspondence from the well
+        % known figure...
+    end
+    properties (Dependent)
+        cp;
     end
     
     methods
@@ -51,8 +56,8 @@ classdef Martensite < Base
             % if the matrix is symmetric and positive definite
             % (A matrix is positive definite if all its associated
             % eigenvalues are positive)
-            if abs(obj.F - obj.F') < 1.e-9  && eig( obj.F ) > 0 % if deformation gradient has been set already
-                Bain = obj.F;
+            if ( (sum(sum(abs(obj.U - obj.U'))) < 1.e-9 ) && (all(eig( obj.U )) > 0.) ) % if U is already set
+                Bain = obj.U;
             else
                 Bain = polardecomposition(obj.F);
             end
@@ -76,7 +81,12 @@ classdef Martensite < Base
 % 
 %         if self.__Ulist is None:
 %             self.calcvariants()
-%         return self.__Ulist[n - 1]        
+%         return self.__Ulist[n - 1]  
+
+        function cp = get.cp(obj)
+            cp = obj.U * obj.C_am;
+        end
+        
         %-------------------------------------------------------------------   
         function vars = symmetry_related(obj, variant)
             % calculate all symmetry related variants of the transformation

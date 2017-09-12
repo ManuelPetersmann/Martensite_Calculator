@@ -17,8 +17,8 @@ function [ m ] = slip_planes_between_burgerssteps( b, eps, plane_miller, lattice
 for i = 1:length(eps)
 % Note: in the case of the cubic lattice the lattice parameters fall out,
 % therefore they are not given here! TODO generalize burgersvector with
-% lattice parameters in this function...
-    d = interplanar_distance( 1, plane_miller(i,:), lattice );    
+% lattice parameters in this function (now first argument 1)
+    d = interplanar_distance( 1., plane_miller(i,:), lattice );    
     m(i) = norm(b(i,:)) / (eps(i) * d);
 end
 

@@ -21,7 +21,7 @@ for j = 1:size(array, dim)
     end         
     %        
     if negatives == true
-        if ( sum(abs(subarray - entry )) < 1.e-4 ) | ( sum(abs(subarray + entry )) < 1.e-4 )
+        if ( sum(abs(subarray - entry )) < 1.e-4 ) || ( sum(abs(subarray + entry )) < 1.e-4 )
             bool = true;
             break
         end

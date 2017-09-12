@@ -132,43 +132,27 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
 %                 det_S = det(S)
 %                 det_S_mirror = det(S_mirror)
 %                 calculate invariant plane vector n_i etc.
-%                [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I ) % here the determinant of F changes for the second solution... the first is the second of Khachaturyan...
-%                 Q1
-%                 a1
-%                 h1
-%                 Q2
-%                 a2
-%                 h2
-%                 det_ST1 = det( Q1*F)
-%                 det_ST2 = det( Q2*F)
+
+                 % here the determinant of F changes for the second solution... 
+                 % the first is the second of Khachaturyan...
+
                 [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F,I,tolerance); %_kachaturyan2(F);
-%                 Q1
-%                 a1
-%                 h1
-%                 Q2
-%                 a2
-%                 h2
-                
-%                 det_LT1 = det( Q1*B)
-%                 det_LT2 = det( Q2*B)
-%                 det_ST1 = det( Q1*F)
-%                 det_ST2 = det( Q2*F)
-%                 a1
-%                 a22
-%                 a2
-%                 a11
-%                 h1
-%                 h22
-%                 h2
-%                 h11
 
                 % Note habit plane solutions come in pairs!
                 
                 isol = isol + 2; % increase counter for number of solutions found
+                eps_s1 = slip_planes_between_burgerssteps( ds(is1,:), g, ns(is1,:), 'cubic');
+                eps_s2 = slip_planes_between_burgerssteps( ds(is2,:), g, ns(is2,:), 'cubic');
+                eps_s = [eps_s1, eps_s2];
+                d = [ds(is1,:); ds(is2,:)];
+                n = [ns(is1,:); ns(is2,:)];
+                if mod(isol,100) == 0
+                    isol
+                end
                 
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, ds(is1,:), ns(is1,:), g, ds(is2,:), ns(is2,:), m_aust' );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, ds(is1,:), ns(is1,:), g, ds(is2,:), ns(is2,:), m_aust' );
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, d, n, m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, d, n, m_aust' );
                 
 
             end

@@ -7,14 +7,14 @@ classdef Base < Bravais_Lattice
     % The words components of a vector and coordinates of a point are used synonimous
     % International tables of crystallography Vol A, A1
     properties (SetAccess = public)
-        my_base % can e.g. be a cartesian (orthonormal) coordinate system so that everything
+        my_base; % can e.g. be a cartesian (orthonormal) coordinate system so that everything
         % calculated in it can be directly used as input in e.g. finite element calculations
         % without specifying a basis change.
     end
     properties (Dependent)
-        Cov_metric
-        Contra_metric
-        Dual_base % reciprocal = covariant basis = dual basis
+        Cov_metric;
+        Contra_metric;
+        Dual_base; % reciprocal = covariant basis = dual basis
         % for cubic crystal: components = miller indices of a plane whose normal is along that
         % vector, with the spacing of the plane given by the inverse of the magnitude of that vector.
     end

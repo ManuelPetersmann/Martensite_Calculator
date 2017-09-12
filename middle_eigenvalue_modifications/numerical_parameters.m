@@ -6,9 +6,9 @@ stepwidth_change = 0.5; % smaller and inverse to make increment bigger to escape
 %% Khachaturyans slip formulation (g or/= m)   S = 1/g  d \otimes m  % not clear wheter 
 % has been replaced by normed shears see below and the g's or m's are
 % calculated afterwards
-%g_min = 4.;
-%g_initial = 100.0; 
-%delta_g_initial = 3.; % must be set reasonably so that a solution is found i.e. g_min not to high, delta_g not to high either
+g_min = 4.;
+g_initial = 100.0; 
+delta_g_initial = 3.; % must be set reasonably so that a solution is found i.e. g_min not to high, delta_g not to high either
 % here it reaches as lowest g=5 with delta_g = 5. everything lower will be disregarded
 
 %% slip formulation with unit vectors  S = eps  d_unit \otimes m_unit

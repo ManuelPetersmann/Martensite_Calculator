@@ -166,11 +166,17 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 % Note habit plane solutions come in pairs!
                 
                 isol = isol + 2; % increase counter for number of solutions found
-                d = [ds_P2(is1,:), ds_P3(is2,:)];
-                n = [ns_P2(is1,:), ns_P3(is2,:)];
+                if mod(isol,100) == 0
+                    isol
+                end
+                eps_s1 = slip_planes_between_burgerssteps( ds_P2(is1,:), g, ns_P2(is1,:), 'cubic')
+                eps_s2 = slip_planes_between_burgerssteps( ds_P2(is2,:), g, ns_P2(is2,:), 'cubic')
+                eps_s = [eps_s1, eps_s2];
+                d = [ds_P2(is1,:); ds_P3(is2,:)];
+                n = [ns_P2(is1,:); ns_P3(is2,:)];
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, g, d, n, m_aust' );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, g, d, n, m_aust' );
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, d, n, m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, d, n, m_aust' );
                 
 
             end

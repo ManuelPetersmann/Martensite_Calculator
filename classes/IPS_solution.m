@@ -1,6 +1,6 @@
-classdef IPS_solution < dynamicprops & Martensite % needs to be derived from dynamicprops because slip_solution can dynamically add e.g. OR directions!
-    %
-    % SOLUTION - Baseclass for solutions of the IPS equation: Q*F - G = eps0 * (a \dyad n)
+classdef IPS_solution < dynamicprops
+    % needs to be derived from dynamicprops because slip_solution can dynamically add e.g. OR directions!
+    % IPS_solution - Baseclass for solutions of the IPS equation: Q*F - G = eps0 * (a \dyad n)
     
     properties (Access = public)
         F_ips = zeros(3); % e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013

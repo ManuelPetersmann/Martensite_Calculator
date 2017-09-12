@@ -3,25 +3,27 @@ classdef Bravais_Lattice < handle
     % crystallography Vol A, A1
     
     properties (SetAccess = public)
-        Bravais_type % a string specifying the Bravais lattice type e.g. 'cubic'
-        Centering % a string specifying the exact type e.g. simple 'P',
+        Bravais_type; % a string specifying the Bravais lattice type e.g. 'cubic'
+        Centering; % a string specifying the exact type e.g. simple 'P',
         % face-centered 'F', body-centered 'I' etc.
         % Lattice_parameters
         Lp = [1.0, 1.0, 1.0,  pi/2,   pi/2,   pi/2]; 
+        independent_slipsystems;
+        low_index_mirror_planes;
     end
     properties (Dependent, Access = public)
-        Point_group  % 3x3xN matrix containing the point group symmetry matrices
+        Point_group;  % 3x3xN matrix containing the point group symmetry matrices
         % This group is often also denoted as Laue-Group, which however
         % also contains matrices generated in a left-handed system (det<0)
         % which we do not consider here
-        E
+        E;
         % primitive (crystallographic) basis vectors e_i stored as E(:,:,1) =
         % [e1;e2;e3], row vectors
         % i.e. lattice vectors with integer coefficients t_i: {t_vec = t1*a1 + t2*a2 + t3*a3}.
         % this means that the a_i are translation vectors!
         % This matrix array also contains the conversion matrix to the
         % conventional basis in E(:,:,2)
-        C
+        C;
         % conventional crystallographic = covariant = real basis = direct lattice
         % c_i stored as C = [c1;c2;c3], (such that as many angles as 
         % possible amout to 90 degree. e.g.
@@ -32,11 +34,11 @@ classdef Bravais_Lattice < handle
         % These are the crystallographic bases used in the International Tables A !
         % must be user specified because of different possibilities
         % e.g. two for monoclinic
-        Cov_metric_C
-        Contra_metric_C
-        reciprocal_base % = dual- or contravariant base
-        Lattice_group
-        density
+        Cov_metric_C;
+        Contra_metric_C;
+        reciprocal_base; % = dual- or contravariant base
+        Lattice_group;
+        density;
     end
     
     methods

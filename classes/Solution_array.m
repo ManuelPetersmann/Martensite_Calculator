@@ -1,8 +1,10 @@
 classdef Solution_array < dynamicprops % subclass of handle class
     % This class provides functions to sort for solutions obeying specific
     % criteria e.g. Orientation relations, or shear (g) -, shape strain (lambda_1 - lambda_3) magnitudes
+    % & Martensite - need not to be derived from Martensite class
+    % must be derived from dynamicprops because subclass is derived from it
     properties
-        array;   % entries of array can be of type "IPS_solution", "Slip_solution", etc.
+        array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
     end
     
     methods
@@ -68,6 +70,10 @@ classdef Solution_array < dynamicprops % subclass of handle class
                         obj.array(foundnr) = varargin{2}.array(i);
                     end                   
                 end
+            end
+            %
+            if nargin > 1
+             display(['  current solutions: ' , num2str(length(obj.array)) ]);
             end
         end
 

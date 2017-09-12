@@ -1,4 +1,4 @@
-function [solutions] = doubleshear_variable_shear_mags(B, ns_product, ds_product, cp, ns_parent, ds_parent)
+function [solutions] = doubleshear_variable_shear_mags(mart_obj, ns_product, ds_product, ns_parent, ds_parent)
 % possible calls: multiple_shears_incremental_optimization(B, ns_parent, ds_parent)
 %                                                         (B,ns_product, ds_product, cp)
 %                                                         (B, ns_product, ds_product, cp, ns_parent, ds_parent) 
@@ -138,8 +138,8 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             n = [ns_product(is1,:); ns_product(is2,:)];
             
             % Create Slip_solution objects and append them to object array
-            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, d, n );
-            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, d ,n );
+            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, n, d );
+            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, n ,d );
         end
         
     end % end of loop for second slip system

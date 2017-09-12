@@ -34,11 +34,11 @@ if size(m1,2) == size(m2,2)
     new = cat(2, k*m2(:,1), g*m2(:,2), m*m2(:,3) );
     %
     % matfuncs = matrix_functions();
-    cp = new * inv(m1); % cp Transforms the components/coordinates
+    cp = new * inverse(m1); % cp Transforms the components/coordinates
     % cp2 = vec2 * matfuncs.inverse(vec1)  This is not the same! only true for basis vectors! 
     % m2 = cp*m1  - is equal to Eq 3.31 Ulrich Müller p.31 (cp = P^-1)
     % Therefore according to 3.29 there cp^-1 transforms the bases into each other
-    % Alternatively, instead of inverting cp by calculation, cp^?1 can be deduced by
+    % Alternatively, instead of inverting cp by calculation, cp^-1 can be deduced by
     % derivation of the matrix for the reverse transformation in the same manner
     % as is done in the second function in this file
     %
