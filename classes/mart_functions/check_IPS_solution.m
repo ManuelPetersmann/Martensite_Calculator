@@ -10,6 +10,8 @@ if nargin < 4
 end
 
 isSolution = false;
+% note a symmetric matrix always has real eigenvalues!
+% i.e. we do not have to check e.g. isreal(lambda_2)
 
 % check if eigenvalue lambda_2 is near enough to 1.0 
 % --> deviation less than epsilon

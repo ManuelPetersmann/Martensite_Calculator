@@ -1,12 +1,14 @@
-function [ reduced_sols ] = reduced_solutions( all_sols, start, stop, delta, prop_string)
+function [ reduced_sols ] = reduced_solutions( initial_sols, start, stop, delta, prop_string)
 
 
 switch prop_string
     case 'theta_p'
         % theta_p_max
-        all_sols.sort( 'theta_p' )
+        reduced_sols = Solution_array( Slip_solution(), initial_sols, cpps_gamma, theta_CPP_max, 'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
+        reduced_sols.sort( 'theta_p' )
     case 'theta_n'
         % cpp_max
+        reduced_sols = Solution_array( Slip_solution, initial_sols, cpps_gamma, theta_n_max, 'theta_h', 'closest_to_h', 'h'); 
         all_sols.sort( 'theta_n' )
         
     case 'eps'
@@ -15,7 +17,11 @@ switch prop_string
         
     case 'g'
         % g_min
-        all_sols.sort( 'g' )
+        reduced_sols = Solution_array( Slip_solution(), initial_sols, 'g', g_min, 'min'); 
+    case 'eps_ips'
+        % eps_max
+        reduced_sols = Solution_array( Slip_solution(), initial_sols, 'eps_ips', eps_max, 'max' ); 
+
 end
 
 

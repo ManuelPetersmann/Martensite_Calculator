@@ -44,10 +44,14 @@ all_sols = block_symmetric_doubleshear( martensite.U, martensite.cp, ms, ns, ds)
 % load all parameters from the file:
 selection_criteria_maraging;
 
+%% Added: March 2017
+%delta_determinant_max = 0.0001;
+det_sols = Solution_array( Slip_solution(), all_sols, 'det', delta_determinant_max,  detB3); 
+
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 %g_min = 10.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
-g_min_sols = Solution_array( Slip_solution(), all_sols, 'g', g_min, 'min'); 
+g_min_sols = Solution_array( Slip_solution(), det_sols, 'g', g_min, 'min'); 
 
 
 %% reduce soltuions to ones with eps < something 
@@ -60,7 +64,7 @@ eps_max_solutions = Solution_array( Slip_solution(), g_min_sols, 'eps_ips', eps_
 % 'misorientation of c.p.p martensite to austenite';
 %theta_p_max = 5.; % 90.;  maximum misorientation angle of cpps gamma & alpha - due to Qi,Khachaturyan 2013
 % misorientation-angle theta_p between the closed-packed planes (cpp) of alpha {110} and gamma {111} lattice
-theta_p_sols = Solution_array( Slip_solution(), eps_max_solutions, cpps_gamma, theta_p_max, 'theta_p', 'closest_to_cpp', 'cpps_gamma', true);
+theta_p_sols = Solution_array( Slip_solution(), eps_max_solutions, cpps_gamma, theta_CPP_max, 'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
 
 
 %% 
@@ -86,12 +90,9 @@ theta_KS_sols = Solution_array( Slip_solution(), cpp_deviation_sols, KS, theta_K
 % omega - 5.26 in Paper = theta_NW; angle( [1 -2 1], [1 0 -1] )
 theta_NW_sols = Solution_array( Slip_solution(), theta_KS_sols, NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
 
-%% Added: March 2017
-%delta_determinant_max = 0.0001;
-det_sols = Solution_array( Slip_solution(), theta_NW_sols, 'det', delta_determinant_max,  detB3); 
 %
 % to sort fully reduced solution for most important criterion 
-qi_sols = det_sols.sort( 'theta_p' ); % sort in ascending order for specific property
+qi_sols = theta_NW_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
 %theta_NW_sols.array(1) % print out best solution
 
 

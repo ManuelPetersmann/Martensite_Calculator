@@ -6,4 +6,8 @@ integrate
 twinning
 plotting
 writing
-/material_data
+material_data/NiTi/
+material_data/TiAl/
+material_data/steel/
+# /material_data
+# this is a comment

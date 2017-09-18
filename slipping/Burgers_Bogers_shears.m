@@ -29,12 +29,12 @@ S2  = (d2  * n2') ;
 % immer genau 0-matrix
 % S =  (I + g1 * S1) * (I + g2 * S2)
 S =  (I + g1 * S1 + g2 * S2);
-[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(S,eye(3))
+[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(S,eye(3));
 %eps_0
 
 [U,R] = polardecomposition( S );
 % Interstingly this deformation automatically has an eigenvalue of 1
-eigs(U);
+eigs(U)
 
 % define Bain-strain
 eta1 = (a_mart/a_aust)*sqrt(2);

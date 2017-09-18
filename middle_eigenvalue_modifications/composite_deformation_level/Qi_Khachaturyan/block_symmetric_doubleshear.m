@@ -96,7 +96,6 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                     break
                 end
                 %            lambda2_old = lambda_2;
-
                 
                 % change the search direction and reduce step intervall if lambda2
                 % passes one but is not in the required precision range.
@@ -105,7 +104,6 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                     %error('passed 1...')
                     lambda2_smaller1 = lambda2_smaller1_new;
                 end
-
                              
 %                 if abs( g - 17.253552526231005 ) < 1.e-15
 %                     is_possible_solution;

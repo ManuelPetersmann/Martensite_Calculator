@@ -54,7 +54,7 @@ classdef IPS_solution < dynamicprops
         end
         %
         function alpha = get.rot_angle_inclusion( obj )
-            alpha = angle_from_rotmatrix( obj.Q );
+            alpha = 
         end
         %         function lattice_transformation = get.LT( obj )
         %             lattice_transformation = obj.Q * obj.U; % = G + eps_0 ( a \dyad n )   %%%%%%%%% Problem like this is that the bain strain would occur in two classes...

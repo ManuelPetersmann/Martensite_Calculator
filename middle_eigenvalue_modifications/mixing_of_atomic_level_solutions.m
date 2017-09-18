@@ -9,9 +9,10 @@ function [solutions] = mixing_of_atomic_level_solutions(atomic_solutions) %, nam
 % maintained, which has been checked to be true for various combinations.
 % Therefore, an incremental search (varying x) is utilized that optimizes
 % the property specified in the variable 'prop_to_minimize': 
-% F_composite should be mostly volumetric, i.e.  min|F_composite - F^H|
+% F_composite should be mostly volumetric, i.e.  min|F_composite - F^H| - see e.g. Qi - I think this is not necessary!
+% Instead ILS characteristics + 
 % the shape strain 'eps' of F_composite = I + eps d \otimes h
-% should be as small as possible
+% should be as small as possible (without changing the determinant!)
 
 % Note: THE AVERAGE OF TWO IPS ALWAYS IS AN IPS (except for the small 
 % error that is made because the determinant is not invariant to addition)
