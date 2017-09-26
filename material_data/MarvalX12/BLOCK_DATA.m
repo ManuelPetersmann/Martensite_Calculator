@@ -2,7 +2,15 @@ function [ VariantenSort, strainSort  ] = BLOCK_DATA( )  %[ blockpairs, n1, n2]
 %all Angels in Radians!!! Matlab Standard
 
 clc
-format long
+format short
+
+% Der mittlere Eigenwert ist hier also n1. Dieser soll auf 1.0 getuned
+% werden. Die differenz ist also (n1-1).
+% B3 = [eta1 0    0   
+%        0  eta1  0
+%        0  0  eta3];
+%    
+% det(B3)
 
 % Khachaturyan Paper...
 % Viel zu hohe Volumsänderung von 6% ausßerdem änderung gegenüber
@@ -11,16 +19,22 @@ A1 = [1.0928   0.1034  0.1022;
       0.0928   1.1034  0.1022;  
      -0.1369  -0.1581  0.8464];
  
-block = [1.0928   0.0981  0.1022;   
+block = [1.0981   0.0981  0.1022;   
          0.0981   1.0981  0.1022;  
         -0.1475  -0.1475  0.8464];
+    
+    [E,V] = eigs(block)
+    
+    [~,R] = polardecomposition( block );
+    vec4 = vrrotmat2vec( R );
+    vec4(4) = rad2deg( vec4(4) )
  
 det(A1)
 det(block)
  
-A2 = (block - eye(3) )*0.5;
-A1 = A2 +eye(3);
-det(A1)
+%A2 = (block - eye(3) )*0.5;
+%A1 = A2 +eye(3);
+%det(A1)
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

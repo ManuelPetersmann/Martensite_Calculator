@@ -16,14 +16,19 @@ classdef IPS_solution < dynamicprops
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
         ST;  % on side of homogeneous deformation F:  QF - G = eps_0* ( a \dyad n )
-        dir_of_largest_def;
-        dir_of_smallest_def;
-        rot_angle_inclusion;
+        dir_of_largest_def; % should be in the direction of the eigenvector corresponding to the minimum eigenvalue
+        dir_of_smallest_def; % should be close to the habit plane vector
+        frob_green_lagrange;
+        frob_displacement_grad;
+        angle_smallest_def_to_ILS_KS_NW_dir_aust;
+        axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
+        % for this term a cosserat like contribution to the strain energy could be written,
+        % however preferable it should be vanishingly small in reality!
     end
     
     methods
         % constructor: The constructor can return only a single argument.
-        function obj = IPS_solution( varargin ) % F1, F2, id, eps, a, h, Q, LT)
+        function obj = IPS_solution( varargin ) % F1, F2, id, eps, d, h, Q, LT)
             if isempty(varargin)
                 return; % no argument constructor
             end
@@ -46,15 +51,31 @@ classdef IPS_solution < dynamicprops
         end
         %
         function smallest_eigenvector = get.dir_of_smallest_def( obj )
-            [~,~,~,smallest_eigenvector] = sorted_eig_vals_and_vecs(); % [ y1, y2, y3, e1, e2, e3] = 
+            [~,~,~,smallest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1 ); % [ y1, y2, y3, e1, e2, e3] = 
         end
         %
         function largest_eigenvector = get.dir_of_largest_def( obj )
-            [~,~,~,~,~,largest_eigenvector] = sorted_eig_vals_and_vecs(); % [ y1, y2, y3, e1, e2, e3] =
+            [~,~,~,~,~,largest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1 ); % [ y1, y2, y3, e1, e2, e3] =
         end
         %
-        function alpha = get.rot_angle_inclusion( obj )
-            alpha = angle_from_rotmatrix( obj.Q );
+        function frob = get.frob_green_lagrange(obj)
+            frob = trace(obj.ST^T * obj.ST - eye(3));        
+        end
+        %
+        function frob = get.frob_displacement_grad(obj)
+            frob = trace(obj.ST - eye(3));
+        end
+        %
+        function vec4 = get.axis_angle_rotvec_inclusion( obj )
+            [~,R] = polardecomposition( obj.ST );
+            vec4 = vrrotmat2vec( R );
+            vec4(4) = rad2deg( vec4(4) );
+        end
+        %
+        function ang = get.angle_smallest_def_to_ILS_KS_NW_dir_aust(obj)
+            if isprop(obj,'closest_KS')
+                ang = get_angle( obj.dir_of_smallest_def,obj.closest_KS );
+            end
         end
         %         function lattice_transformation = get.LT( obj )
         %             lattice_transformation = obj.Q * obj.U; % = G + eps_0 ( a \dyad n )   %%%%%%%%% Problem like this is that the bain strain would occur in two classes...

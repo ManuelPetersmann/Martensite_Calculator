@@ -1,4 +1,5 @@
 function [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
+% call: [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
 % solves the equation for an invariant interface:
 % Q*F - G = a \otimes n
 % where A and B are two mappings (homogeneous deformations)

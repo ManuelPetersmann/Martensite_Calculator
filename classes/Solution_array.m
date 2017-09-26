@@ -38,7 +38,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
                     end
                     if strcmp( varargin{3}, 'det')
                         % determiannt should not change more than some value in varargin{4}
-                        if ( abs( det(varargin{2}.array(i).F_ips) - varargin{5} ) <  varargin{4} )
+                        if ( abs( det(varargin{2}.array(i).F1) - varargin{5} ) <  varargin{4} )
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
@@ -61,7 +61,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = min_misorientation( varargin{3}, varargin{2}.array(i).LT, varargin{8} );
                     end
                     if nargin == 7
-                        % closest austenite direction or plane to 'n' or 'a'
+                        % closest austenite direction or plane to 'h' or 's'
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = min_misorientation( varargin{3}, varargin{2}.array(i).(varargin{7}) ); 
                     end
                     %

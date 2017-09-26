@@ -32,9 +32,8 @@ function [composite_solutions] = mixing_of_atomic_level_solutions(atomic_solutio
 % martensties - p.131.
 
 %% Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
-composite_solutions = Solution_array( Composite_solution() ); 
+composite_solutions = Solution_array( Slip_solution() ); 
 
-neglected_due_to_eigenvalue_change_during_mixing = 0;
 % loop over slip system combinations
 for is1 = 1:(size(atomic_solutions.array,2)-1)
     for is2 = (is1+1):size(atomic_solutions.array,2)
@@ -47,14 +46,12 @@ for is1 = 1:(size(atomic_solutions.array,2)-1)
             break
         end 
         %if strcmp(minimize_prop,' shape strain vector')
-        [x_eps, eps_block] = mixture_vecs_lin_least_squares_opt( cat(2,sol1.eps_ips*sol1.d , sol2.eps_ips*sol2.d) );
+        [x_eps, eps_net]        = mixture_vecs_lin_least_squares_opt( cat(2,sol1.eps_ips*sol1.d , sol2.eps_ips*sol2.d) );
         F_comp_eps = reshape( cat(2,reshape(F1,9,1),reshape(F1,9,1)) * x_eps , 3,3) ;
         % it has been found that only for F_comp_eps the determinant is
-        % invariant! 
-        [x_dis, d_dis] = mixture_matrix_lin_least_squares_opt(cat(3,sol1.ST,sol2.ST));
-        % removed third output of above fucntion - ,  F_comp_dis_opt] since
-        % determinant is not invariant - same for function call below
-        [x_gl,  d_gl] = frob_min_green_lagrange_composite( sol1.ST,sol2.ST, x_eps(1) );
+        % invariant!
+        [x_dis, d_dis,  F_comp_dis_opt] = mixture_matrix_lin_least_squares_opt(cat(3,sol1.ST,sol2.ST));
+        [x_gl,  d_gl,   F_comp_gl_opt] = frob_min_green_lagrange_composite( sol1.ST,sol2.ST, x_eps(1) )
          
         % calculate composite IPS properties of F_comp_eps
         try
@@ -69,14 +66,12 @@ for is1 = 1:(size(atomic_solutions.array,2)-1)
         
         isol = isol + 2;
         % Create Slip_solution objects and append them to object array
-        composite_solutions.array( isol-1 ) =  Composite_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, ...
-        eps_block, x_eps, F_comp_eps, x_dis, d_dis, x_gl, d_gl );
-        composite_solutions.array( isol )   =  Composite_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, ...
-        eps_block, x_eps, F_comp_eps, x_dis, d_dis, x_gl, d_gl );
+        composite_solutions.array( isol-1 ) =  IPS_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, n, d );
+        composite_solutions.array( isol )   =  IPS_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, n ,d );
         
     end % end of loop 1
 end % end of loop 2
 
-display( ['number of potential solutions found: n_sol = ', num2str(isol) ] )
-display( [ num2str(neglected_due_to_eigenvalue_change_during_mixing), ' solutions neglected due to change of eigenvalues'])
+display(['number of potential solutions found: n_sol = ',num2str(isol)
+neglected_due_to_eigenvalue_change_during_mixing
 end

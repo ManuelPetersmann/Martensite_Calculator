@@ -69,12 +69,16 @@ display(['criterion tolerable delta_CPP_max = ',num2str(theta_CPP_max)] );
 
 %% Added: March 2017
 %delta_determinant_max = 0.0001;
-det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'det', delta_determinant_max,  detB3); 
+det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'det', delta_determinant_max,  detB3);
 display(['criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
+
 % to sort fully reduced solution for most important criterion 
 mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
 %theta_NW_sols.array(1) % print out best solution
 
+% these two are vectors...
+%det_sols.sort( 'dir_of_smallest_def' );
+%det_sols.sort( 'dir_of_largest_def' );
 
 
 %% Best solution - determine Habit planes for all symmetry related variants
