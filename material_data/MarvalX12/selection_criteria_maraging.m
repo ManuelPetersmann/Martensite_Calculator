@@ -1,7 +1,9 @@
+% densest packed plane in austenite
 cpps_gamma = all_from_family_perms( [1 1 1] );
 % % 'Kurdjumov Sachs directions [110]_aust || [111]_mart';
+% densest packed direction in austenite
 KS = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
-% Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
+% Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [-110]_aust || [100]_mart';
 NW = all_from_family_perms( [1 2 1], false );
 
 %% lath level selection criteria

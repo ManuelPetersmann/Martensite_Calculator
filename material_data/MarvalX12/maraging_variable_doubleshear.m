@@ -5,6 +5,7 @@ Bain_and_Correspondence_mavalX12;
 
 count_directions_extra = true;
 
+%% Code ab hier in GUI Code einbauen!
 %% assemble slip systems in alpha
 % since the shear is a substantial part of the transformation only 
 % shear systems which are favorable in the b.c.c. lattices are considered. 
@@ -15,18 +16,22 @@ plane_families_bcc =     [ [1 1 0]
 direction_families_bcc = [ [1 1 1]
                            [1 1 0] ];
 % find all possible combination (including different shear directions)
-[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
+[martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
+%[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
 
 plane_families_fcc =     [ [1 1 1] ];
 direction_families_fcc = [ [1 1 0]; [1 1 2] ];
-[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
+[austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
+%[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
 
 %% calculate possible solutions and store solution objects in an object array
-%all_sols = doubleshear_variable_shear_mags( B3, ns_product, ds_product, cp, ns_parent, ds_parent);
-%all_sols = doubleshear_variable_shear_mags( B3, ns_parent, ds_parent);
-all_sols = doubleshear_variable_shear_mags( martensite.U, ns_product, ds_product, martensite.cp);
-
+%martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite.U, austenite.slip_planes, ...
+%                         austenite.slip_directions, martensite.cp, martensite.slip_planes, martensite.slip_directions);
+%martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite.U, austenite.slip_planes, austenite.slip_directions);
+martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite.U, martensite.slip_planes, ...
+                                                           martensite.slip_directions, martensite.cp);
+ 
 
 %% further checks if solution is appropriate - reduction of total solutions one at a time
 % criteria for selection of solutions:
@@ -43,8 +48,9 @@ all_sols = doubleshear_variable_shear_mags( martensite.U, ns_product, ds_product
 selection_criteria_maraging;
 
 % Habit plane deviation from experimental observations
-tolerable_HP_deviations = Solution_array( Slip_solution, all_sols, cpps_gamma, theta_n_max, 'theta_h', 'closest_to_h', 'h'); 
-display(['criterion del_habitplane_111gamma_max = ',num2str(theta_n_max)]);
+tolerable_HP_deviations = Solution_array( Slip_solution, martensite.IPS_solutions, cpps_gamma, ...
+    theta_n_max, 'theta_h', 'closest_to_h', 'h'); 
+display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_n_max)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
 
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
@@ -54,23 +60,26 @@ display(['criterion del_habitplane_111gamma_max = ',num2str(theta_n_max)]);
 
 %% reduce soltuions to ones with eps < something 
 eps_max_solutions = Solution_array( Slip_solution, tolerable_HP_deviations, 'eps_ips', eps_max, 'max' ); 
-display(['criterion eps_max = ',num2str(eps_max)] );
+display(['with criterion eps_max = ',num2str(eps_max)] );
 
 %% 'misorientation of CPP martensite to austenite - planes of OR';
-tolerable_CPP_deviations = Solution_array( Slip_solution, eps_max_solutions, cpps_gamma, theta_CPP_max, 'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
-display(['criterion delta_CPP_max = ',num2str(theta_CPP_max)] );
+tolerable_CPP_deviations = Solution_array( Slip_solution, eps_max_solutions, cpps_gamma, theta_CPP_max, ...
+    'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
+display(['with criterion delta_CPP_max = ',num2str(theta_CPP_max)] );
     
 %% specify maximum misorientations of solutions to ideal OR directions
-tolerable_KS_direction = Solution_array( Slip_solution, tolerable_CPP_deviations, KS, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
-display(['criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
+tolerable_KS_direction = Solution_array( Slip_solution, tolerable_CPP_deviations, KS, ...
+    theta_KS_max, 'theta_KS_min', 'closest_cp_direction', 'KS', false );
+display(['with criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
 
-tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
-display(['criterion tolerable delta_CPP_max = ',num2str(theta_CPP_max)] );
+tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
+    'theta_NW_min', 'closest_NW', 'NW', false);
+display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPP_max)] );
 
 %% Added: March 2017
 %delta_determinant_max = 0.0001;
 det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'det', delta_determinant_max,  detB3);
-display(['criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
+display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
 % to sort fully reduced solution for most important criterion 
 mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property

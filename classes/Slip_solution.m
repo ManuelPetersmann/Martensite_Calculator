@@ -4,18 +4,19 @@ classdef Slip_solution < IPS_solution
     % variable amounts of slip systems possible
     
     properties (Access = public)
-        eps_s = [0.]; % shear magnitudes of normed shear dyads S
-        s = [0. 0. 0.]; % slip directions of shears (miller indizes)
-        m = [0. 0. 0.]; % slip plane normals of glide system (miller indizes)
-        mirror_plane  = [0. 0. 0.]; % mirror plane of block solution
+        eps_s; % shear magnitudes of normed shear dyads S
+        shear_direction; % slip directions of shears (miller indizes)
+        slip_normal_plane_vec; % slip plane normals of glide system (miller indizes)
+        mirror_plane; % mirror plane of block solution
     end % end of properties
     properties (Dependent)
-        g; % average nr of slip planes between burgers vector steps 
+        slip_density; % average nr of slip planes between burgers vector steps 
     end
     
     methods
         % constructor
         function obj = Slip_solution( varargin ) % F, G, id, eps_0, a, h, Q, LT, g, d1, n1, d2, n2 )
+            % All matlab classes have a default constructor with no arguments!
             %
             if nargin == 0 % =  if isempty(varargin), return;end
                 % no argument constructor
@@ -25,12 +26,12 @@ classdef Slip_solution < IPS_solution
                 super_args = { varargin{1}, varargin{2}, varargin{3}, varargin{4}, varargin{5}, varargin{6}, varargin{7}, varargin{8} };
             end
             %
-            obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, a, n, Q, LT
+            obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, d, h, Q, LT
             %
             if nargin > 8
-                obj.eps_s = varargin{1,9};  % initially here was only one g - equal for both slips
-                obj.s = varargin{1,10};
-                obj.m = varargin{1,11};
+                obj.eps_s = varargin{1,9};  % initially here was only one 'slip_density' - equal for both slips
+                obj.shear_direction = varargin{1,10};
+                obj.slip_normal_plane_vec = varargin{1,11};
             end
             %
             if nargin > 11 % this is only used if a direct averaged block habit plane condition is used as proposed by Qi and Khachaturyan 2014 Acta
@@ -38,7 +39,7 @@ classdef Slip_solution < IPS_solution
             end
         end
         
-        function gg = get.g(obj)
+        function gg = get.slip_density(obj)
             gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m, 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         

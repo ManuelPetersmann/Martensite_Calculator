@@ -17,10 +17,12 @@ for j = 1 : size(vecs,1)
         vec2 = comp; % comparison between family and one vector only
     else
         if plane == true % nargin == 3 --> comp = LT           note (AB)' = B'A'
-            vec2 = vec1 * inverse(comp); % here Bhadeshias notation is used (row vector from left)
+            vec2 = vec1 * inverse(comp); % here Badeshia's notation is used (row vector from left)
                                          % alternatively it could be colum vector from right i.e. :
                                          % inverse(comp)^Transposed * vec1'
         else
+            vec1
+            comp'
             vec2 = vec1 * comp'; % direction transformation
         end
     end

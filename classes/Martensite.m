@@ -1,7 +1,6 @@
 classdef Martensite < Base 
     
     properties(Access = public)
-        %R % rotational part of the 
         U; % = B - Bain strain / structural-/Transformation stretch tensor - hermitian part of the deformation gradient
         F; % Deformation_gradient of transformation - To determine hermitian part via polar decomposition e.g. for NiTi
         % e_mart = F * e_aust
@@ -10,6 +9,8 @@ classdef Martensite < Base
         % to determine lattice correspondence - or see X. Chen Paper or
         % their Code - for now we take the hard coded Bain-correspondence from the well
         % known figure...
+        %R % rotational part of the
+        IPS_solutions;
     end
     properties (Dependent)
         cp;
@@ -151,6 +152,7 @@ end % class end
 %             end
 %         end
         %------------------------------------------------------------------
+        
 
    
 % Verify - The following probably only holds if the basis remains the same:

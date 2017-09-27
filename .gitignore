@@ -1,11 +1,9 @@
 *.log
 Literature
 saves_local
-old_projects
 integrate
-twinning
-plotting
-writing
+utils/plotting
+utils/writing
 material_data/NiTi/
 material_data/TiAl/
 material_data/steel/

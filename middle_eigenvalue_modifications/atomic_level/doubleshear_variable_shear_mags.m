@@ -9,8 +9,9 @@ function [solutions] = doubleshear_variable_shear_mags(B, ns_product, ds_product
 % ns...slip system normals, ds... slip directios
 % returns object array of solutions for IPSs.
 
-solutions = Solution_array( Slip_solution() ); 
-% Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+solutions = Solution_array( ); 
+solutions.array = Slip_solution();
+% Construct solutions.array with type of Slip_Solution -> Per default any class property is a double 
 
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
@@ -40,7 +41,8 @@ for jj = 1:size(ds,1)
     S(:,:,jj)  = ( ds(jj,:) / norm(ds(jj,:)) )' * (ns(jj,:) / norm(ns(jj,:)) ); 
 end
 
-display( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) ) ], ' nr of solutions cannot be greater than 2-times this value' )
+display( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
+display('nr of solutions cannot be greater than 2-times this value.')
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
@@ -125,7 +127,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         if is_possible_solution
             %% calculate solution
             % calculate invariant plane vector n_i etc.
-            [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+            [eps_0, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
             % Note habit plane solutions come in pairs!
             
             isol = isol + 2; % increase counter for number of solutions found
@@ -138,8 +140,8 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             n = [ns_product(is1,:); ns_product(is2,:)];
             
             % Create Slip_solution objects and append them to object array
-            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, d, n );
-            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, d ,n );
+            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, d1, h1, Q1, Q1*B, eps_s, d, n );
+            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, d2, h2, Q2, Q2*B, eps_s, d ,n );
         end
         
     end % end of loop for second slip system

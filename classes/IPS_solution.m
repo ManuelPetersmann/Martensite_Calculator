@@ -3,14 +3,14 @@ classdef IPS_solution < dynamicprops
     % IPS_solution - Baseclass for solutions of the IPS equation: F1 - F2 = eps0 * (d \dyad h)
     
     properties (Access = public)
-        F1 = zeros(3); % F1=U1 R1 e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
-        F2 = zeros(3); % F2=U2 R2 this should be the reference deformation, e.g. Identiy for austenite, or fixed U_i for twins
-        id = 0;
-        eps_ips = 0.; % strain: lambda_3 - lambda_1 or sqrt respectively depending on convention
-        h = [0. 0. 0.]'; % normal vector to habit plane (unit vector)
-        d = [0. 0. 0.]'; % shear direction of transformation (unit vector)
-        Q = zeros(3); % rotation matrix (for invariant planar match between domains of homogeneous deformation F and G
-        LT = zeros(3); % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
+        F1; % F1=U1 R1 e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
+        F2; % F2=U2 R2 this should be the reference deformation, e.g. Identiy for austenite, or fixed U_i for twins
+        id;
+        eps_ips; % strain: lambda_3 - lambda_1 or sqrt respectively depending on convention
+        h; % normal vector to habit plane (unit vector)
+        d; % shear direction of transformation (unit vector)
+        Q; % rotation matrix (for invariant planar match between domains of homogeneous deformation F and G
+        LT; % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
         %LT; % = RB = ...R von IPS condition
     end
     properties (Dependent)
@@ -20,7 +20,7 @@ classdef IPS_solution < dynamicprops
         dir_of_smallest_def; % should be close to the habit plane vector
         frob_green_lagrange;
         frob_displacement_grad;
-        angle_smallest_def_to_ILS_KS_NW_dir_aust;
+        angle_smallest_def_to_close_packed_direction; %to_ILS_KS_NW_dir_aust;
         axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
         % for this term a cosserat like contribution to the strain energy could be written,
         % however preferable it should be vanishingly small in reality!
@@ -58,12 +58,12 @@ classdef IPS_solution < dynamicprops
             [~,~,~,~,~,largest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1 ); % [ y1, y2, y3, e1, e2, e3] =
         end
         %
-        function frob = get.frob_green_lagrange(obj)
-            frob = trace(obj.ST^T * obj.ST - eye(3));        
+        function frobgl = get.frob_green_lagrange(obj)
+            frobgl = trace(obj.ST^T * obj.ST - eye(3));        
         end
         %
-        function frob = get.frob_displacement_grad(obj)
-            frob = trace(obj.ST - eye(3));
+        function frobdis = get.frob_displacement_grad(obj)
+            frobdis = trace(obj.ST - eye(3));
         end
         %
         function vec4 = get.axis_angle_rotvec_inclusion( obj )
@@ -72,10 +72,10 @@ classdef IPS_solution < dynamicprops
             vec4(4) = rad2deg( vec4(4) );
         end
         %
-        function ang = get.angle_smallest_def_to_ILS_KS_NW_dir_aust(obj)
-            if isprop(obj,'closest_KS')
-                ang = get_angle( obj.dir_of_smallest_def,obj.closest_KS );
-            end
+        function ang = get.angle_smallest_def_to_close_packed_direction(obj)
+            %if isprop(obj,'closest_KS')
+                ang = get_angle( obj.dir_of_smallest_def,obj.nearest_cp_direction );
+            %end
         end
         %         function lattice_transformation = get.LT( obj )
         %             lattice_transformation = obj.Q * obj.U; % = G + eps_0 ( a \dyad n )   %%%%%%%%% Problem like this is that the bain strain would occur in two classes...

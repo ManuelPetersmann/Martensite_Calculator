@@ -8,8 +8,11 @@ classdef Bravais_Lattice < handle
         % face-centered 'F', body-centered 'I' etc.
         % Lattice_parameters
         Lp = [1.0, 1.0, 1.0,  pi/2,   pi/2,   pi/2]; 
-        independent_slipsystems;
-        low_index_mirror_planes;
+        slip_planes; % sets of plane_families in one array;
+        slip_directions; % sets of families in one array;
+        % the order of slip_planes and slip_direction fits together such
+        % that all independent deformations are taken care of (i.e. both deformation directions) 
+        mirror_planes; % generally low_index planes
     end
     properties (Dependent, Access = public)
         Point_group;  % 3x3xN matrix containing the point group symmetry matrices
@@ -117,6 +120,10 @@ classdef Bravais_Lattice < handle
                 bool = true;
             end
         end
+        %------------------------------------------------------------------
+%        function set.slip_planes(obj)
+%            [ ns_product, ds_product ] = independent_slipsystems( obj.slip_planes, obj.slip_directions, true );
+%        end
         %------------------------------------------------------------------
         function value = get.E(obj)
             % generate the base matrix "E" for primitive cell of 3D Bravais lattices
