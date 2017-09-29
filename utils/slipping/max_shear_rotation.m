@@ -20,7 +20,20 @@ else
     u = ( 1./sin(phi) ) * cross( ms_u , m_u ); % sense of rotation is from ms to m
     % Rechtssystem via cross product ensured
     u(4) = phi;
-    R =  vrrotvec2mat( u ); %rot_originaxis_angle( rad2deg(phi), u );
+    % added rodriguez rotation (only valid for standardbasis like in cubic
+    % to cubic case) myself to be independent of other matlab addons
+    w = [0.   -u(3)  u(2)
+         u(3)  0    -u(1)
+        -u(2)  u(1)  0 ];
+    w = sin(phi)*w;
+    R =  (1.-cos(phi)* u(1:3)'*u(1:3) + eye(3)*cos(phi) + w   
+    %vrrotvec2mat( u ); 
+    %rot_originaxis_angle( rad2deg(phi), u ); --- This is only valid
+    %through the origin (0,0)
+    rotationVectorToMatrix(u(1:3)*phi)
+    
+    a = lol
+    
 end
 
 

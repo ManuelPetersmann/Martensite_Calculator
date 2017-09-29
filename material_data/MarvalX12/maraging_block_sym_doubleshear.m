@@ -1,7 +1,7 @@
 % First execute File - Bain_and_Correspondence_mavalX12
-clear all;
-clc;
-Bain_and_Correspondence_mavalX12;
+%clear all;
+%clc;
+%Bain_and_Correspondence_mavalX12;
 
 %% assemble slip systems in alpha
 % slip systems b.c.c  or  f.c.c
@@ -104,7 +104,7 @@ qi_sols = theta_NW_sols.sort( 'theta_CPP' ); % sort in ascending order for speci
 %% Best solution - determine Habit planes for all symmetry related variants
 % for interactions.
 % hp must correspond to the solution below for same order!!!
-% Vorzeichen meiner Lösung sind so wie die von Lösung Nr4!
+% Vorzeichen meiner Lï¿½sung sind so wie die von Lï¿½sung Nr4!
 %hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
 
 %eshelby = martensite.symmetry

@@ -96,7 +96,8 @@ function start_MartCalc_Callback(hObject, eventdata, handles)
 % % % start_time = datestr(now,'HH:MM:SS.FFF'); % get time
 % % % new_log = {[start_time,' - ','Procedure started.']}; % start new log as cell array for several lines
 % % % set(handles.log_lb, 'string', new_log, 'value', 1); % update log
-updateLog_MartCalc(hObject, handles, 'Procedure started.')
+
+%updateLog_MartCalc(hObject, handles, 'Procedure started.')
 
 %% Set up coordinate systems and lattice parameters
 martensite = Martensite(); % creates martensite object
@@ -119,7 +120,16 @@ updateLog_MartCalc(hObject, handles, 'Determination of solutions started.')
 switch calc_mech
     case 1
         updateLog_MartCalc(hObject, handles, 'maraging_block_sym_doubleshear - run')
-        maraging_block_sym_doubleshear; 
+        % maraging_block_sym_doubleshear;
+        % highly symmetric mirror planes from bcc
+        % {001} family
+        sort_out_negatives = true;
+        ms = all_from_family_perms( [0 0 1], sort_out_negatives );
+        % {011} family
+        ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
+        martensite.low_index_mirror_planes = ms;
+        block_symmetric_doubleshear(B, cp, ms, ns, ds )
+        %
     case 2
         updateLog_MartCalc(hObject, handles, 'maraging_block_sym_doubleshear_specific_slipsys_test - run')
         maraging_block_sym_doubleshear_specific_slipsys_test;

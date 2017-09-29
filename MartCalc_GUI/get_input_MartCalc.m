@@ -36,6 +36,8 @@ end
 
 % Criterion 4: Maximum misorientation of block HP to {111}_gamma
 % note 557 is 9.4° from 111 ! therefore this high tolerance!
+% Angle between 111 and 557 habit plane
+% acos( dot([1. 1. 1.], [5. 5. 7.])/(sqrt(3)*sqrt(99) ) ) = 9.4 degree
 if(handles.asc_status(4) > 0)
     theta_n_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(4)).Children(2).String);
 end
@@ -59,19 +61,7 @@ if(handles.asc_status(7) > 0)
     theta_NW_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(7)).Children(2).String);
 end
 
-% Angle between 111 and 557 habit plane
-% acos( dot([1. 1. 1.], [5. 5. 7.])/(sqrt(3)*sqrt(99) ) ) = 9.4 degree
-
-%display(['Selection criteria: g_min a']) 
-
-% EHL: TODO: add functionality, to read input for slip planes and
-% directions
-plane_families =     [ [1 1 0] ;
-                       [1 1 2] ];
-direction_families = [ [1 1 1]; 
-                       [1 1 0] ];
-
-% get input for base vectors from GUI
+%% get input for base vectors from GUI
 base_aust = zeros(3,3);
 k = 19; % position of 1st entry of 1st base-vec for austenite
 for i = 1:3
@@ -104,8 +94,16 @@ for i = 1:3
 end
 martensite.C_am = C_am;
 
+%%
+% EHL: TODO: add functionality, to read input for slip planes and
+% directions
+plane_families =     [ [1 1 0] ;
+                       [1 1 2] ];
+direction_families = [ [1 1 1]; 
+                       [1 1 0] ];
 
-% EHL: add input in GUI?
+
+%% EHL: add input in GUI?
 austenite.Bravais_type  = 'cubic';
 martensite.Bravais_type = 'cubic';
 % austenite.Centering = 
