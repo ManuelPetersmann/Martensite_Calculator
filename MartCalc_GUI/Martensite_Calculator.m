@@ -106,6 +106,7 @@ austenite = Base();
 % read user input from GUI for determination of solutions
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI')
 get_input_MartCalc;
+updateLog_MartCalc(hObject, handles,['Volume change is:',num2str( det(B3) ),'%'] );
 
 % calculate bain strains and correspondence matrix based on given
 % lattice constants
@@ -116,33 +117,6 @@ get_input_MartCalc;
 % active selection criteria
 calc_mech = handles.popup_calc_mech.Value;
 
-updateLog_MartCalc(hObject, handles, 'Determination of solutions started.')
-switch calc_mech
-    case 1
-        updateLog_MartCalc(hObject, handles, 'maraging_block_sym_doubleshear - run')
-        % maraging_block_sym_doubleshear;
-        % highly symmetric mirror planes from bcc
-        % {001} family
-        sort_out_negatives = true;
-        ms = all_from_family_perms( [0 0 1], sort_out_negatives );
-        % {011} family
-        ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-        martensite.low_index_mirror_planes = ms;
-        block_symmetric_doubleshear(B, cp, ms, ns, ds )
-        %
-    case 2
-        updateLog_MartCalc(hObject, handles, 'maraging_block_sym_doubleshear_specific_slipsys_test - run')
-        maraging_block_sym_doubleshear_specific_slipsys_test;
-    case 3
-        updateLog_MartCalc(hObject, handles, 'maraging_MarescaCurtin_test - run')
-        maraging_MarescaCurtin_test;
-    case 4
-        updateLog_MartCalc(hObject, handles, 'maraging_multiple_shears - run')
-        maraging_multiple_shears;
-    case 5
-        updateLog_MartCalc(hObject, handles, 'maraging_variable_doubleshear - run')
-        maraging_variable_doubleshear;
-end
 updateLog_MartCalc(hObject, handles, 'Determination and filtering of solutions completed.')
 
 % --- Executes on selection change in lsc_popup.

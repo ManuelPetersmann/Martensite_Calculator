@@ -24,7 +24,7 @@ sort_out_negatives = true;
 ms = all_from_family_perms( [0 0 1], sort_out_negatives );
 % {011} family
 ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-martensite.low_index_mirror_planes = ms;
+martensite.mirror_planes = ms;
 
 %% calculate possible solutions and store solution objects in an object array
 all_sols = block_symmetric_doubleshear( martensite.U, martensite.cp, ms, ns, ds);

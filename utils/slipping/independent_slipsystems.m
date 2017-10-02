@@ -52,10 +52,22 @@ end
 %n_red = nnn;
 %d_red = ddd;
 [n_red, d_red] = reduce_ambiguous_slipsystems( nnn, ddd, count_directions_extra );
-%
-display('Number of individual slip systems is:')
-length( n_red )
 
+
+if isempty( n_red )
+    if exist('handles') % check wheter run via GUI or not
+        updateLog_MartCalc(hObject, handles,'invalid combination of slip direction families and slip plane normals (e.g. non perpendicular). Modify families!');
+    else        
+        error('invalid combination of slip direction families and slip plane normals (e.g. non perpendicular). Modify families!');
+    end
+else
+    if exist('handles') % check wheter run via GUI or not
+        updateLog_MartCalc(hObject, handles,['Number of individual slip systems build from direction and plane families is:',num2str(length( n_red )) ] ); 
+    else
+        disp(['Number of individual slip systems build from direction and plane families is:',num2str(length( n_red )) ] ); 
+        % PET: I do not think length using length() could be a problem here
+        % however size(a,1) would probably be saver...
+    end
 end
 
 
