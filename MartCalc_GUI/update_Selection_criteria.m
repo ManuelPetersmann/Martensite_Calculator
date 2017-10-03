@@ -1,4 +1,4 @@
-%% selectin criteria
+%% selection criteria
 % criterion 1: Minimum slip plane density
 if(handles.asc_status(1) > 0)
     g_min = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(1)).Children(2).String);
@@ -11,7 +11,7 @@ end
 
 % Criterion 3: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
 if(handles.asc_status(3) > 0)
-    theta_p_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(3)).Children(2).String);
+    theta_CPP_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(3)).Children(2).String);
 end
 
 % Criterion 4: Maximum misorientation of block HP to {111}_gamma
@@ -40,3 +40,47 @@ end
 if(handles.asc_status(7) > 0)
     theta_NW_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(7)).Children(2).String);
 end
+
+%% reduce solutions
+
+reduced_solutions = martensite.IPS_solutions;
+%
+for criterion = 1:handles.asc_number
+    if (size( reduced_solutions.array, 2)==1) && isempty(obj.array(1).F1)
+        updateLog_MartCalc(hObject, handles,'No Solution fullfilling specified criteria');
+        obj.no_solutions_available = true;
+    end
+    %
+    switch handles.asc_list( criterion )
+        case 1
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'g', g_min, 'min'); 
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for a minimum slip density of ',num2str(g_min)] );
+        case 2
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'eps_ips', eps_max, 'max' );
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for a shape strain  < ',num2str(eps_max)] );
+        case 3
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, cpps_gamma, theta_CPP_max, 'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) 'for misorietation of CPPs  < ',num2str(theta_CPP_max)] );
+        case 4
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h');
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) 'for habit plane misorientation to CP-planes  < ',num2str(theta_n_max)] );
+        case 5
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'det', delta_determinant_max,  det(martensite.U)); 
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) 'for (non-physical) volume change  < ',num2str(delta_determinant_max)] );
+        case 6
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, KS, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) 'for a maximum deviation angle of KS-directions  < ',num2str(theta_KS_max)] );
+        case 7
+            reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
+            updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) 'for a maximum deviation angle of NW-directions  < ',num2str(theta_NW_max)] );
+    end
+end
+
+guidata(hObject, handles);
+
+% if (size( obj.array, 2)==1) && isempty(obj.array(1).F1)
+%     display('No Solution fullfilling specified criteria');
+%     obj.no_solutions_available = true;
+% else
+%     display(['Solutions reduced to : ' , num2str(length(obj.array)) ]);
+% end

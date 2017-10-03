@@ -33,8 +33,8 @@ end
 %% assemble all slip systems, i.e. combinations of plane - direction pairings,
 % even those not normal to each other
 nr = 1;
-nnn = [0. 0. 0.];
-ddd = [0. 0. 0.];
+nnn = []; 
+ddd = []; 
 for i = 1:size(nn,1)
     for j = 1:size(dd,1)
         if abs( dot(nn(i,:),dd(j,:)) ) < 1e-5  % select out non-orthogonal pairings of planes and directions
@@ -53,21 +53,12 @@ end
 %d_red = ddd;
 [n_red, d_red] = reduce_ambiguous_slipsystems( nnn, ddd, count_directions_extra );
 
-
 if isempty( n_red )
-    if exist('handles') % check wheter run via GUI or not
-        updateLog_MartCalc(hObject, handles,'invalid combination of slip direction families and slip plane normals (e.g. non perpendicular). Modify families!');
-    else        
-        error('invalid combination of slip direction families and slip plane normals (e.g. non perpendicular). Modify families!');
-    end
+    error('invalid combination of slip direction families and slip plane normals (e.g. non perpendicular). Modify families!');
 else
-    if exist('handles') % check wheter run via GUI or not
-        updateLog_MartCalc(hObject, handles,['Number of individual slip systems build from direction and plane families is:',num2str(length( n_red )) ] ); 
-    else
-        disp(['Number of individual slip systems build from direction and plane families is:',num2str(length( n_red )) ] ); 
-        % PET: I do not think length using length() could be a problem here
-        % however size(a,1) would probably be saver...
-    end
+    disp(['Number of individual slip systems build from direction and plane families is:',num2str(size( n_red, 1 )) ] );
+end
+
 end
 
 

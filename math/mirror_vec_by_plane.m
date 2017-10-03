@@ -1,4 +1,4 @@
-function vec_mirror = mirror_by_plane( n, vec, basis1 )
+function vec_mirror = mirror_vec_by_plane( n, vec, basis1 )
 % call: mirror_by_plane( n, vec, basis)
 % "basis1" - basis vectors as colums
 % given a plane_normal "n" (colum vector), first computes the mirror matrix for this plane.
@@ -18,5 +18,10 @@ for i = 1:3
 end
 
 vec_mirror = S*vec;
+
+% short hand formula for standartbasis
+%n*n'
+%S2 = eye(3) - 2*n*n';
+%vec_mirror2 = S2*vec
 
 end

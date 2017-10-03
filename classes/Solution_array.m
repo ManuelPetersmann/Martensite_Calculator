@@ -87,7 +87,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
             if nargin > 1
                 % after reduction of solutions check if there is at least one non-empty entry in object
                 if (size( obj.array, 2)==1) && isempty(obj.array(1).F1)
-                    display('No Solution fullfilling specified criteria');
+                    disp('No Solution fullfilling specified criteria');
                     obj.no_solutions_available = true;
                 else
                     display(['Solutions reduced to : ' , num2str(length(obj.array)) ]);

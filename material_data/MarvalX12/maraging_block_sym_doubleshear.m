@@ -104,7 +104,7 @@ qi_sols = theta_NW_sols.sort( 'theta_CPP' ); % sort in ascending order for speci
 %% Best solution - determine Habit planes for all symmetry related variants
 % for interactions.
 % hp must correspond to the solution below for same order!!!
-% Vorzeichen meiner L�sung sind so wie die von L�sung Nr4!
+% Vorzeichen meiner Lösung sind so wie die von Lösung Nr4!
 %hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
 
 %eshelby = martensite.symmetry

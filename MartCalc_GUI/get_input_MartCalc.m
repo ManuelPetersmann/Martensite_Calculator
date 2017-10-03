@@ -27,7 +27,7 @@ for i = 1:3
         k = k-1;
     end
 end
-austenite.my_base = base_aust;
+austenite.my_base = base_aust; % checks are done in class!
 %
 base_mart = zeros(3,3);
 k = 9; % position of 1st entry of 1st base-vec for martensite
@@ -37,7 +37,7 @@ for i = 1:3
         k = k-1;
     end
 end
-martensite.my_base = base_mart;
+martensite.my_base = base_mart; % checks are done in class!
 
                    
 %% get input for correspondence matrix from GUI
@@ -81,35 +81,59 @@ NW = all_from_family_perms( [1 2 1], false );
 
 
 %% get input for slip systems
-dir_families_aust   = check_input_uitable( handles.uitable_slip_dirs_aust.Data ) % gives 4x3 matrix
-plane_families_aust = check_input_uitable( handles.uitable_slip_normals_aust.Data )
-dir_families_mart   = check_input_uitable( handles.uitable_slip_dirs_mart.Data )
-plane_families_mart = check_input_uitable( handles.uitable_slip_normals_mart.Data )
+dir_families_aust   = check_input_uitable( handles.uitable_slip_dirs_aust.Data ); % gives 4x3 matrix
+plane_families_aust = check_input_uitable( handles.uitable_slip_normals_aust.Data );
+dir_families_mart   = check_input_uitable( handles.uitable_slip_dirs_mart.Data );
+plane_families_mart = check_input_uitable( handles.uitable_slip_normals_mart.Data );
 count_directions_extra = true;
 no = zeros(1,3);
 
 %% do verifications on the given input
 % if nothing has been entered
 if  isequal( dir_families_aust,no )    &&  isequal( plane_families_aust, no ) ...
- && isequal( dir_families_mart, no )  &&  isequal( plane_families_mart, no )
+ && isequal( dir_families_mart, no )   &&  isequal( plane_families_mart, no )
     updateLog_MartCalc(hObject, handles,'no valid slip systems found - check input')
     handles.input_status = false;
     return
 end
 
-slip_systems = 0;
+considered_plasticity = 0;
 % if martensite has some input for slip systems
 if  ~isequal( dir_families_mart,no ) &&  ~isequal( plane_families_mart, no )
-    [martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_mart, dir_families_mart, count_directions_extra );
-    slip_systems = 1;
+    try
+        [martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_mart, dir_families_mart, count_directions_extra );
+        updateLog_MartCalc(hObject, handles,[num2str(length( martensite.slip_planes )),' martensite shear deformations active'] );
+        considered_plasticity = 1;
+    catch ME
+        updateLog_MartCalc(hObject, handles,ME.message);
+        handles.input_status = false;
+    end
 end
 % if austenite has some input for slip systems
 if  ~isequal( dir_families_aust,no ) &&  ~isequal( plane_families_aust, no )
-    [austenite.slip_planes, austenite.slip_directions]   = independent_slipsystems( plane_families_aust,  dir_families_aust,  count_directions_extra );
-    slip_systems = slip_systems + 2;
+    try
+        [austenite.slip_planes, austenite.slip_directions]   = independent_slipsystems( plane_families_aust,  dir_families_aust,  count_directions_extra );
+        updateLog_MartCalc( hObject, handles,[num2str(length( austenite.slip_planes )), ' austenite shear deformations active'] );
+        considered_plasticity = considered_plasticity + 2;
+    catch ME
+        updateLog_MartCalc(hObject, handles,ME.message);
+        handles.input_status = false;
+    end
 end
 
-handles.slip_systems = slip_systems;
+% switch considered_plasticity
+% case 1
+% case 2
+% case 3
+% disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
+% disp('nr of solutions cannot be greater than 2-times this value.')
+% end
+
+
+%%
+% save which phases should be considered for slip
+martensite.considered_plasticity = considered_plasticity;
+
 guidata(hObject, handles);
 
 

@@ -11,6 +11,7 @@ classdef Martensite < Base
         % known figure...
         %R % rotational part of the
         IPS_solutions;
+        considered_plasticity; % 1-only mart slip systems, 2-only austenite slip systems, 3-slip systems of both lattices
     end
     properties (Dependent)
         cp;
@@ -36,34 +37,43 @@ classdef Martensite < Base
             end
         end
         %-------------------------------------------------------------------
-% 09.05.2017----TODO - remove or adopt so that it fits with IPS_solution
-%
-%       function obj = set.F(obj, F)
-            % In the case of martensitic transformations, a further condition has to be satisfied;
-            % the lattice transformation strain must also be an invariant line strain if the interface is
-            % to be glissile (see christian, crocker - dislocations and lattice transformations - Dislocations in crystals vol 3).
-            % Also F cannot be uniquely determined because there is an infinite number of
-            % Lattice correspondances ai = F*bi.
-            % Moreover, we limit ourselves to deformations that preserve orientation,
-            % i.e. those with det(F) > 0 (tripe products have the same sign)
+        function U = get.U(obj)
+            % if the matrix is symmetric and positive definite
+            % (A matrix is positive definite if all its associated
+            % eigenvalues are positive)
+            if ( (sum(sum(abs(obj.U - obj.U'))) < 1.e-9 ) && (all(eig( obj.U )) > 0.) ) % if U is already set
+                U = obj.U;
+            else
+                U = polardecomposition(obj.F);
+            end
+        end
+        %-------------------------------------------------------------------
+        function obj = set.considered_plasticity(obj, nr)
+            if ismember (nr, [1,2,3])
+                obj.considered_plasticity = nr;
+            else
+                error('considered_plasticity can only be 1, 2 or 3 see Martensite class')
+            end
+        end
+        %-------------------------------------------------------------------
+
+%  09.05.2017----TODO - remove or adopt so that it fits with IPS_solution
+% 
+%        function obj = set.F(obj, F)
+%             % In the case of martensitic transformations, a further condition has to be satisfied;
+%             % the lattice transformation strain must also be an invariant line strain if the interface is
+%             % to be glissile (see christian, crocker - dislocations and lattice transformations - Dislocations in crystals vol 3).
+%             % Also F cannot be uniquely determined because there is an infinite number of
+%             % Lattice correspondances ai = F*bi.
+%             % Moreover, we limit ourselves to deformations that preserve orientation,
+%             % i.e. those with det(F) > 0 (tripe products have the same sign)
 %            if det(F_in) < 0.
 %                error('det(F) < 0, non-orientation preserving transformation')
 %            else
 %                obj.F = F;
 %            end
 %        end
-        %-------------------------------------------------------------------
-        function Bain = get.U(obj)
-            % if the matrix is symmetric and positive definite
-            % (A matrix is positive definite if all its associated
-            % eigenvalues are positive)
-            if ( (sum(sum(abs(obj.U - obj.U'))) < 1.e-9 ) && (all(eig( obj.U )) > 0.) ) % if U is already set
-                Bain = obj.U;
-            else
-                Bain = polardecomposition(obj.F);
-            end
-        end
-        %-------------------------------------------------------------------
+%%-------------------------------------------------------------------
 %         function def = get.F(obj)
 %             display('testtest')
 %             if abs(obj.F - eye(3)) < 1.e-5
@@ -72,23 +82,22 @@ classdef Martensite < Base
 %                 def = obj.B * obj.R;
 %             end
 %         end
-        %------------------------------------------------------------------
-        %function def = F_from_atom_postions( lattice1, lattice2, A1, A2 )
-        % Programm if needed, maybe not very reasonable...     
-        %end
-        %------------------------------------------------------------------     
+%%------------------------------------------------------------------
+%         function def = F_from_atom_postions( lattice1, lattice2, A1, A2 )
+%          Programm if needed, maybe not very reasonable...     
+%         end
+%%------------------------------------------------------------------     
 %         function getvariant( index ):
 %         % given the variant index return the according variant
 % 
 %         if self.__Ulist is None:
 %             self.calcvariants()
 %         return self.__Ulist[n - 1]  
-
+%------------------------------------------------------------------
         function cp = get.cp(obj)
             cp = obj.U * obj.C_am;
         end
-        
-        %-------------------------------------------------------------------   
+%-------------------------------------------------------------------
         function vars = symmetry_related(obj, variant)
             % calculate all symmetry related variants of the transformation
             % from one initial "variant"
@@ -109,8 +118,7 @@ classdef Martensite < Base
             end
         end
         %-------------------------------------------------------------------   
-        %TODO        
-        %         TODO rewrite to matlab
+        %         TODO rewrite to matlab - structrans (Phyton Code)
         function bool = isreversible( obj )
         %
         %                 It is reversible if the symmetry group of ``U``

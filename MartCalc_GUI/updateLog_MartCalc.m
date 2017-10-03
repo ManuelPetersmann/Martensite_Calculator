@@ -13,6 +13,9 @@ else
     log = get(handles.log_lb, 'string'); % fetch log 
     nol_log = size(log,1); % number of lines in actual log
     time = datestr(now,'HH:MM:SS.FFF'); % get time
+    if length(str_log_update) > 60
+        str_log_update = [str_log_update(1:60) newline str_log_update(61:length(str_log_update))];
+    end
     log{nol_log+1,1} = [time,' - ',str_log_update]; % extend log
     set(handles.log_lb, 'string', log, 'value', 1); % update log
     

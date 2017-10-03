@@ -13,8 +13,10 @@ solutions = Solution_array( );
 solutions.array = Slip_solution();
 % Construct solutions.array with type of Slip_Solution -> Per default any class property is a double 
 
+
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
+
 
 %% transform product phase slip systems to parent phase and combine all in one array
 if nargin == 3 % only parent phase slip systems
@@ -38,11 +40,14 @@ end
 
     % to write integer values into solutions
 for jj = 1:size(ds,1)
-    S(:,:,jj)  = ( ds(jj,:) / norm(ds(jj,:)) )' * (ns(jj,:) / norm(ns(jj,:)) ); 
+    ds(jj,:) = ds(jj,:) / norm(ds(jj,:));
+    ns(jj,:) = ns(jj,:) / norm(ns(jj,:));
+    S(:,:,jj)  = ds(jj,:)' * ns(jj,:);
 end
 
 display( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
 display('nr of solutions cannot be greater than 2-times this value.')
+
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached

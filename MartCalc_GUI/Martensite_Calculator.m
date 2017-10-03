@@ -105,21 +105,17 @@ austenite = Base();
 
 % read user input from GUI for determination of solutions
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI')
+
 get_input_MartCalc;
-updateLog_MartCalc(hObject, handles,['Volume change is:',num2str( det(B3) ),'%'] );
 
-% calculate bain strains and correspondence matrix based on given
-% lattice constants
-% % % updateLog_MartCalc(hObject, handles, 'Calculating Bain strain and correspondence matrix.')
-% % % Bain_and_Correspondence_mavalX12;
+updateLog_MartCalc(hObject, handles,['Volume change is: ',num2str( (det(martensite.U) -1. )*100),'%'] );
 
-% start determination of possible solution and filtering according to
-% active selection criteria
-calc_mech = handles.popup_calc_mech.Value;
+%% start determination of possible solution and filtering according to active selection criteria
+select_calculation_type;
+updateLog_MartCalc(hObject, handles, 'Determination and filtering of IPS solutions completed.')
 
-updateLog_MartCalc(hObject, handles, 'Determination and filtering of solutions completed.')
 
-% --- Executes on selection change in lsc_popup.
+%% --- Executes on selection change in lsc_popup.
 function lsc_popup_Callback(hObject, eventdata, handles)
 % hObject    handle to lsc_popup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -132,15 +128,11 @@ switch hObject.Value
     case 1 % Criterion 1 has been chosen: Minimum slip plane density
         if handles.asc_status(1) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
             criterion_name = 'Minimum slip plane density';
             default_value = 10.0;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(1) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-            
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum slip plane density" is already active!.')
@@ -149,99 +141,77 @@ switch hObject.Value
     case 2 % Criterion 2 has been chosen: Maximum shape strain
         if handles.asc_status(2) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
             criterion_name = 'Maximum shape strain';
             default_value = 0.4;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(2) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
            
-            guidata(hObject, handles); % Update handles structure
+            %guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!.')
         end
     case 3 % Criterion 3 has been chosen: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
         if handles.asc_status(3) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
             criterion_name = 'Maximum misorientation of CPPs {110}_alpha and {111}_gamma';
             default_value = 3.0;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(3) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-                                      
-            guidata(hObject, handles); % Update handles structure
+            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                        
+            %guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of CPPs {110}_alpha and {111}_gamma" is already active!.')
         end
     case 4 % Criterion 4 has been chosen: Maximum misorientation of block HP to {111}_gamma
         if handles.asc_status(4) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
-            criterion_name = 'Maximum misorientation of block HP to {111}_gamma';
+            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma (CPP austenite)';
             default_value = 5.0;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(4) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-                                      
-            guidata(hObject, handles); % Update handles structure
+            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                       
+            %guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!.')
         end
     case 5 % Criterion 5 has been chosen: Maximum deviation of determinant det(F) of transformation
         if handles.asc_status(5) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
-            criterion_name = 'Maximum deviation of determinant det(F) of transformation';
+            criterion_name = 'Maximum deviation of theoretical volume change from Bain strain';
             default_value = 0.0001;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(5) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-            
-            guidata(hObject, handles); % Update handles structure
+            %guidata(hObject, handles); % Update handles structure
         else
-        	updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of determinant det(F) of transformation" is already active!.')
+        	updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!.')
         end
     case 6 % Criterion 6 has been chosen: Maximum deviation from KS OR
         if handles.asc_status(6) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
-            criterion_name = 'Maximum deviation from KS OR';
+            criterion_name = 'Maximum deviation of KS OR directions)';
             default_value = 10.0;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(6) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-            
-            guidata(hObject, handles); % Update handles structure
+           %guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!.')
         end
     case 7 % Criterion 7 has been chosen: Maximum deviation from NW OR
         if handles.asc_status(7) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            
-            criterion_name = 'Maximum deviation from NW OR';
+            handles.asc_number = handles.asc_number + 1; % increase number of asc    
+            criterion_name = 'Maximum deviation from NW OR directions';
             default_value = 10.0;
-            
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(7) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-            
-            guidata(hObject, handles); % Update handles structure
+            handles.asc_status(7) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied       
+            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value); 
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!.')
         end
+        
+guidata(hObject, handles); % Update handles structure
 end
 % % % guidata(hObject, handles); % Update handles structure
 
