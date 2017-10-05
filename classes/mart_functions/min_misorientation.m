@@ -21,8 +21,8 @@ for j = 1 : size(vecs,1)
                                          % alternatively it could be colum vector from right i.e. :
                                          % inverse(comp)^Transposed * vec1'
         else
-            vec1
-            comp'
+            %vec1
+            %comp'
             vec2 = vec1 * comp'; % direction transformation
         end
     end

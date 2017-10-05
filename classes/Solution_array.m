@@ -20,7 +20,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
             end
             %
             if (nargin > 1) && varargin{2}.no_solutions_available
-                error('Solution_array does not contain any solutions - please modify selection criteria')
+                error('No solutions fullfilling specified selection criteria.')
             end
             %
             if nargin == 5 % to construct subarrays with minimal/maximal 'slip_density' and 'eps_ips' values
@@ -90,7 +90,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
                     disp('No Solution fullfilling specified criteria');
                     obj.no_solutions_available = true;
                 else
-                    display(['Solutions reduced to : ' , num2str(length(obj.array)) ]);
+                    disp(['Solutions reduced to : ' , num2str(length(obj.array)) ]);
                 end
             end
         end

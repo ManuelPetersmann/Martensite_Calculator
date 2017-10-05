@@ -1,42 +1,40 @@
-function [outputArg1,outputArg2] = shear_dyads(considered_plasticity,ds_product,ns_product,)
-%SHEAR_DYADS - TODO - could be integrated like this since more functions
-%use the same code below...
+function [ds, ns, S] = shear_dyads(martensite, austenite, miller_dyads)
+% SHEAR_DYADS - this function takes information on the slip systems
+% and creates the necessary matrices used in the middle eigenvalue modification function
+% the first two inputs are the martensite and austenite objects, the third
+% input determines wheter the vectors forming the shear dyads are normed or
+% if the miller indizes are used directly
 
-martensite.slip_planes, martensite.slip_directions
+if nargin < 3
+    miller_dyads = false;
+end
 
 %% transform product phase slip systems to parent phase and combine all in one array
-if considered_plasticity == 2 % only parent phase slip systems
-    ds = ds_product;
-    ns = ns_product;
-end
-if considered_plasticity == 1
-    for is = 1:size(ds_product,1)
+if martensite.considered_plasticity == 1 || martensite.considered_plasticity == 3 % only product/martensite phase slip systems
+    for is = 1:size(martensite.slip_directions,1)
         % transform product phase slip systems to parent phase ones
-        ds(is,:) = cp * ds_product(is,:)';
-        ns(is,:) = inverse(cp)' * ns_product(is,:)';
+        ds(is,:) = martensite.cp * martensite.slip_directions(is,:)';
+        ns(is,:) = inverse(martensite.cp)' * martensite.slip_planes(is,:)';
     end
 end
-if considered_plasticity == 3  % if both parent and product phase systems are given
-    ds = cat(1,ds,ds_parent);
-    ns = cat(1,ns,ns_parent);
-    % for outputting found slip systems in miller indizes
-    ds_product = cat(1,ds_product,ds_parent);
-    ns_product = cat(1,ns_product,ds_parent);
+%
+if martensite.considered_plasticity == 3  % if both parent and product phase systems are given
+    ds = cat(1,ds,austenite.slip_directions);
+    ns = cat(1,ns,austenite.slip_planes);
 end
-%ds
-%ns
-% for comparison with non-normed vectors...
-% for is1 = 1:size(ds,1) % loop over vectors to construct all slip systems
-%     S(:,:,is1)  = I + (ds(is1,:)' * ns(is1,:) );
-% end
-% S(:,:,1)
-% S(:,:,80)
+%
+if martensite.considered_plasticity == 2 % only parent/austenite phase slip systems
+    ds = austenite.slip_directions;
+    ns = austenite.slip_planes;
+end
 
 % norm vectors and assemble slip systems
 for jj = 1:size(ds,1)
-    ds(jj,:) = ds(jj,:) / norm(ds(jj,:));
-    ns(jj,:) = ns(jj,:) / norm(ns(jj,:));
-    S(:,:,jj)  = (ds(jj,:)' * ns(jj,:) );
+    if ~miller_dyads
+        S(:,:,jj) = ( ds(jj,:) / norm(ds(jj,:)) )' * ( ns(jj,:) / norm(ns(jj,:)) );
+    else
+        S(:,:,jj)  = (ds(jj,:)' * ns(jj,:) );
+    end
 end
 
 end

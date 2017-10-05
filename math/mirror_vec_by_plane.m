@@ -16,8 +16,7 @@ for i = 1:3
         lambda(i) = -h(i)/dot(n,n);
         S(:,i) = basis1(:,i) + 2*lambda(i)*n;
 end
-
-vec_mirror = S*vec;
+vec_mirror = S*vec';
 
 % short hand formula for standartbasis
 %n*n'

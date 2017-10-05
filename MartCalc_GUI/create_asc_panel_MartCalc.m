@@ -1,6 +1,6 @@
 function [ handles ] = create_asc_panel_MartCalc( handles, criterion_name, default_value, criterion_number)
-%CREATE_ASC_PANEL_MARTCALC Summary of this function goes here
-%   Detailed explanation goes here
+% CREATE_ASC_PANEL_MARTCALC
+
     % position of criterion in asc list
     postion_in_asc_list = handles.asc_status(criterion_number);
     

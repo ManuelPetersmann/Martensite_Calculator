@@ -37,10 +37,10 @@ classdef Slip_solution < IPS_solution
             if nargin > 11 % this is only used if a direct averaged block habit plane condition is used as proposed by Qi and Khachaturyan 2014 Acta
                 obj.mirror_plane = varargin{1,11};
             end
-        end
-        
+        end % end constructors (mostly used to reduce solutions)
+        %%        
         function gg = get.slip_density(obj)
-            gg = slip_planes_between_burgerssteps( obj.s, obj.eps_s, obj.m, 'cubic'); %TODO generalize to %obj.Bravais_type );
+            gg = slip_planes_between_burgerssteps( obj.shear_direction, obj.eps_s, obj.slip_normal_plane_vec, 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         
         

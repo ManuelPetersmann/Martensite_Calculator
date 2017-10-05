@@ -13,11 +13,10 @@ switch prop_string
         % upper_bound = theta_CPP_max
         reduced_sols = Solution_array( Slip_solution(), initial_sols, cpps_gamma, upper_bound, ...
             'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
-        reduced_sols.sort( 'theta_CPP' )
     case 'theta_h' % (minimum) misorientation angle between habit plane and nearest close packed plane
         % upper_bound = theta_n_max
         reduced_sols = Solution_array( Slip_solution(), initial_sols, ...
-            cpps_gamma, upper_bound, 'theta_h', 'closest_to_h', 'h');
+                    cpps_gamma, upper_bound, 'theta_h', 'closest_to_h', 'h');
         all_sols.sort( 'theta_n' )
     case 'eps_ips'
         % upper_bound = eps_max
@@ -26,18 +25,23 @@ switch prop_string
     case 'slip_density'
         % upper_bound = g_min
         reduced_sols = Solution_array( Slip_solution(), initial_sols, 'slip_density', upper_bound, 'min');
-    case 'eps_ips'
-        % upper_bound = eps_max
-        reduced_sols = Solution_array( Slip_solution(), initial_sols, 'eps_ips', upper_bound, 'max' );
-    case 'theta_KS_m
+    case 'theta_KS_min'
+        % upper_bound = thetha_KS_max
         reduced_sols = Solution_array( Slip_solution, initial_sols, KS, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
-
-        
+    case 'theta_NW_min'
+        % upper_bound = 
+        reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
+                       'theta_NW_min', 'closest_NW', 'NW', false);
+    case 'det'
+        % upper_bound = delta_determinant_max
+        reduced_sols = Solution_array( Slip_solution, initial_sols, 'det', upper_bound,  det(martensite.U) );
+       %%        
         %    case prop_string 
         %        try
         %        catch      
 end
 
+% reduced_sols.sort( 'theta_CPP' )
 
 end
 

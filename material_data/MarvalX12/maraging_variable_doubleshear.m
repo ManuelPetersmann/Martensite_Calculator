@@ -56,7 +56,7 @@ display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_n_max)]);
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 %g_min = 10.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
-%g_min_sols = Solution_array( Slip_solution, theta_p_sols, 'g', g_min, 'min'); 
+%g_min_sols = Solution_array( Slip_solution, theta_p_sols, 'slip_density', g_min, 'min'); 
 
 %% reduce soltuions to ones with eps < something 
 eps_max_solutions = Solution_array( Slip_solution, tolerable_HP_deviations, 'eps_ips', eps_max, 'max' ); 
@@ -93,7 +93,7 @@ mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific 
 %% Best solution - determine Habit planes for all symmetry related variants
 % for interactions.
 % hp must correspond to the solution below for same order!!!
-% Vorzeichen meiner Lösung sind so wie die von Lösung Nr4!
+% Vorzeichen meiner Lï¿½sung sind so wie die von Lï¿½sung Nr4!
 %hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
 
 %eshelby = martensite.symmetry

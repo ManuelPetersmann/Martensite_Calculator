@@ -1,4 +1,6 @@
 % Script for reading input from MartCalc-GUI
+handles.input_status = true; % will be set to false if something is wrong with the input
+
 
 %% get lattice parameters
 % for austenite lattice
@@ -89,20 +91,13 @@ count_directions_extra = true;
 no = zeros(1,3);
 
 %% do verifications on the given input
-% if nothing has been entered
-if  isequal( dir_families_aust,no )    &&  isequal( plane_families_aust, no ) ...
- && isequal( dir_families_mart, no )   &&  isequal( plane_families_mart, no )
-    updateLog_MartCalc(hObject, handles,'no valid slip systems found - check input')
-    handles.input_status = false;
-    return
-end
 
 considered_plasticity = 0;
 % if martensite has some input for slip systems
 if  ~isequal( dir_families_mart,no ) &&  ~isequal( plane_families_mart, no )
     try
         [martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_mart, dir_families_mart, count_directions_extra );
-        updateLog_MartCalc(hObject, handles,[num2str(length( martensite.slip_planes )),' martensite shear deformations active'] );
+        updateLog_MartCalc(hObject, handles,[num2str(length( martensite.slip_planes )),' shear deformations active in martensite.'] );
         considered_plasticity = 1;
     catch ME
         updateLog_MartCalc(hObject, handles,ME.message);
@@ -113,12 +108,18 @@ end
 if  ~isequal( dir_families_aust,no ) &&  ~isequal( plane_families_aust, no )
     try
         [austenite.slip_planes, austenite.slip_directions]   = independent_slipsystems( plane_families_aust,  dir_families_aust,  count_directions_extra );
-        updateLog_MartCalc( hObject, handles,[num2str(length( austenite.slip_planes )), ' austenite shear deformations active'] );
+        updateLog_MartCalc( hObject, handles,[num2str(length( austenite.slip_planes )), ' shear deformations active in austenite.'] );
         considered_plasticity = considered_plasticity + 2;
     catch ME
         updateLog_MartCalc(hObject, handles,ME.message);
         handles.input_status = false;
     end
+end
+
+% if neither martensite nor austenite has valid slip systems
+if considered_plasticity == 0
+    updateLog_MartCalc( hObject, handles,'no valid slip system could be build, please check input' );
+    handles.input_status = false;
 end
 
 % switch considered_plasticity

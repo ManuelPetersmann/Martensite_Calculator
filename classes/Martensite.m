@@ -52,7 +52,7 @@ classdef Martensite < Base
             if ismember (nr, [1,2,3])
                 obj.considered_plasticity = nr;
             else
-                error('considered_plasticity can only be 1, 2 or 3 see Martensite class')
+                error('martensite.considered_plasticity has not been set properly (can only be 1, 2 or 3) see Martensite class')
             end
         end
         %-------------------------------------------------------------------
