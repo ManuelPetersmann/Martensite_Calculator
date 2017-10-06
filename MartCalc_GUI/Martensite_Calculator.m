@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 05-Oct-2017 16:56:38
+% Last Modified by GUIDE v2.5 06-Oct-2017 09:48:47
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -98,28 +98,16 @@ if handles.input_status
             updateLog_MartCalc(hObject, handles, 'variable doubleshear incremental optimization lath level - started')
             updateLog_MartCalc(hObject, handles, 'please wait...')
             martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
-        case 2
-            %% integrated file: maraging_block_sym_doubleshear.m;
-            updateLog_MartCalc(hObject, handles, 'direct block approach, mirrorsym. & equal double-shears - started')
-            updateLog_MartCalc(hObject, handles, 'please wait...')
-            % highly symmetric mirror planes from bcc
-            % {001} family
-            sort_out_negatives = true;
-            ms = all_from_family_perms( [0 0 1], sort_out_negatives );
-            % {011} family
-            ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-            martensite.mirror_planes = ms;
-            martensite.IPS_solutions = block_symmetric_doubleshear(martensite, austenite);
-            %
             %% other cases could be added here
-            %     case 4
+            %     case 2
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
             %         maraging_multiple_shears;
-            %     case 5
+            %     case 3
             %         updateLog_MartCalc(hObject, handles, '_MarescaCurtin_test - run')
             %         maraging_MarescaCurtin_test;
     end
-    updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions completed: ' num2str(size(martensite.IPS_solutions.array,2)),' solutions found.'] );
+    handles.lath_solutions = true;
+    updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(martensite.IPS_solutions.array,2)),' solutions found.'] );
     
     %% start filtering solutions
     if handles.asc_number > 0
@@ -228,8 +216,35 @@ switch hObject.Value
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!.')
         end
 end
-% % % guidata(hObject, handles); % Update handles structure
 
+
+% --- Executes on button press in start_block_calc.
+function start_block_calc_Callback(hObject, eventdata, handles)
+% hObject    handle to start_block_calc (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+switch handles.popup_calc_block_level.Value      
+    case 1
+            %% integrated file: maraging_block_sym_doubleshear.m;
+            updateLog_MartCalc(hObject, handles, 'direct block approach, mirrorsym. & equal double-shears - started')
+            updateLog_MartCalc(hObject, handles, 'please wait...')
+            % highly symmetric mirror planes from bcc
+            % {001} family
+            sort_out_negatives = true;
+            ms = all_from_family_perms( [0 0 1], sort_out_negatives );
+            % {011} family
+            ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
+            martensite.mirror_planes = ms;
+            martensite.IPS_solutions = block_symmetric_doubleshear(martensite, austenite);
+    case 2  
+            %martensite.block_solutions = Composite_solution
+end
+
+
+
+
+%% all functions after this are not used...
 
 % --- Executes during object creation, after setting all properties.
 function lsc_popup_CreateFcn(hObject, eventdata, handles)
@@ -243,15 +258,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in start_block_calc.
-function start_block_calc_Callback(hObject, eventdata, handles)
-% hObject    handle to start_block_calc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
-%% all functions after this are not used...
 
 function ssf_edtxt_sp_val_Callback(hObject, eventdata, handles)
 % hObject    handle to ssf_edtxt_sp_val (see GCBO)
@@ -1187,19 +1193,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in pop_calc_block_level.
-function pop_calc_block_level_Callback(hObject, eventdata, handles)
-% hObject    handle to pop_calc_block_level (see GCBO)
+% --- Executes on selection change in popup_calc_block_level.
+function popup_calc_block_level_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_calc_block_level (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns pop_calc_block_level contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from pop_calc_block_level
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_block_level contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_calc_block_level
 
 
 % --- Executes during object creation, after setting all properties.
-function pop_calc_block_level_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pop_calc_block_level (see GCBO)
+function popup_calc_block_level_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_calc_block_level (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

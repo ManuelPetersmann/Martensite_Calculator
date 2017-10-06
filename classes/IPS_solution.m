@@ -16,8 +16,8 @@ classdef IPS_solution < dynamicprops
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
         ST;  % on side of homogeneous deformation F:  QF - G = eps_0* ( a \dyad n )
-        dir_of_largest_def; % should be in the direction of the eigenvector corresponding to the minimum eigenvalue
-        dir_of_smallest_def; % should be close to the habit plane vector
+        dir_of_largest_def; %  = eigenvector corresponding to the maximum eigenvalue - should be close to the habit plane vector
+        dir_of_smallest_def; % = eigenvector corresponding to the minimum eigenvalue - should be close to long direction (a) of lath
         frob_green_lagrange;
         frob_displacement_grad;
         angle_smallest_def_to_close_packed_direction; %to_ILS_KS_NW_dir_aust;
@@ -44,8 +44,7 @@ classdef IPS_solution < dynamicprops
                 obj.LT = varargin{8}; % the lattice transformation = Q*Bain is given here directly so that the class does not need the Bain strain as property (only needed for this)
             end
         end
-        
-        %
+        %% get functions
         function shape_transformation = get.ST( obj )
             shape_transformation = obj.Q * obj.F1; % = G + eps_0 ( a \dyad n )
         end

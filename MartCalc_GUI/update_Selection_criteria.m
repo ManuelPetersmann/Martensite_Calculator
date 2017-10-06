@@ -1,4 +1,4 @@
-%% selection criteria
+%% update selection criteria for laths
 % criterion 1: Minimum slip plane density
 if(handles.asc_status(1) > 0)
     g_min = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(1)).Children(2).String);
