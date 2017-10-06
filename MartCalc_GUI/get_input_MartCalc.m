@@ -1,66 +1,25 @@
 % Script for reading input from MartCalc-GUI
+handles.input_status = true; % will be set to false if something is wrong with the input
 
-% lattice parameter for fcc lattice
-% example: MARVALX12 - a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
+
+%% get lattice parameters
+% for austenite lattice
 if(num2str(handles.lc_edtxt_aust_val.String) > 0 )
-    a_aust = str2num(handles.lc_edtxt_aust_val.String)
+    a_aust = str2num(handles.lc_edtxt_aust_val.String);
 else
-    error('No reasonable input for fcc lattice parameter!');
+    updateLog_MartCalc(hObject, handles,'No reasonable input for austenite lattice parameter - please correct!');
+    handles.input_status = false;    
+    %error('No reasonable input for fcc lattice parameter!');
 end
-
-
-% lattice parameter for bcc lattice
-% example: MARVALX12 - a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
+% for martensite lattice
 if(num2str(handles.lc_edtxt_mart_val.String) > 0 )
-    a_mart = str2num(handles.lc_edtxt_mart_val.String)
+    a_mart = str2num(handles.lc_edtxt_mart_val.String);
 else
-    error('No reasonable input for bcc lattice parameter!');
+    updateLog_MartCalc(hObject, handles,'No reasonable input for martensite lattice parameter - please correct!');
+    handles.input_status = false; 
+    %error('No reasonable input for bcc lattice parameter!');
 end
  
-
-
-% criterion 1: Minimum slip plane density
-if(handles.asc_status(1) > 0)
-    g_min = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(1)).Children(2).String);
-end
-      
-% Criterion 2: Maximum shape strain
-if(handles.asc_status(2) > 0)
-    eps_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(2)).Children(2).String);
-end
-
-% Criterion 3: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
-if(handles.asc_status(3) > 0)
-    theta_p_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(3)).Children(2).String);
-end
-
-% Criterion 4: Maximum misorientation of block HP to {111}_gamma
-% note 557 is 9.4° from 111 ! therefore this high tolerance!
-% Angle between 111 and 557 habit plane
-% acos( dot([1. 1. 1.], [5. 5. 7.])/(sqrt(3)*sqrt(99) ) ) = 9.4 degree
-if(handles.asc_status(4) > 0)
-    theta_n_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(4)).Children(2).String);
-end
-
-% Criterion 5: Maximum deviation of determinant det(F) of transformation
-if(handles.asc_status(5) > 0)
-    delta_determinant_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(5)).Children(2).String);
-end
-
-% Criterion 6: Maximum deviation from KS OR
-% The peak of OR distribution is normally between KS and NW and
-% these two are 5.25 apart - hence these tolerances
-% 'Kurdjumov Sachs directions [110]_aust || [111]_mart';
-if(handles.asc_status(6) > 0)
-    theta_KS_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(6)).Children(2).String);
-end
-
-% Criterion 7 has been chosen: Maximum deviation from NW OR
-%'Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
-if(handles.asc_status(7) > 0)
-    theta_NW_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(7)).Children(2).String);
-end
-
 %% get input for base vectors from GUI
 base_aust = zeros(3,3);
 k = 19; % position of 1st entry of 1st base-vec for austenite
@@ -70,8 +29,8 @@ for i = 1:3
         k = k-1;
     end
 end
-austenite.my_base = base_aust;
-
+austenite.my_base = base_aust; % checks are done in class!
+%
 base_mart = zeros(3,3);
 k = 9; % position of 1st entry of 1st base-vec for martensite
 for i = 1:3
@@ -80,10 +39,10 @@ for i = 1:3
         k = k-1;
     end
 end
-martensite.my_base = base_mart;
+martensite.my_base = base_mart; % checks are done in class!
 
                    
-% get input for correspondence matrix from GUI
+%% get input for correspondence matrix from GUI
 C_am = zeros(3,3);
 k = 9; % counter for position in array handles.pan_corrmat.Children(k)
 for i = 1:3
@@ -94,16 +53,8 @@ for i = 1:3
 end
 martensite.C_am = C_am;
 
-%%
-% EHL: TODO: add functionality, to read input for slip planes and
-% directions
-plane_families =     [ [1 1 0] ;
-                       [1 1 2] ];
-direction_families = [ [1 1 1]; 
-                       [1 1 0] ];
-
-
-%% EHL: add input in GUI?
+%% Set Bain strain and some other properties
+%% EHL: add input in GUI !!! - above all vor CPP and KS (in general set of close packed planes and directions)
 austenite.Bravais_type  = 'cubic';
 martensite.Bravais_type = 'cubic';
 % austenite.Centering = 
@@ -112,8 +63,7 @@ martensite.Centering = 'I';
 austenite.Lp = a_aust*[1 1 1];  % 3.5975576 % {1.0, 1.0, 1.0,  pi/2,   pi/2,   pi/2; ...
                                               % 'a'  'b'  'c'  'alpha'  'beta'  'gamma'}
 martensite.Lp = a_mart *[1 1 1];  % 2.8807346  
-
-                  
+               
 % further initializations
 % define Bain-strain
 eta1 = (a_mart/a_aust)*sqrt(2);
@@ -126,9 +76,67 @@ B3 = [eta1 0    0
        0  0  eta3];
 martensite.U = B3;
 
-display('Volume change in percent is:');
-detB3 = det(B3)
-
+ 
 cpps_gamma = all_from_family_perms( [1 1 1] ); % close packed planes of gamma-lattice
 KS = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
 NW = all_from_family_perms( [1 2 1], false );
+
+
+%% get input for slip systems
+dir_families_aust   = check_input_uitable( handles.uitable_slip_dirs_aust.Data ); % gives 4x3 matrix
+plane_families_aust = check_input_uitable( handles.uitable_slip_normals_aust.Data );
+dir_families_mart   = check_input_uitable( handles.uitable_slip_dirs_mart.Data );
+plane_families_mart = check_input_uitable( handles.uitable_slip_normals_mart.Data );
+count_directions_extra = true;
+no = zeros(1,3);
+
+%% do verifications on the given input
+
+considered_plasticity = 0;
+% if martensite has some input for slip systems
+if  ~isequal( dir_families_mart,no ) &&  ~isequal( plane_families_mart, no )
+    try
+        [martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_mart, dir_families_mart, count_directions_extra );
+        updateLog_MartCalc(hObject, handles,[num2str(length( martensite.slip_planes )),' shear deformations active in martensite.'] );
+        considered_plasticity = 1;
+    catch ME
+        updateLog_MartCalc(hObject, handles,ME.message);
+        handles.input_status = false;
+    end
+end
+% if austenite has some input for slip systems
+if  ~isequal( dir_families_aust,no ) &&  ~isequal( plane_families_aust, no )
+    try
+        [austenite.slip_planes, austenite.slip_directions]   = independent_slipsystems( plane_families_aust,  dir_families_aust,  count_directions_extra );
+        updateLog_MartCalc( hObject, handles,[num2str(length( austenite.slip_planes )), ' shear deformations active in austenite.'] );
+        considered_plasticity = considered_plasticity + 2;
+    catch ME
+        updateLog_MartCalc(hObject, handles,ME.message);
+        handles.input_status = false;
+    end
+end
+
+% if neither martensite nor austenite has valid slip systems
+if considered_plasticity == 0
+    updateLog_MartCalc( hObject, handles,'no valid slip system could be build, please check input' );
+    handles.input_status = false;
+end
+
+% switch considered_plasticity
+% case 1
+% case 2
+% case 3
+% disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
+% disp('nr of solutions cannot be greater than 2-times this value.')
+% end
+
+
+%%
+% save which phases should be considered for slip
+martensite.considered_plasticity = considered_plasticity;
+
+guidata(hObject, handles);
+
+
+                  
+                   

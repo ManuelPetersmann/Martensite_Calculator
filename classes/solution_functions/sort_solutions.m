@@ -1,0 +1,1 @@
+reduced_sols.sort( 'theta_CPP' )

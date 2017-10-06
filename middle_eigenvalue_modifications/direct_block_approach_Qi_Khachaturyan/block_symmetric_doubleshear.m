@@ -1,53 +1,45 @@
-function [solutions] = block_symmetric_doubleshear(B, cp, ms, ns, ds )
-% call: block_symmetric_doubleshear(B, cp, ms, ns, ds)
-% B... Bain strain, cp - B*Correspondance matrix, ms...mirror planes in
-% alpha', ns...slip system normals in alpha, ds... slip directios in alpha
+function [solutions] = block_symmetric_doubleshear(martensite, austenite)
+% direct block approach of highly dislocated, blocky lath martesite
+% microstructure after Qi,Khachaturyan,Morris 2014 Acta
+% All calulations are carried out in the coordinate system of the parent phase
 % returns object array of solutions for IPSs.
 
+if nargin < 2
+    austenite = 1; % set austenite to some random value to make function callable with just one argument
+end
+
+%% set numerical parameters und create solution object
 numerical_parameters;
 solutions = Solution_array( Slip_solution() );
 
+%% transform product phase slip systems to parent phase and combine all in one array
+% assemble all shear directions, planes and dyads
+[ds, ns, S] = shear_dyads(martensite, austenite, true); % assemble miller- shear_dyads
+disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
+disp('nr of solutions cannot be greater than 2-times this value.')
+
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
-[ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
+[ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( martensite.U'*martensite.U );
 [~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
 
-lambda2_old = lambda_2;
+% lambda2_old = lambda_2;  % not used since it is not optimized incrementally...
 
 %% loop over mirror planes and slip systems
-for im = 1:size(ms,1) % number of considered mirror planes in martensite
+for im = 1:size(martensite.mirror_planes,1) % number of considered mirror planes in martensite
     
-    m_mart = ms(im,:); % mirror plane in martensite
-    m_aust = inverse(cp)' * m_mart'; % transformed plane in austenite
+    m_mart = martensite.mirror_planes(im,:); % mirror plane in martensite
+    m_aust = inverse(martensite.cp)' * m_mart'; % transformed plane in austenite
     
     % loop over slip system combinations
     for is1 = 1:(size(ds,1)-1) % loop for first slip system
         for is2 = (is1+1):size(ds,1) % loop for second one
-            
-            % ############  transform bcc systems to austenite ############
-            % first system
-            d1 = cp * ds(is1,:)'; % martensite.vec_from_coords( ds(is1,:) )'; - not necessary for cubic lattice
-            n1 = inverse(cp)' * ns(is1,:)';
-            d11 = mirror_by_plane(m_aust, d1, I);
-            n11 = mirror_by_plane(m_aust, n1, I);
-            % second system
-            d2 = cp * ds(is2,:)';
-            n2 = inverse(cp)' * ns(is2,:)';
-            d22 = mirror_by_plane(m_aust, d2, I);
-            n22 = mirror_by_plane(m_aust, n2, I);
-            % S_i and S_ii are shears related by mirror symmetry
-            
-            % display('normed run');
-%             S1  = (d1  * n1') * 1./(norm(d1)*norm(n1));
-%             S2  = (d2  * n2') * 1./(norm(d2)*norm(n2));
-%             S11 = (d11 * n11') * 1./(norm(d11)*norm(n11));
-%             S22 = (d22 * n22') * 1./(norm(d22)*norm(n22));
-            
-            % display('Khachaturyan run');
-            S1  = (d1  * n1') ;
-            S2  = (d2  * n2') ;
-            S11 = (d11 * n11') ;
-            S22 = (d22 * n22') ;
+            d1_mirr = mirror_vec_by_plane(m_aust, ds(is1,:), I);
+            n1_mirr = mirror_vec_by_plane(m_aust, ns(is1,:), I);
+            d2_mirr = mirror_vec_by_plane(m_aust, ds(is2,:), I);
+            n2_mirr = mirror_vec_by_plane(m_aust, ds(is2,:), I);
+            S11 = (d1_mirr * n1_mirr') ;
+            S22 = (d2_mirr * n2_mirr') ;
             
             %% modify shear value in Blocks until lambda2 = 1
             delta_g = delta_g_initial;
@@ -74,15 +66,15 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 % verified that like Khachaturyan writes it, the order does not matter
                 % i.e. the small strain assumption is justified!  
                 
-                S =  I + (1./g)* (S1 + S2);
+                S1 =  I + (1./g)* (S(:,:,is1) + S(:,:,is2));
                 S_mirror = I + (1./g)* (S11 + S22);
                 
-                % calculate the rotation of the mirror plane vector due to the shear
-                R = max_shear_rotation( m_aust, S);
+                % calculate the rotation of the mirror plane vector due to shear S1
+                R = max_shear_rotation( m_aust, S1);
                 
                 % Construct the net deformation gradient from the two
                 % sheared sides
-                F = 0.5*( R*S + inverse(R)*S_mirror ) * B; % composite block deformations, matrix multiplication is distributive
+                F = 0.5*( R*S1 + inverse(R)*S_mirror ) * martensite.U; % composite block deformations, matrix multiplication is distributive
                 
                 % get new results
                 [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
@@ -149,10 +141,8 @@ for im = 1:size(ms,1) % number of considered mirror planes in martensite
                 end
                 
                 % Create Slip_solution objects and append them to object array 
-                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, d, n, m_aust' );
-                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, d, n, m_aust' );
-                
-
+                solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*martensite.U, eps_s, d, n, m_aust' );
+                solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*martensite.U, eps_s, d, n, m_aust' );                
             end
             
         end % end of loop for second slip system

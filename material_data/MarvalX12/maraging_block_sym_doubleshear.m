@@ -24,7 +24,7 @@ sort_out_negatives = true;
 ms = all_from_family_perms( [0 0 1], sort_out_negatives );
 % {011} family
 ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-martensite.low_index_mirror_planes = ms;
+martensite.mirror_planes = ms;
 
 %% calculate possible solutions and store solution objects in an object array
 all_sols = block_symmetric_doubleshear( martensite.U, martensite.cp, ms, ns, ds);
@@ -104,7 +104,7 @@ qi_sols = theta_NW_sols.sort( 'theta_CPP' ); % sort in ascending order for speci
 %% Best solution - determine Habit planes for all symmetry related variants
 % for interactions.
 % hp must correspond to the solution below for same order!!!
-% Vorzeichen meiner L�sung sind so wie die von L�sung Nr4!
+% Vorzeichen meiner Lösung sind so wie die von Lösung Nr4!
 %hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
 
 %eshelby = martensite.symmetry

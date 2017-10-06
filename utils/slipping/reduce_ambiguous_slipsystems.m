@@ -12,8 +12,8 @@ if nargin < 3
 end
 
 current_systems = 0;
-reduced_planes = ones(1,3);
-reduced_directions = ones(1,3);
+reduced_planes = [];
+reduced_directions = [];
 
 for x = 1:size(all_planes,1)
     contained = false;

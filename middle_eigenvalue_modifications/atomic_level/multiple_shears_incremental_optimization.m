@@ -15,6 +15,9 @@ solutions = Solution_array( Slip_solution() );
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
 
+%% assemble all shear directions, planes and dyads
+[ds, ns, S] = shear_dyads(martensite.considered_plasticity, );
+
 %% transform product phase slip systems to parent phase and combine all in one array
 if nargin == 3 % only parent phase slip systems
     ds = ds_product;

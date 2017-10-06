@@ -33,8 +33,8 @@ end
 %% assemble all slip systems, i.e. combinations of plane - direction pairings,
 % even those not normal to each other
 nr = 1;
-nnn = [0. 0. 0.];
-ddd = [0. 0. 0.];
+nnn = []; 
+ddd = []; 
 for i = 1:size(nn,1)
     for j = 1:size(dd,1)
         if abs( dot(nn(i,:),dd(j,:)) ) < 1e-5  % select out non-orthogonal pairings of planes and directions
@@ -52,9 +52,12 @@ end
 %n_red = nnn;
 %d_red = ddd;
 [n_red, d_red] = reduce_ambiguous_slipsystems( nnn, ddd, count_directions_extra );
-%
-display('Number of individual slip systems is:')
-length( n_red )
+
+if isempty( n_red )
+    error('invalid combination of slip direction families and slip plane normals (e.g. non perpendicular). Modify families!');
+else
+    disp(['Number of individual slip systems build from direction and plane families is:',num2str(size( n_red, 1 )) ] );
+end
 
 end
 

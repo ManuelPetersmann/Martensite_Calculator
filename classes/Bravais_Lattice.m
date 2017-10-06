@@ -42,6 +42,7 @@ classdef Bravais_Lattice < handle
         reciprocal_base; % = dual- or contravariant base
         Lattice_group;
         density;
+        %
     end
     
     methods
