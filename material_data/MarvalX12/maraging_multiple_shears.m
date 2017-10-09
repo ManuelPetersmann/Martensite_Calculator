@@ -15,24 +15,17 @@ plane_families_bcc =     [ [1 1 0]
 direction_families_bcc = [ [1 1 1]
                            [1 1 0] ];
 % find all possible combination (including different shear directions)
-[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
+[martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
+%[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
 
 plane_families_fcc =     [ [1 1 1] ];
 direction_families_fcc = [ [1 1 0]; [1 1 2] ];
-[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
+[austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
+%[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
-% sort_out_negatives = true;
-% highly symmetric mirror planes from bcc
-% {001} family
-%ms = all_from_family_perms( [0 0 1], sort_out_negatives );
-% {011} family
-%ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-
-
+martensite.considered_plasticity = 3; % both mart and aust slip systems
 %% calculate possible solutions and store solution objects in an object array
-
-all_sols = multiple_shears_incremental_optimization( B3, ns_product, ds_product, cp, ns_parent, ds_parent);
-%all_sols = multiple_shears_incremental_optimization( B3, ns_parent, ds_parent);
+all_sols = multiple_shears_incremental_optimization( martensite, austenite);
 
 
 %% further checks if solution is appropriate - reduction of total solutions one at a time

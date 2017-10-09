@@ -48,7 +48,7 @@ sort_out_negatives = false;
 
 %% calculate possible solutions and store solution objects in an object array
 % all_sols = block_symmetric_doubleshear( B3, cp, ms, ns, ds); % for testing of Maresca&Curtins slip systems 
-all_sols_MarescaCurtin = interface_defects_doubleshear_MarescaCurtin( B3, cp, ns_P2, ds_P2, ns_P3, ds_P3, phi); % for MARESCA&CURTIN RUN
+all_sols_MarescaCurtin = interface_defects_doubleshear_MarescaCurtin( martensite.U, martensite.cp, ns_P2, ds_P2, ns_P3, ds_P3, phi); % for MARESCA&CURTIN RUN
 % all_sols = block_symmetric_shear( B3, cp, ms, ns, ds);
 
 %% further checks if solution is appropriate - reduction of total solutions one at a time

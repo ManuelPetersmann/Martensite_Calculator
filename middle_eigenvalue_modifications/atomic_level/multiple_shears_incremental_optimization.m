@@ -1,12 +1,8 @@
-function [solutions] = multiple_shears_incremental_optimization(B, ns_product, ds_product, cp, ns_parent, ds_parent) 
-% possible calls: multiple_shears_incremental_optimization(B, ns_parent, ds_parent)
-%                                                         (B,ns_product, ds_product, cp)
-%                                                         (B, ns_product, ds_product, cp, ns_parent, ds_parent) 
-% Function can be called with 3 (only parent slip systems) 4 (only product slip systems), 6 (slip systems of both phases)
+function [solutions] = multiple_shears_incremental_optimization(martensite, austenite) 
+% call: multiple_shears_incremental_optimization(martensite, austenite)
+% incrementally minimizes middle-valued eigenvalue over the whole set of
+% selected slip systems
 % All calulations are carried out in the coordinate system of the parent phase
-% B... Bain strain, 
-% cp... B*Correspondance matrix --- mapping parent phase vectors to product phase vectors
-% ns...slip system normals, ds... slip directios
 % returns object array of solutions for IPSs.
 
 solutions = Solution_array( Slip_solution() ); 
@@ -16,52 +12,16 @@ solutions = Solution_array( Slip_solution() );
 numerical_parameters;
 
 %% assemble all shear directions, planes and dyads
-[ds, ns, S] = shear_dyads(martensite.considered_plasticity, );
-
-%% transform product phase slip systems to parent phase and combine all in one array
-if nargin == 3 % only parent phase slip systems
-    ds = ds_product;
-    ns = ns_product;
-end
-if nargin > 3
-    for is = 1:size(ds_product,1)
-        % transform product phase slip systems to parent phase ones
-        ds(is,:) = cp * ds_product(is,:)';
-        ns(is,:) = inverse(cp)' * ns_product(is,:)';
-    end
-end
-if nargin == 6  % if both parent and product phase systems are given
-    ds = cat(1,ds,ds_parent);
-    ns = cat(1,ns,ns_parent);
-    % for outputting found slip systems in miller indizes
-    ds_product = cat(1,ds_product,ds_parent);
-    ns_product = cat(1,ns_product,ds_parent);
-end
-%ds
-%ns
-% for comparison with non-normed vectors...
-% for is1 = 1:size(ds,1) % loop over vectors to construct all slip systems          
-%     S(:,:,is1)  = I + (ds(is1,:)' * ns(is1,:) );     
-% end
-% S(:,:,1)
-% S(:,:,80)
-
-% norm vectors and assemble slip systems
-for jj = 1:size(ds,1)
-    ds(jj,:) = ds(jj,:) / norm(ds(jj,:));
-    ns(jj,:) = ns(jj,:) / norm(ns(jj,:));
-    S(:,:,jj)  = (ds(jj,:)' * ns(jj,:) ); 
-end
+[ds, ns, S] = shear_dyads(martensite, austenite, false);
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
-[ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
+[ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( martensite.U'*martensite.U );
 [~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
-old_min_delta_lambda2_to_1 = abs(1. - lambda_2)
+old_min_delta_lambda2_to_1 = abs(1. - lambda_2);
 
 %% modify shear value in Blocks incrementally until lambda2 = 1
 shear_mag = zeros(1,size(ds,1)); % accummulated shears = 1/g
-% g = g_initial / 1./(norm(d11)*norm(n11));
 is_possible_solution = false;
 S_accummulated = I;
 
@@ -84,7 +44,7 @@ while ( ~is_possible_solution && ( all(shear_mag) < eps_max ) )
         % converges the fastest against lambda_2 = 1
         SS =  S_accummulated * ( I + delta_eps * S(:,:,is) );  
         % here + or - plays no role because both shear directions are considered
-        F = B*SS; % here it has been tested that the order of multiplication does not matter
+        F = martensite.U*SS; % here it has been tested that the order of multiplication does not matter
                   % since the Bain is pure stretch and SS is a small strain
         [ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( F'*F );
         [ is_possible_solution , lambda2_smaller1(is) ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
@@ -152,8 +112,8 @@ if is_possible_solution
     %shear_mag
     shear_magsfound = shear_mag(found);
     %
-    dsfound = ds_product(found,:);
-    nsfound = ns_product(found,:);
+    dsfound = ds(found,:);
+    nsfound = ns(found,:);
     
     % Create Slip_solution objects and append them to object array
     solutions.array( isol-1 ) =  Slip_solution_multishear(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, shear_magsfound, dsfound, nsfound );
