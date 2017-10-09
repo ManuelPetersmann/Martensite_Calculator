@@ -8,7 +8,6 @@ if(num2str(handles.lc_edtxt_aust_val.String) > 0 )
 else
     updateLog_MartCalc(hObject, handles,'No reasonable input for austenite lattice parameter - please correct!');
     handles.input_status = false;    
-    %error('No reasonable input for fcc lattice parameter!');
 end
 % for martensite lattice
 if(num2str(handles.lc_edtxt_mart_val.String) > 0 )
@@ -16,28 +15,29 @@ if(num2str(handles.lc_edtxt_mart_val.String) > 0 )
 else
     updateLog_MartCalc(hObject, handles,'No reasonable input for martensite lattice parameter - please correct!');
     handles.input_status = false; 
-    %error('No reasonable input for bcc lattice parameter!');
 end
  
 %% get input for base vectors from GUI
 base_aust = zeros(3,3);
-k = 19; % position of 1st entry of 1st base-vec for austenite
+k = 2; % position of 1st entry of 1st base-vec for austenite
 for i = 1:3
     for j = 1:3
         base_aust(i,j) = str2num(handles.pan_base_vec.Children(k).String);
-        k = k-1;
+        k = k+1; %-1;
     end
 end
+%base_aust
 handles.austenite.my_base = base_aust; % checks are done in class!
 %
 base_mart = zeros(3,3);
-k = 9; % position of 1st entry of 1st base-vec for martensite
+k = 12; % position of 1st entry of 1st base-vec for martensite
 for i = 1:3
     for j = 1:3
         base_mart(i,j) = str2num(handles.pan_base_vec.Children(k).String);
-        k = k-1;
+        k = k+1; %-1;
     end
 end
+%base_mart
 handles.martensite.my_base = base_mart; % checks are done in class!
 
                    

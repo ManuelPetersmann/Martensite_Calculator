@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 09-Oct-2017 13:23:36
+% Last Modified by GUIDE v2.5 09-Oct-2017 17:05:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,6 +55,15 @@ function Martensite_Calculator_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for Martensite_Calculator
 handles.output = hObject;
+
+% Initialise tabs
+handles.tabManager = TabManager( hObject );
+% Set-up a selection changed function on the create tab groups
+tabGroups = handles.tabManager.TabGroups;
+for tgi=1:length(tabGroups)
+    set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
+end
+
 
 % initialize array for keeping track of the active selection criteria
 % 28.08.2017: currently there are 7 possible criteria for selection of solutions
@@ -1314,5 +1323,19 @@ function pushbutton21_Callback(hObject, eventdata, handles)
 % --- Executes on button press in pushbutton22.
 function pushbutton22_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton24.
+function pushbutton24_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton24 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton25.
+function pushbutton25_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton25 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
