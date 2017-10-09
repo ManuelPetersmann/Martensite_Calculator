@@ -1,25 +1,50 @@
-function [solutions] = doubleshear_variable_shear_mags(martensite, austenite)
-% incremental optimization of "distance to middle eigenvalue = 1" approach on the lath level of highly dislocated lath martesite
-% after Petersmann et al 2017 -Blocky lath martensite - theory,experiments and modeling - to be submitted
+function [solutions] = doubleshear_variable_shear_mags(mart_obj, ns_product, ds_product, ns_parent, ds_parent)
+% possible calls: multiple_shears_incremental_optimization(B, ns_parent, ds_parent)
+%                                                         (B,ns_product, ds_product, cp)
+%                                                         (B, ns_product, ds_product, cp, ns_parent, ds_parent) 
+% Function can be called with 3 (only parent slip systems) 4 (only product slip systems), 6 (slip systems of both phases)
 % All calulations are carried out in the coordinate system of the parent phase
+% B... Bain strain, 
+% cp... B*Correspondance matrix --- mapping parent phase vectors to product phase vectors
+% ns...slip system normals, ds... slip directios
 % returns object array of solutions for IPSs.
 
-solutions = Solution_array( ); 
-solutions.array = Slip_solution();
-% Construct solutions.array with type of Slip_Solution -> Per default any class property is a double 
+solutions = Solution_array( Slip_solution() ); 
+% Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
 
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
 
 %% transform product phase slip systems to parent phase and combine all in one array
-% assemble all shear directions, planes and dyads
-[ds, ns, S] = shear_dyads(martensite, austenite, false); % assemble normed- shear_dyads
-disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
-disp('nr of solutions cannot be greater than 2-times this value.')
+if nargin == 3 % only parent phase slip systems
+    ds = ds_product;
+    ns = ns_product;
+end
+if nargin > 3
+    for is = 1:size(ds_product,1)
+        % transform product phase slip systems to parent phase ones
+        ds(is,:) = cp * ds_product(is,:)';
+        ns(is,:) = inverse(cp)' * ns_product(is,:)';
+    end    
+end
+if nargin == 6  % if both parent and product phase systems are given
+    ds = cat(1,ds,ds_parent);
+    ns = cat(1,ns,ns_parent);
+    % for outputting found slip systems in miller indizes
+    ds_product = cat(1,ds_product,ds_parent);
+    ns_product = cat(1,ns_product,ds_parent);
+end
+
+    % to write integer values into solutions
+for jj = 1:size(ds,1)
+    S(:,:,jj)  = ( ds(jj,:) / norm(ds(jj,:)) )' * (ns(jj,:) / norm(ns(jj,:)) ); 
+end
+
+display( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) ) ], ' nr of solutions cannot be greater than 2-times this value' )
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached
-[ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( martensite.U' * martensite.U );
+[ lambda_1, lambda_2, lambda_3] = sorted_eig_vals_and_vecs( B'*B );
 [~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
 delta_lambda2_to_1_initial = abs(1. - lambda_2);
 
@@ -44,7 +69,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             end
             
             S1 =  S_accummulated * (I + delta_eps* S(:,:,is1) );  
-            F = martensite.U * S1;
+            F = B * S1;
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
             [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
             if is_possible_solution
@@ -53,7 +78,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             new_delta_lambda2_S1 = abs(1. - lambda_2);
             
             S2 =  S_accummulated * (I + delta_eps* S(:,:,is2) );  
-            F = martensite.U * S2; % here it has been tested that the order of multiplication does not matter
+            F = B * S2; % here it has been tested that the order of multiplication does not matter
                         % since the Bain is pure stretch and SS is a small strain
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
             [ is_possible_solution , lambda2_smaller1_shear2] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
@@ -100,7 +125,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         if is_possible_solution
             %% calculate solution
             % calculate invariant plane vector n_i etc.
-            [eps_0, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+            [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
             % Note habit plane solutions come in pairs!
             
             isol = isol + 2; % increase counter for number of solutions found
@@ -109,19 +134,19 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 %pause(1);
             end
             eps_s = [eps1; eps2];
-            d = [ds(is1,:); ds(is2,:)];
-            n = [ns(is1,:); ns(is2,:)];
+            d = [ds_product(is1,:); ds_product(is2,:)];
+            n = [ns_product(is1,:); ns_product(is2,:)];
             
             % Create Slip_solution objects and append them to object array
-            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
-            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
+            solutions.array( isol-1 ) =  Slip_solution(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, eps_s, n, d );
+            solutions.array( isol )   =  Slip_solution(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, eps_s, n ,d );
         end
         
     end % end of loop for second slip system
 end % end of loop for first slip system
 
 
-disp(['number of potential solutions found = ', num2str(isol)])
+fprintf('number of potential solutions found: n_sol = %i :\n', isol)
 
 end
 
