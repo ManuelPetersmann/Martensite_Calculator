@@ -10,7 +10,7 @@ if nargin < 3
 end
 
 %% transform product phase slip systems to parent phase and combine all in one array
-if martensite.considered_plasticity == 1 || martensite.considered_plasticity == 3 % only product/martensite phase slip systems
+if (martensite.considered_plasticity == 1 || martensite.considered_plasticity == 3) % only product/martensite phase slip systems
     for is = 1:size(martensite.slip_directions,1)
         % transform product phase slip systems to parent phase ones
         ds(is,:) = martensite.cp * martensite.slip_directions(is,:)';
@@ -18,14 +18,14 @@ if martensite.considered_plasticity == 1 || martensite.considered_plasticity == 
     end
 end
 %
-if martensite.considered_plasticity == 3  % if both parent and product phase systems are given
-    ds = cat(1,ds,austenite.slip_directions);
-    ns = cat(1,ns,austenite.slip_planes);
-end
-%
 if martensite.considered_plasticity == 2 % only parent/austenite phase slip systems
     ds = austenite.slip_directions;
     ns = austenite.slip_planes;
+end
+%
+if martensite.considered_plasticity == 3  % if both parent and product phase systems are given
+    ds = cat(1,ds,austenite.slip_directions);
+    ns = cat(1,ns,austenite.slip_planes);
 end
 
 % norm vectors and assemble slip systems

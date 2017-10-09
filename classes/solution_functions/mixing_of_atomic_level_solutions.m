@@ -4,21 +4,21 @@ function [composite_solutions] = mixing_of_atomic_level_solutions(atomic_solutio
 % solutions fullfilling compatibility critera given by:
 % 'prop_for_tol'... string of property that should be averaged
 % tol_prop_doMix... tolerance of property deviation of atomic solutions
-% permitting the calculation of an average - following a linear rule of
-% mixture: x * prop_sol1 + (1-x) prop_sol2 --  with x being the volume
-% fraction of solution 1.
-% For the averages it is assumed that the IPS condition is approximately
+% permitting the calculation of an average - following a linear rule of mixture: 
+% prop_composite = x * prop_lath_sol1 + (1-x) prop_lath_sol2     e.g.
+% F_composite = x*F_lath1 + (1-x)*F_lath2
+% with x being the volume fraction of solution 1.
+% Note, that for such an average the IPS condition is approximately
 % maintained, which has been checked to be true for various combinations.
 %
 % The variable 'minimize_prop' can be:
 %
-% 1 ) the of the linearly mixed shape strain vector as a measure of
-% self accommodation.  --> linear constrained optimization
-% Instead: shape strain 'eps' of F_composite = I + eps d \otimes h
-% should be as small as possible (without changing the determinant!), i.e.
-% min_norm2( eps1*d1 + eps2*d2)
-% 2 ) |F-I| displacement gradient
-% 3 )|F^TF - I| Green-Lagrange (no rotation)
+% 1 ) 'eps': the magnitude of the linearly mixed shape strain vector as a measure of
+% self accommodation.  % F_composite = I + eps * d_composite \otimes h_composite
+% min_norm2( eps1*d1 + eps2*d2)--> linear constrained optimization
+%
+% 2 ) | F_composite -I |                   - displacement gradient
+% 3 ) | F_composite^T F_composite - I |    - c.f. Green-Lagrange (no rotation)
 %
 % -)F_composite should be mostly volumetric, i.e.  min|F_composite - % F^spherical| --> nonlinear constrained optimization
 % where the diagonal entries of F^spherical are determined from the volume 

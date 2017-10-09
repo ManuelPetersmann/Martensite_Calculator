@@ -12,6 +12,10 @@ time = datestr(now,'HH:MM:SS.FFF'); % get time
 % else
 log = get(handles.log_lb, 'string'); % fetch log
 nol_log = size(log,1); % number of messages in actual log
+%
+%handles.log_lb.Position(3) % width
+% handles.log_lb.Position(4) % height
+%
 if length(str_log_update) > 67
     str_log_update = [str_log_update(1:67) newline str_log_update(68:length(str_log_update))];
 end

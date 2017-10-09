@@ -8,7 +8,7 @@ classdef Composite_solution < IPS_solution
     % Fcomp = xi * F1 + (1-xi)*F2
     
     properties (Access = public)
-        eps_net; % minimum shape vector by means of linear mixture of shape vectors of IPS solutions
+        eps_net; % minimum magnitude of shape vector by means of linear mixture of shape vectors of IPS solutions
         x_eps; % optimized phase fractions of linear mixture
         F_comp_eps; % composite deformation gradient of above solution
         %

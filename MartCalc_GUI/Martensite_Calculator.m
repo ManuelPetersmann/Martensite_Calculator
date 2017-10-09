@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 06-Oct-2017 09:48:47
+% Last Modified by GUIDE v2.5 09-Oct-2017 13:23:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -65,7 +65,18 @@ handles.asc_number = 0;
 handles.asc_list = zeros(1,7);
 handles.log_status = 0; % variable for check if log has already been changed for a first time
 %
+% create austenite and martensite objects
+handles.martensite = Martensite(); % creates martensite object
+handles.austenite = Base();
+% actually this should be integrated into Bravais object as CPP and CP-direction 
+handles.cpps_gamma = all_from_family_perms( [1 1 1] ); % close packed planes of gamma-lattice
+handles.KS = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
+handles.NW = all_from_family_perms( [1 2 1], false );
+%
+handles.input_status = true; % will be set to false if something is wrong with the input
 handles.lath_solutions = false; % must be true to call my block mixing function
+handles.block_solutions = false;
+%
 guidata(hObject, handles);
 
 % UIWAIT makes Martensite_Calculator wait for user response (see UIRESUME)
@@ -78,27 +89,24 @@ function varargout = Martensite_Calculator_OutputFcn(hObject, eventdata, handles
 varargout{1} = handles.output;
 
 
-% --- Executes on button press in start_lath_calc.
-function start_lath_calc_Callback(hObject, eventdata, handles)
-% create austenite and martensite objects
-martensite = Martensite(); % creates martensite object
-austenite = Base();
+%% LATH PART %%
 
+%% --- Executes on button press in start_lath_calc.
+function start_lath_calc_Callback(hObject, eventdata, handles)
 updateLog_MartCalc(hObject, handles, '---------------------------------------------')
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI')
 % read user input from GUI for determination of solutions
 get_input_MartCalc;
 
 if handles.input_status
-    updateLog_MartCalc(hObject, handles,['Volume change is: ',num2str( (det(martensite.U) -1. )*100),'%'] );
     % start determination of possible solution and subsequent filtering according to active selection criteria
     % store solution objects in an object array
     switch handles.popup_calc_lath_level.Value
         case 1
             updateLog_MartCalc(hObject, handles, 'variable doubleshear incremental optimization lath level - started')
             updateLog_MartCalc(hObject, handles, 'please wait...')
-            martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
-            %% other cases could be added here
+            handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            % other cases could be added here
             %     case 2
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
             %         maraging_multiple_shears;
@@ -107,17 +115,14 @@ if handles.input_status
             %         maraging_MarescaCurtin_test;
     end
     handles.lath_solutions = true;
-    updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(martensite.IPS_solutions.array,2)),' solutions found.'] );
-    
-    %% start filtering solutions
-    if handles.asc_number > 0
-        updateLog_MartCalc(hObject, handles,'Start reducing solutions after specified criteria.');
-        update_Selection_criteria;
-        updateLog_MartCalc(hObject, handles, 'Filtering of IPS solutions after specified criteria completed.');
-    else
-        updateLog_MartCalc(hObject, handles, 'Note: No filters for solutions specified.');
-    end
+    updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
+    % filter solutions
+    update_Selection_criteria;
+else
+     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');    
 end
+guidata(hObject, handles);
+
 
 
 %% --- Executes on selection change in lsc_popup.
@@ -140,7 +145,7 @@ switch hObject.Value
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum slip plane density" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum slip plane density" is already active!')
         end
     %
     case 2 % Criterion 2 has been chosen: Maximum shape strain
@@ -153,7 +158,7 @@ switch hObject.Value
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!')
         end
     case 3 % Criterion 3 has been chosen: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
         if handles.asc_status(3) == 0
@@ -165,31 +170,31 @@ switch hObject.Value
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                        
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of CPPs {110}_alpha and {111}_gamma" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of CPPs {110}_alpha and {111}_gamma" is already active!')
         end
     case 4 % Criterion 4 has been chosen: Maximum misorientation of block HP to {111}_gamma
         if handles.asc_status(4) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma (CPP austenite)';
+            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma (CPP austenite).';
             default_value = 5.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(4) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                       
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!')
         end
     case 5 % Criterion 5 has been chosen: Maximum deviation of determinant det(F) of transformation
         if handles.asc_status(5) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of theoretical volume change from Bain strain';
+            criterion_name = 'Maximum deviation of theoretical volume change from Bain strain.';
             default_value = 0.0001;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(5) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-        	updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!.')
+        	updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!')
         end
     case 6 % Criterion 6 has been chosen: Maximum deviation from KS OR
         if handles.asc_status(6) == 0
@@ -201,7 +206,7 @@ switch hObject.Value
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!')
         end
     case 7 % Criterion 7 has been chosen: Maximum deviation from NW OR
         if handles.asc_status(7) == 0
@@ -213,10 +218,47 @@ switch hObject.Value
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value); 
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!.')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
         end
 end
 
+% --- Executes on button press in update_selection_button.
+function update_selection_button_Callback(hObject, eventdata, handles)
+update_Selection_criteria;
+
+
+% --- Executes on selection change in popup_sorting.
+function popup_sorting_Callback(hObject, eventdata, handles)
+%
+if handles.lath_solutions
+    unsrt_sols = handles.martensite.IPS_solutions;
+    switch hObject.Value
+        case 1
+            handles.sorted_sols = unsrt_sols.sort( 'slip_density' );
+        case 2
+            handles.sorted_sols = unsrt_sols.sort( 'eps_ips' );
+        case 3
+            handles.sorted_sols = unsrt_sols.sort( 'theta_CPP' );
+        case 4
+            handles.sorted_sols = unsrt_sols.sort( 'theta_h' );
+        case 5
+            handles.sorted_sols = unsrt_sols.sort( 'det' );
+        case 6
+            handles.sorted_sols = unsrt_sols.sort( 'theta_KS_min' );
+        case 7
+            handles.sorted_sols = unsrt_sols.sort( 'theta_NW_min' );
+    end
+   updateLog_MartCalc(hObject, handles,'Sorting finished.') 
+else
+    updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
+end
+guidata(hObject, handles);
+    
+
+
+
+
+%% BLOCK PART %%
 
 % --- Executes on button press in start_block_calc.
 function start_block_calc_Callback(hObject, eventdata, handles)
@@ -224,23 +266,46 @@ function start_block_calc_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-switch handles.popup_calc_block_level.Value      
-    case 1
+updateLog_MartCalc(hObject, handles, '---------------------------------------------');
+updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI');
+% read user input from GUI for determination of solutions
+get_input_MartCalc;
+
+if handles.input_status
+    switch handles.popup_calc_block_level.Value
+        case 1
             %% integrated file: maraging_block_sym_doubleshear.m;
-            updateLog_MartCalc(hObject, handles, 'direct block approach, mirrorsym. & equal double-shears - started')
-            updateLog_MartCalc(hObject, handles, 'please wait...')
+            updateLog_MartCalc(hObject, handles, 'direct block approach, mirrorsym. & equal double-shears - started');
+            updateLog_MartCalc(hObject, handles, 'please wait...');
             % highly symmetric mirror planes from bcc
             % {001} family
             sort_out_negatives = true;
             ms = all_from_family_perms( [0 0 1], sort_out_negatives );
             % {011} family
             ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-            martensite.mirror_planes = ms;
-            martensite.IPS_solutions = block_symmetric_doubleshear(martensite, austenite);
-    case 2  
-            %martensite.block_solutions = Composite_solution
+            handles.martensite.mirror_planes = ms;
+            handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
+            updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
+            %% other cases can be added here
+        case 2
+            if handles.lath_solutions
+%                handles.martensiteblock_solutions = Composite_solution
+            else
+                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
+            end
+    end
+    handles.block_solutions = true;
+    guidata(hObject, handles);
+else
+    updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
 end
+guidata(hObject, handles);
 
+
+
+
+% --- Executes on selection change in mixing_criteria_for_blocks.
+function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 
 
 
@@ -1179,6 +1244,15 @@ function popup_calc_lath_level_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_lath_level contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popup_calc_lath_level
 
+% --- Executes on selection change in popup_calc_block_level.
+function popup_calc_block_level_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_calc_block_level (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_block_level contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_calc_block_level
+
 
 % --- Executes during object creation, after setting all properties.
 function popup_calc_lath_level_CreateFcn(hObject, eventdata, handles)
@@ -1192,17 +1266,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on selection change in popup_calc_block_level.
-function popup_calc_block_level_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_calc_block_level (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_block_level contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_calc_block_level
-
-
 % --- Executes during object creation, after setting all properties.
 function popup_calc_block_level_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to popup_calc_block_level (see GCBO)
@@ -1215,17 +1278,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-% --- Executes on selection change in mixing_criteria_for_blocks.
-function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
-% hObject    handle to mixing_criteria_for_blocks (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns mixing_criteria_for_blocks contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from mixing_criteria_for_blocks
-
-
 % --- Executes during object creation, after setting all properties.
 function mixing_criteria_for_blocks_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to mixing_criteria_for_blocks (see GCBO)
@@ -1237,3 +1289,30 @@ function mixing_criteria_for_blocks_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object creation, after setting all properties.
+function popup_sorting_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_sorting (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbutton22.
+function pushbutton22_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton22 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
