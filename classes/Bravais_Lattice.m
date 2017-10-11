@@ -8,8 +8,12 @@ classdef Bravais_Lattice < handle
         % face-centered 'F', body-centered 'I' etc.
         % Lattice_parameters
         Lp = [1.0, 1.0, 1.0,  pi/2,   pi/2,   pi/2]; 
-        slip_planes; % sets of plane_families in one array;
-        slip_directions; % sets of families in one array;
+        %
+        CPPs;    % close packed planes of lattice
+        CP_dirs; % close packed directions of lattice
+        %
+        slip_planes; % sets of plane_families in one array;  basically CPPs but some more...
+        slip_directions; % sets of families in one array;    basically CP_dirs but some more...
         % the order of slip_planes and slip_direction fits together such
         % that all independent deformations are taken care of (i.e. both deformation directions) 
         mirror_planes; % generally low_index planes

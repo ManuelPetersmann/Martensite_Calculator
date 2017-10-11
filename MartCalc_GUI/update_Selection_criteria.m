@@ -64,16 +64,16 @@ if handles.asc_number > 0
                 reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'eps_ips', eps_max, 'max' );
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for a shape strain  < ',num2str(eps_max)] );
             case 3
-                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.cpps_gamma, theta_CPP_max, 'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
+                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.austenite.CPPs, theta_CPP_max, 'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for misorietation of CPPs  < ',num2str(theta_CPP_max),'°'] );
             case 4
-                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h');
+                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.austenite.CPPs, theta_n_max, 'theta_n', 'closest_to_h', 'h');
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for habit plane misorientation to CP-planes  < ',num2str(theta_n_max),'°'] );
             case 5
-                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'det', delta_determinant_max,  det(martensite.U));
+                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'det', delta_determinant_max,  det(handles.martensite.U));
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for (non-physical) volume change  < ',num2str(delta_determinant_max)] );
             case 6
-                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.KS, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
+                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.austenite.CP_dirs, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for a maximum deviation angle of KS-directions  < ',num2str(theta_KS_max),'°'] );
             case 7
                 reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);

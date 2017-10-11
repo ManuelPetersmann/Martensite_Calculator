@@ -25,7 +25,7 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
 
-martensite.considered_plasticity = 3; % both mart and aust slip systems
+martensite.considered_plasticity = 1; % both mart and aust slip systems
 %% calculate possible solutions and store solution objects in an object array
 martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
  
@@ -75,11 +75,16 @@ display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPP_max)] );
 
 %% Added: March 2017
 %delta_determinant_max = 0.0001;
-det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'det', delta_determinant_max,  detB3);
+det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'det', delta_determinant_max,  det(martensite.U));
 display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
+% PET: 10.10.17
+% new with 6 arguments! - no property is added dynamically this way
+reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, 10, 'theta_e1_cp_dir', 'closest_cp_dir_to_e1' ); 
+
+
 % to sort fully reduced solution for most important criterion 
-mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
+%mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
 %theta_NW_sols.array(1) % print out best solution
 
 % these two are vectors...
@@ -90,7 +95,7 @@ mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific 
 %% Best solution - determine Habit planes for all symmetry related variants
 % for interactions.
 % hp must correspond to the solution below for same order!!!
-% Vorzeichen meiner L�sung sind so wie die von L�sung Nr4!
+% Vorzeichen meiner Loesung sind so wie die von Loesung Nr4!
 %hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
 
 %eshelby = martensite.symmetry

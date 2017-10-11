@@ -55,26 +55,47 @@ classdef Solution_array < dynamicprops % subclass of handle class
             %
             % to generate minimum misorientation angles with corresponding
             % vector from orientation relations (close packed planes and directions) given as families
-            if nargin >= 7 % varargin = { 1- Type of array entry object, 2- Solution_array, 3- OR-family, 
-                %4-max tolerated deviation from OR, 
-                obj.array   = varargin{1}; % 5- dynamic property name for least_misorientation-angle, 
-                %6- dynamic property name for least_misorientation-vector, 
-                if nargin == 8             % 7- dynamic property name for OR family / or 'h' or 'a' for property, 
-                    %8- bool for planes = true (otherwise directions), }
+            if nargin >= 6 % varargin = { 1 - Type of array entry object, 2 - Solution_array, 3 - OR-family, 
+                % 4 - max tolerated deviation from OR,  5 - dynamic property name for least_misorientation-angle, 
+                % 6 - dynamic property name for least_misorientation-vector, 7 - dynamic property name for OR family / or 'h' or 'd' for property,  
+                %8- bool for planes = true (otherwise directions), }
+                obj.array   = varargin{1};    
+                if nargin == 8
+                    if ~isprop(obj,varargin{7}) % if property not already added add it dynamically
                         obj.addprop( varargin{7} );
-                        obj.( varargin{7} ) = varargin{3};
+                    end
+                    obj.( varargin{7} ) = varargin{3};
                 end
                 for i = 1:size( varargin{2}.array, 2)
-                    varargin{2}.array(i).addprop( varargin{5} );
-                    varargin{2}.array(i).addprop( varargin{6} );
+                    % add an angle (5) and a vector property -(6) to the object
+                    % dynamically if they have not yet been added...
+                    if ~isprop(varargin{2}.array(i),varargin{5}) 
+                        varargin{2}.array(i).addprop( varargin{5} );
+                    end
+                    if ~isprop(varargin{2}.array(i),varargin{6}) 
+                        varargin{2}.array(i).addprop( varargin{6} );
+                    end
+                    %
                     if nargin == 8
+                        % calculate minimum angle between plane normal
+                        % vector (from the given set of vectors) and its
+                        % transformed form
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
                             min_misorientation( varargin{3}, varargin{2}.array(i).LT, varargin{8} );
                     end
+                    %
                     if nargin == 7
-                        % closest austenite direction or plane to 'h' or 'd'
+                        % closest austenite direction or plane to (7):'h' or 'd'
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
-                            min_misorientation( varargin{3}, varargin{2}.array(i).(varargin{7}) ); 
+                            min_misorientation( varargin{3}, varargin{2}.array(i).(varargin{7}) ); % 7 'h', 'd' or 'e1'
+                    end
+                    %
+                    % new with 6 arguments! - no property is added dynamically this way
+                    if nargin == 6
+                        % deviation angle of e1 (direction of smallest
+                        % deformation) to close packed direction
+                        [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
+                            min_misorientation( varargin{3}, varargin{2}.array(i).e1 ); 
                     end
                     %
                     if varargin{2}.array(i).(varargin{5}) < varargin{4} % varargin{4} = maximal tolerated value

@@ -10,7 +10,7 @@ classdef Slip_solution < IPS_solution
         mirror_plane; % mirror plane of block solution
     end % end of properties
     properties (Dependent)
-        slip_density; % average nr of slip planes between burgers vector steps 
+        stepwidth; % ( planes_between_steps = inverse slip_density (1/g or 1/m) = average nr of slip planes between burgers vector steps 
     end
     
     methods
@@ -39,7 +39,7 @@ classdef Slip_solution < IPS_solution
             end
         end % end constructors (mostly used to reduce solutions)
         %%        
-        function gg = get.slip_density(obj)
+        function gg = get.stepwidth(obj)
             gg = slip_planes_between_burgerssteps( obj.shear_direction, obj.eps_s, obj.slip_normal_plane_vec, 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         

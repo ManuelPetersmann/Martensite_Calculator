@@ -1,13 +1,15 @@
 % densest packed plane in austenite
 cpps_gamma = all_from_family_perms( [1 1 1] );
+austenite.CPPs = cpps_gamma;
 % % 'Kurdjumov Sachs directions [110]_aust || [111]_mart';
 % densest packed direction in austenite
 KS = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
+austenite.CP_dirs = KS;
 % Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [-110]_aust || [100]_mart';
 NW = all_from_family_perms( [1 2 1], false );
 
 %% lath level selection criteria
-g_min = 5.; %  % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
+g_min = 3.; %5.; %  % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
 
 % maximum value of shape strain of deformation (lambda1-lambda3) - property
 % name is eps_ips
@@ -17,9 +19,9 @@ theta_CPP_max = 1.5; %1.; % 90.;  maximum misorientation angle of cpps gamma & a
 % misorientation-angle theta_p between the closed-packed planes (cpp) of alpha {110} and gamma {111} lattice
 
 % on the block level this tolerance is reduced!
-theta_n_max = 11.; % normally between 10 and 20 - see Maresca paper.; % 
+theta_n_max = 20.; %10. % normally between 10 and 20 - see Maresca paper.;  
 % maximum misorientation angle of block habit-plane to {111}_gamma
-% note 557 is 9.4° from 111 ! therefore this high tolerance!
+% note 557 is 9.4 degree from 111 ! therefore this high tolerance!
 
 % The peak of OR distribution is normally between KS and NW and
 % these two are 5.25 apart - hence these tolerances
@@ -32,6 +34,11 @@ theta_NW_max = 5.5; %3.5; % what is allowed, theta_NW_min
 % what is the smallest angle within the family-transformed_family set
 
 delta_determinant_max = 0.0001;
+
+% PET 10.10.17
+% new criterion: angle between direction with smallest deformation (e1) and
+% close packed direction in austenite
+theta_e1_cpp_dir = 5.;
 
 % Angle between 111 and 557 habit plane
 % acos( dot([1. 1. 1.], [5. 5. 7.])/(sqrt(3)*sqrt(99) ) ) = 9.4 degree

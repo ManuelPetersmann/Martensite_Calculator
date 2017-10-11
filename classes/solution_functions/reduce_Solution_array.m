@@ -1,4 +1,4 @@
-function [ reduced_sols ] = reduce_Solution_array( initial_sols, prop_string, upper_bound)
+function [ reduced_sols ] = reduce_Solution_array( initial_sols, austenite, prop_string, upper_bound)
 % call: [ reduced_sols ] = reduced_solutions( initial_sols, prop_string, prop_interval)
 % This function takes an object solution_array and reduces its solutions
 % according to the given criteria, upper_bound
@@ -9,14 +9,14 @@ function [ reduced_sols ] = reduce_Solution_array( initial_sols, prop_string, up
 % how to generalize?
 
 switch prop_string
-    case 'theta_CPP' % (minimum) misorientation angle of between two close packed planes (cpps) in parent and product phase
+    case 'theta_CPPs' % (minimum) misorientation angle of between two close packed planes (cpps) in parent and product phase
         % upper_bound = theta_CPP_max
-        reduced_sols = Solution_array( Slip_solution(), initial_sols, cpps_gamma, upper_bound, ...
-            'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
+        reduced_sols = Solution_array( Slip_solution(), initial_sols, austenite.CPPs, upper_bound, ...
+            'theta_CPPs', 'best_cpps_match', 'cpps_gamma', true);
     case 'theta_h' % (minimum) misorientation angle between habit plane and nearest close packed plane
         % upper_bound = theta_n_max
         reduced_sols = Solution_array( Slip_solution(), initial_sols, ...
-                    cpps_gamma, upper_bound, 'theta_h', 'closest_to_h', 'h');
+                    austenite.CPPs, upper_bound, 'theta_CPP_h', 'closest_CPP_to_h', 'h');
         all_sols.sort( 'theta_n' )
     case 'eps_ips'
         % upper_bound = eps_max
@@ -27,18 +27,18 @@ switch prop_string
         reduced_sols = Solution_array( Slip_solution(), initial_sols, 'slip_density', upper_bound, 'min');
     case 'theta_KS_min'
         % upper_bound = thetha_KS_max
-        reduced_sols = Solution_array( Slip_solution, initial_sols, KS, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
+        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_KS_min', 'closest_KS', 'KS', false );f
     case 'theta_NW_min'
-        % upper_bound = 
-        reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
+        % upper_bound = theta_NW_max
+        reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, NW, upper_bound, ...
                        'theta_NW_min', 'closest_NW', 'NW', false);
     case 'det'
         % upper_bound = delta_determinant_max
-        reduced_sols = Solution_array( Slip_solution, initial_sols, 'det', upper_bound,  det(martensite.U) );
-       %%        
-        %    case prop_string 
-        %        try
-        %        catch      
+        reduced_sols = Solution_array( Slip_solution, initial_sols, 'det', upper_bound,  det(martensite.U) );     
+    case 'e1' 
+        % upper_bound = theta_e1_cpp_dir
+        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_e1_cp_dir', 'closest_cp_dir_to_e1' ); 
+        % new with 6 arguments! - no property is added dynamically this way
 end
 
 % reduced_sols.sort( 'theta_CPP' )

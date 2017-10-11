@@ -3,6 +3,11 @@ function [ y1, y2, y3, e1, e2, e3] = sorted_eig_vals_and_vecs( Ct )
 % order as well as the corresponding (normalized!) eigenvectors 
 
 [V,D] = eig( Ct );
+
+if ~isreal(V)
+    error('complex eigenvectors')
+end
+
 % D... Diagonal matrix of eigenvalues
 % V... colum vectors are correspondig right eigenvectors i.e. A*V = V*D
 eigs = [D(1,1),D(2,2),D(3,3)];

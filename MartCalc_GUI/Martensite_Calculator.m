@@ -78,8 +78,8 @@ handles.log_status = 0; % variable for check if log has already been changed for
 handles.martensite = Martensite(); % creates martensite object
 handles.austenite = Base();
 % actually this should be integrated into Bravais object as CPP and CP-direction 
-handles.cpps_gamma = all_from_family_perms( [1 1 1] ); % close packed planes of gamma-lattice
-handles.KS = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
+handles.austenite.CPPs    = all_from_family_perms( [1 1 1] ); % close packed planes of gamma-lattice - formerly 'cpps_gamma'
+handles.austenite.CP_dirs = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0] - formerly 'KS'
 handles.NW = all_from_family_perms( [1 2 1], false );
 %
 handles.input_status = true; % will be set to false if something is wrong with the input
