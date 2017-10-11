@@ -40,7 +40,7 @@ classdef Slip_solution < IPS_solution
         end % end constructors (mostly used to reduce solutions)
         %%        
         function gg = get.stepwidth(obj)
-            gg = slip_planes_between_burgerssteps( obj.shear_direction, obj.eps_s, obj.slip_normal_plane_vec, 'cubic'); %TODO generalize to %obj.Bravais_type );
+            gg = slip_planes_between_burgerssteps( obj.shear_direction(:,1:3), obj.eps_s, obj.slip_normal_plane_vec(:,1:3), 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         
         

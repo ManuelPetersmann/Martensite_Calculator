@@ -25,7 +25,7 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
 
-martensite.considered_plasticity = 1; % both mart and aust slip systems
+martensite.considered_plasticity = 3; % both mart and aust slip systems
 %% calculate possible solutions and store solution objects in an object array
 martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
  
@@ -80,7 +80,7 @@ display(['with criterion tolerable volume_change_from_averaging = ',num2str(delt
 
 % PET: 10.10.17
 % new with 6 arguments! - no property is added dynamically this way
-reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, 10, 'theta_e1_cp_dir', 'closest_cp_dir_to_e1' ); 
+reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' ); 
 
 
 % to sort fully reduced solution for most important criterion 

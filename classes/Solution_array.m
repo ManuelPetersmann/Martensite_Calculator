@@ -55,7 +55,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
             %
             % to generate minimum misorientation angles with corresponding
             % vector from orientation relations (close packed planes and directions) given as families
-            if nargin >= 6 % varargin = { 1 - Type of array entry object, 2 - Solution_array, 3 - OR-family, 
+            if nargin >= 6 % varargin = { 1 - Type of array entry object, 2 - Solution_array, 3 - characteristic plane or direction-family (mostly CP families), 
                 % 4 - max tolerated deviation from OR,  5 - dynamic property name for least_misorientation-angle, 
                 % 6 - dynamic property name for least_misorientation-vector, 7 - dynamic property name for OR family / or 'h' or 'd' for property,  
                 %8- bool for planes = true (otherwise directions), }
@@ -79,25 +79,26 @@ classdef Solution_array < dynamicprops % subclass of handle class
                     if nargin == 8
                         % calculate minimum angle between plane normal
                         % vector (from the given set of vectors) and its
-                        % transformed form
+                        % transformed form. (Bain correspondence determines
+                        % unmodified correspondence!)
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
                             min_misorientation( varargin{3}, varargin{2}.array(i).LT, varargin{8} );
                     end
                     %
                     if nargin == 7
-                        % closest austenite direction or plane to (7):'h' or 'd'
+                        % misorientation between a crystallographic family
+                        % (cp dir or cpp to habit plane or deformation
+                        % vector ('h' or 'd' in (7))
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
                             min_misorientation( varargin{3}, varargin{2}.array(i).(varargin{7}) ); % 7 'h', 'd' or 'e1'
                     end
                     %
-                    % new with 6 arguments! - no property is added dynamically this way
                     if nargin == 6
-                        % deviation angle of e1 (direction of smallest
-                        % deformation) to close packed direction
+                        % deviation of prefered invariant line e.g. close packed direction from found habit plane (0 if vector is in the plane) 
                         [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
-                            min_misorientation( varargin{3}, varargin{2}.array(i).e1 ); 
+                            misorientation_vector_and_plane( varargin{3}, varargin{2}.array(i).h ); 
                     end
-                    %
+                    % SORT OUT 
                     if varargin{2}.array(i).(varargin{5}) < varargin{4} % varargin{4} = maximal tolerated value
                         foundnr = foundnr + 1;
                         obj.array(foundnr) = varargin{2}.array(i);

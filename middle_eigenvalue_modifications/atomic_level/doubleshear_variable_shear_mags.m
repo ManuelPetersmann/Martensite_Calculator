@@ -12,7 +12,8 @@ solutions.array = Slip_solution();
 numerical_parameters;
 
 %% transform product phase slip systems to parent phase and combine all in one array
-% assemble all shear directions, planes and dyads
+% assemble all shear dyads in austenite, array of directions, planes and in
+% respective phase (miller indizes)
 [ds, ns, S] = shear_dyads(martensite, austenite, false); % assemble normed- shear_dyads
 disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
 disp('nr of solutions cannot be greater than 2-times this value.')
@@ -100,7 +101,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         if is_possible_solution
             %% calculate solution
             % calculate invariant plane vector n_i etc.
-            [y1,y2, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+            [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
             % Note habit plane solutions come in pairs!
             
             isol = isol + 2; % increase counter for number of solutions found
@@ -114,8 +115,8 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             
             % Create Slip_solution objects and append them to object array;
             % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2
-            solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y2, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
-            solutions.array( isol )   =  Slip_solution(F, I, y1, y2, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
+            solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
+            solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
         end
         
     end % end of loop for second slip system

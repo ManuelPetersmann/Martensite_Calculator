@@ -27,7 +27,7 @@ switch prop_string
         reduced_sols = Solution_array( Slip_solution(), initial_sols, 'slip_density', upper_bound, 'min');
     case 'theta_KS_min'
         % upper_bound = thetha_KS_max
-        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_KS_min', 'closest_KS', 'KS', false );f
+        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_KS_min', 'closest_KS', 'KS', false );
     case 'theta_NW_min'
         % upper_bound = theta_NW_max
         reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, NW, upper_bound, ...
@@ -35,10 +35,11 @@ switch prop_string
     case 'det'
         % upper_bound = delta_determinant_max
         reduced_sols = Solution_array( Slip_solution, initial_sols, 'det', upper_bound,  det(martensite.U) );     
-    case 'e1' 
+    case 'theta_max_ILSdir_to_h' 
         % upper_bound = theta_e1_cpp_dir
-        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_e1_cp_dir', 'closest_cp_dir_to_e1' ); 
+        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' );
         % new with 6 arguments! - no property is added dynamically this way
+        % wrong like this: reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_e1_cp_dir', 'closest_cp_dir_to_e1' ); 
 end
 
 % reduced_sols.sort( 'theta_CPP' )

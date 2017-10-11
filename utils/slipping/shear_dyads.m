@@ -37,5 +37,32 @@ for jj = 1:size(ds,1)
     end
 end
 
+%% give the martensite slip systems in the martensite basis to use miller indizes for notion
+% make 1x4 vectors with the 4-th entry specifying wheter the system is from
+% martensite 99 or austenite 88 - also useful for writing results
+if (martensite.considered_plasticity == 1 || martensite.considered_plasticity == 3)
+    % append identification NR (99) to austenite slip systems --> [s,99], [n,99] e.g. [1 1 1 99]
+    phase_identifier = 99*ones(size(martensite.slip_directions,1),1);
+    ds = cat(2,martensite.slip_directions,phase_identifier);
+    ns = cat(2,martensite.slip_planes,    phase_identifier);
+end
+%
+if (martensite.considered_plasticity == 2 || martensite.considered_plasticity == 3)
+    % append identification NR (88) to austenite slip systems --> [s,88], [n,88] e.g. [1 1 1 88]
+    phase_identifier = 88*ones(size(austenite.slip_directions,1),1);
+    ds_aust = cat(2,austenite.slip_directions,phase_identifier);
+    ns_aust = cat(2,austenite.slip_planes,    phase_identifier);
+    if martensite.considered_plasticity == 2
+        ds = ds_aust;
+        ns = ns_aust;
+    end
+end
+%
+if martensite.considered_plasticity == 3
+    ds = cat(1,ds,ds_aust);
+    ns = cat(1,ns,ns_aust);
+end
+
+
 end
 

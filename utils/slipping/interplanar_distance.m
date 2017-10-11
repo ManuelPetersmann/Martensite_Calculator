@@ -3,7 +3,7 @@ function d = interplanar_distance( lp, pm, lattice )
 % and angles depending on the Bravais lattice in this order but without
 % non-used values, i.e. e.g. lp = [a,c] for tetragonal and 
 % for monoclinic lp = [a,b,c,beta].
-% The second argument is a vector of miller indices 'pm' specifying the lattice
+% The second argument is a vector of miller indices 'pm'(...plane miller) specifying the lattice
 % plane for which the spacing should be calculated
 % The third argument is a string identifying the Bravais lattice:
 % Possible values are: 'cubic', 'tetragonal','hexagonal',rhombohedral',

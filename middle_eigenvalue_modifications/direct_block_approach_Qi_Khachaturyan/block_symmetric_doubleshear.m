@@ -34,10 +34,10 @@ for im = 1:size(martensite.mirror_planes,1) % number of considered mirror planes
     % loop over slip system combinations
     for is1 = 1:(size(ds,1)-1) % loop for first slip system
         for is2 = (is1+1):size(ds,1) % loop for second one
-            d1_mirr = mirror_vec_by_plane(m_aust, ds(is1,:), I);
-            n1_mirr = mirror_vec_by_plane(m_aust, ns(is1,:), I);
-            d2_mirr = mirror_vec_by_plane(m_aust, ds(is2,:), I);
-            n2_mirr = mirror_vec_by_plane(m_aust, ds(is2,:), I);
+            d1_mirr = mirror_vec_by_plane(m_aust, ds(is1,1:3), I);
+            n1_mirr = mirror_vec_by_plane(m_aust, ns(is1,1:3), I);
+            d2_mirr = mirror_vec_by_plane(m_aust, ds(is2,1:3), I);
+            n2_mirr = mirror_vec_by_plane(m_aust, ds(is2,1:3), I);
             S11 = (d1_mirr * n1_mirr') ;
             S22 = (d2_mirr * n2_mirr') ;
             
@@ -131,8 +131,8 @@ for im = 1:size(martensite.mirror_planes,1) % number of considered mirror planes
                 % Note habit plane solutions come in pairs!
                 
                 isol = isol + 2; % increase counter for number of solutions found
-                eps_s1 = slip_planes_between_burgerssteps( ds(is1,:), g, ns(is1,:), 'cubic');
-                eps_s2 = slip_planes_between_burgerssteps( ds(is2,:), g, ns(is2,:), 'cubic');
+                eps_s1 = slip_planes_between_burgerssteps( ds(is1,1:3), g, ns(is1,1:3), 'cubic');
+                eps_s2 = slip_planes_between_burgerssteps( ds(is2,1:3), g, ns(is2,1:3), 'cubic');
                 eps_s = [eps_s1, eps_s2];
                 d = [ds(is1,:); ds(is2,:)];
                 n = [ns(is1,:); ns(is2,:)];

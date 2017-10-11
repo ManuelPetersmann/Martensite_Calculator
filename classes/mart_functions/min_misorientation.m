@@ -35,7 +35,7 @@ for j = 1 : size(vecs,1)
 end
 
 if closest_from_vecs == zeros(1,3)
-    error('No solution with specified Orientation relation tolerance')
+    error('error in function min_misorientation - must be fixed!')
 
 end
 

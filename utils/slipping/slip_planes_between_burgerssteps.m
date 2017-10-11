@@ -1,4 +1,4 @@
-function [ m ] = slip_planes_between_burgerssteps( b, eps, plane_miller, lattice) 
+function [ stepwidth ] = slip_planes_between_burgerssteps( b, eps_s, plane_miller, lattice) 
 % call: slip_planes_between_burgersstep( b, eps, plane_miller)
 % b... Burgers vector of slip system (miller indizes)
 % eps... shear magnitude of simple shear given below
@@ -12,14 +12,15 @@ function [ m ] = slip_planes_between_burgerssteps( b, eps, plane_miller, lattice
 % vectors vs variable vectors) and the distance between lattice planes
 % The fourth argument is a string identifying the Bravais lattice:
 % Possible values are: 'cubic', 'tetragonal','hexagonal',rhombohedral',
-% 'monoclinic','triclinic', 
+% 'monoclinic','triclinic',
 
-for i = 1:length(eps)
-% Note: in the case of the cubic lattice the lattice parameters fall out,
-% therefore they are not given here! TODO generalize burgersvector with
-% lattice parameters in this function (now first argument 1)
-    d = interplanar_distance( 1., plane_miller(i,:), lattice );    
-    m(i) = norm(b(i,:)) / (eps(i) * d);
+for i = 1:length(eps_s)
+    % Note: in the case of the cubic lattice the lattice parameters fall out,
+    % therefore they are not given here! TODO generalize burgersvector with
+    % lattice parameters in this function (now first argument
+    d = interplanar_distance( 1., plane_miller(i,1:3), lattice );
+    stepwidth(i) = norm(b(i,1:3)) / (eps_s(i) * d);
+    % Note:  slip density = (1/stepwidth)
 end
 
 

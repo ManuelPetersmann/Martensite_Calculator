@@ -25,8 +25,10 @@ classdef IPS_solution < dynamicprops
         % shape transformation (A_D in Qi2014 Paper)
         eps_ips;
         ST;  % on side of homogeneous deformation F:  QF - G = eps_0* ( a \dyad n )
-        e1; %dir_of_largest_def; %  = eigenvector corresponding to lambda_3 - should be close to the habit plane vector (|| shortest dimension 'c' of lath)
-        e3; %dir_of_smallest_def; % = eigenvector corresponding to lambda_1 - should be close to largest dimension 'a' of lath
+        % note those are the eigenvectors of F1'*F1 hence they do not
+        % include any rotation!!! the two lines below have therefore been commented - not valid!
+        %e1; %dir_of_largest_def; %  = eigenvector corresponding to lambda_3 - should be close to the habit plane vector (|| shortest dimension 'c' of lath)
+        %e3; %dir_of_smallest_def; % = eigenvector corresponding to lambda_1 - should be close to largest dimension 'a' of lath
         frob_green_lagrange;
         frob_displacement_grad;
         axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
@@ -66,14 +68,6 @@ classdef IPS_solution < dynamicprops
             eps_ips = sqrt(obj.lambda_3) - sqrt(obj.lambda_1);
         end
         %
-        function smallest_eigenvector = get.e1( obj )
-            [~,~,~,smallest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1'*obj.F1 ); % [ y1, y2, y3, e1, e2, e3] = 
-        end
-        %
-        function largest_eigenvector = get.e3( obj )
-            [~,~,~,~,~,largest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1'*obj.F1 ); % [ y1, y2, y3, e1, e2, e3] =
-        end
-        %
         function frobgl = get.frob_green_lagrange(obj)
             frobgl = trace(obj.ST' * obj.ST - eye(3));        
         end
@@ -88,6 +82,13 @@ classdef IPS_solution < dynamicprops
             vec4(4) = rad2deg( vec4(4) );
         end
         %
+%         function smallest_eigenvector = get.e1( obj )
+%             [~,~,~,smallest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1'*obj.F1 ); % [ y1, y2, y3, e1, e2, e3] = 
+%         end
+%         %
+%         function largest_eigenvector = get.e3( obj )
+%             [~,~,~,~,~,largest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1'*obj.F1 ); % [ y1, y2, y3, e1, e2, e3] =
+%         end
 %%  is not done like this, but added via the class Solution_array_dynamically   
 %        function ang = get.angle_e1_to_cpdir(obj)
 %            %if isprop(obj,'closest_KS') % generally cp-direction
