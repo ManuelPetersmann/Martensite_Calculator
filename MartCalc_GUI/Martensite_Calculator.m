@@ -69,9 +69,9 @@ end
 % 28.08.2017: currently there are 7 possible criteria for selection of solutions
 % default at start of MartCalc-GUI: all = 0 --> inactive
 % asc = Active Selection Criteria
-handles.asc_status = zeros(1,7);
+handles.asc_status = zeros(1,8);
 handles.asc_number = 0;
-handles.asc_list = zeros(1,7);
+handles.asc_list = zeros(1,8);
 handles.log_status = 0; % variable for check if log has already been changed for a first time
 %
 % create austenite and martensite objects
@@ -229,6 +229,18 @@ switch hObject.Value
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
         end
+    case 8 % Criterion 8 has been chosen: Maximum deviation of preferred invariant line to invariant habit plane
+        if handles.asc_status(8) == 0
+            handles.asc_number = handles.asc_number + 1; % increase number of asc
+            criterion_name = 'Maximum tolerance angle between preferred invariant line and habit plane';
+            default_value = 3.0;
+            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status(7) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum tolerance angle between preferred invariant line and habit plane" is already active!')
+        end
 end
 
 % --- Executes on button press in update_selection_button.
@@ -315,6 +327,13 @@ guidata(hObject, handles);
 
 % --- Executes on selection change in mixing_criteria_for_blocks.
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
+
+
+
+
+
+
+
 
 
 

@@ -45,6 +45,13 @@ if handles.asc_number > 0
         theta_NW_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(7)).Children(2).String);
     end
     
+    % PET: 12.10.17
+    % Criterion 8 - deviation of preferred ILS direction from invariant plane (0 if vector is in plane) 
+    if(handles.asc_status(8) > 0)
+        theta_max_ILSdir_to_h = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(8)).Children(2).String);
+    end
+    
+    
     keys   = ['stepwidth', 'eps_ips_max', 'theta_CPPs_max', 'theta_h_to_cpp', 'delta_determinant_max', 'theta_KS_max', 'theta_NW_max','theta_preferred_ILSdir_to_h'];
     values = [stepwidth, eps_ips_max,      theta_CPPs_max,   theta_h_to_cpp,   delta_determinant_max,   theta_KS_max,   theta_NW_max,  theta_preferred_ILSdir_to_h ];
     hanles.selection_criteria = containers.Map(keys,values);
