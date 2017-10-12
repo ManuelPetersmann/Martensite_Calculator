@@ -1,21 +1,29 @@
 %% update selection criteria for laths
 
+keys   = {};
+values = [];
 if handles.asc_number > 0
     updateLog_MartCalc(hObject, handles,'Start reducing solutions after specified criteria.');
     
     % criterion 1: Minimum slip plane density
     if(handles.asc_status(1) > 0)
         stepwidth = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(1)).Children(2).String);
+        keys{size(keys,2)+1} = 'stepwidth';
+        values(size(values,2)+1) = stepwidth;
     end
     
     % Criterion 2: Maximum shape strain
     if(handles.asc_status(2) > 0)
         eps_ips_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(2)).Children(2).String);
+        keys{size(keys,2)+1} = 'eps_ips_max';
+        values(size(values,2)+1) = eps_ips_max;
     end
     
     % Criterion 3: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
     if(handles.asc_status(3) > 0)
         theta_CPPs_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(3)).Children(2).String);
+        keys{size(keys,2)+1} = 'theta_CPPs_max';
+        values(size(values,2)+1) = theta_CPPs_max;
     end
     
     % Criterion 4: Maximum misorientation of block HP to {111}_gamma
@@ -24,11 +32,15 @@ if handles.asc_number > 0
     % acos( dot([1. 1. 1.], [5. 5. 7.])/(sqrt(3)*sqrt(99) ) ) = 9.4 degree
     if(handles.asc_status(4) > 0)
         theta_h_to_cpp = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(4)).Children(2).String);
+        keys{size(keys,2)+1} = 'theta_h_to_cpp';
+        values(size(values,2)+1) = theta_h_to_cpp;
     end
     
     % Criterion 5: Maximum deviation of determinant det(F) of transformation
     if(handles.asc_status(5) > 0)
         delta_determinant_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(5)).Children(2).String);
+        keys{size(keys,2)+1} = 'delta_determinant_max';
+        values(size(values,2)+1) = delta_determinant_max;
     end
     
     % Criterion 6: Maximum deviation from KS OR
@@ -37,24 +49,27 @@ if handles.asc_number > 0
     % 'Kurdjumov Sachs directions [110]_aust || [111]_mart';
     if(handles.asc_status(6) > 0)
         theta_KS_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(6)).Children(2).String);
+        keys{size(keys,2)+1} = 'theta_KS_max';
+        values(size(values,2)+1) = theta_KS_max;
     end
     
     % Criterion 7 has been chosen: Maximum deviation from NW OR
     %'Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
     if(handles.asc_status(7) > 0)
         theta_NW_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(7)).Children(2).String);
+        keys{size(keys,2)+1} = 'theta_NW_max';
+        values(size(values,2)+1) = theta_NW_max;
     end
     
     % PET: 12.10.17
-    % Criterion 8 - deviation of preferred ILS direction from invariant plane (0 if vector is in plane) 
+    % Criterion 8 - deviation of preferred ILS direction from invariant plane (0 if vector is in plane)
     if(handles.asc_status(8) > 0)
         theta_max_ILSdir_to_h = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(8)).Children(2).String);
+        keys{size(keys,2)+1} = 'theta_max_ILSdir_to_h';
+        values(size(values,2)+1) = theta_max_ILSdir_to_h;
     end
     
-    
-    keys   = ['stepwidth', 'eps_ips_max', 'theta_CPPs_max', 'theta_h_to_cpp', 'delta_determinant_max', 'theta_KS_max', 'theta_NW_max','theta_preferred_ILSdir_to_h'];
-    values = [stepwidth, eps_ips_max,      theta_CPPs_max,   theta_h_to_cpp,   delta_determinant_max,   theta_KS_max,   theta_NW_max,  theta_preferred_ILSdir_to_h ];
-    hanles.selection_criteria = containers.Map(keys,values);
+    handles.selection_criteria = containers.Map(keys,values);
     
     
     %% reduce solutions

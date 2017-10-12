@@ -1,4 +1,4 @@
-function [ds, ns, S] = shear_dyads(martensite, austenite, miller_dyads)
+function [ds, ns, S, slip_combinations] = shear_dyads(martensite, austenite, miller_dyads)
 % SHEAR_DYADS - this function takes information on the slip systems
 % and creates the necessary matrices used in the middle eigenvalue modification function
 % the first two inputs are the martensite and austenite objects, the third
@@ -63,6 +63,9 @@ if martensite.considered_plasticity == 3
     ns = cat(1,ns,ns_aust);
 end
 
+slip_combinations = nchoosek(size(ds,1),2);
+disp( ['Number of possible pairings is = ', num2str( slip_combinations )])
+disp('nr of solutions cannot be greater than 2-times this value.')
 
 end
 

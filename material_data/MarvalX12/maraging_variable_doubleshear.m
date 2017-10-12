@@ -81,6 +81,7 @@ display(['with criterion tolerable volume_change_from_averaging = ',num2str(delt
 % PET: 10.10.17
 % new with 6 arguments! - no property is added dynamically this way
 reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' ); 
+display(['with criterion maximum misroientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
 
 % to sort fully reduced solution for most important criterion 

@@ -3,6 +3,7 @@ classdef Bravais_Lattice < handle
     % crystallography Vol A, A1
     
     properties (SetAccess = public)
+        phase; % string specifying wheter parent/austenite or product/martensite
         Bravais_type; % a string specifying the Bravais lattice type e.g. 'cubic'
         Centering; % a string specifying the exact type e.g. simple 'P',
         % face-centered 'F', body-centered 'I' etc.
@@ -12,8 +13,10 @@ classdef Bravais_Lattice < handle
         CPPs;    % close packed planes of lattice
         CP_dirs; % close packed directions of lattice
         %
-        slip_planes; % sets of plane_families in one array;  basically CPPs but some more...
-        slip_directions; % sets of families in one array;    basically CP_dirs but some more...
+        slip_plane_families; % this and the next variable are for writing the results
+        slip_dir_families;
+        slip_planes;     % full array of slip planes created from plane_families
+        slip_directions; % full array of slip directions created from slip_dir_families
         % the order of slip_planes and slip_direction fits together such
         % that all independent deformations are taken care of (i.e. both deformation directions) 
         mirror_planes; % generally low_index planes
@@ -125,10 +128,6 @@ classdef Bravais_Lattice < handle
                 bool = true;
             end
         end
-        %------------------------------------------------------------------
-%        function set.slip_planes(obj)
-%            [ ns_product, ds_product ] = independent_slipsystems( obj.slip_planes, obj.slip_directions, true );
-%        end
         %------------------------------------------------------------------
         function value = get.E(obj)
             % generate the base matrix "E" for primitive cell of 3D Bravais lattices

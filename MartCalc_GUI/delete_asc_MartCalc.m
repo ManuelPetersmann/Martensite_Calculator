@@ -9,11 +9,11 @@ button_parent = get(hObject,'Parent'); % get parent panel of asc
 % children(3) is the textfield with a description of the actual criterion
 % its .Value property is the "internal number" for our sorting of selection
 % criteria
-criterion_number = button_parent.Children(3).Value % children(3) is the textfield with a description of the actual criterion
+criterion_number = button_parent.Children(3).Value; % children(3) is the textfield with a description of the actual criterion
 
 % EHL: add functionality for updating the asc list in the GUI!!!
 % ....
-postion_in_asc_list = handles.asc_status(criterion_number)
+postion_in_asc_list = handles.asc_status(criterion_number);
 % delete actual asc panel
 % NOTE: with deletion of this panel, the following panels in the list are
 % switched one position forward in the list of .Children!

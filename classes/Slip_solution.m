@@ -43,30 +43,6 @@ classdef Slip_solution < IPS_solution
             gg = slip_planes_between_burgerssteps( obj.shear_direction(:,1:3), obj.eps_s, obj.slip_normal_plane_vec(:,1:3), 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         
-        
-        % function for formatted output of a solution
-%         function sol_output(solution)
-%             %       fprintf('==================================================\n')
-%             %       fprintf('= results of calculation for a slip-system that  =\n')
-%             %       fprintf('= provides an invariant plane (after kachaturyan)=\n')
-%             
-%             format long
-%             
-%             fileID = fopen('Habitplane_evaluation.txt', 'a');
-%             
-%             format_m = 'm   = (%d, %d, %d) \t';
-%             format_l = 'l   = [%d, %d, %d] \n';
-%             format_g = 'g = %7.4f \t';
-%             
-%             fprintf(fileID,'shear system nr: %d \n', idx(i,1) );
-%             fprintf(fileID,format_m, mm);
-%             fprintf(fileID,format_l, ll);
-%             fprintf(fileID,format_g, g);
-%             
-%             fprintf('slip plane spacing: \n m = %1.4f \n \n', solution.g)
-%             
-%         end
-        
     end % end methods
        
 end

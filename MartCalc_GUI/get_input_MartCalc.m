@@ -55,7 +55,9 @@ handles.martensite.C_am = C_am;
 %% Set Bain strain and some other properties
 %% EHL: add input in GUI !!! - above all vor CPP and KS (in general set of close packed planes and directions)
 handles.austenite.Bravais_type  = 'cubic';
+handels.austenite.phase = 'aust';
 handles.martensite.Bravais_type = 'cubic';
+handles.martensite.phase = 'mart';
 % austenite.Centering = 
 handles.martensite.Centering = 'I';
 
@@ -83,10 +85,16 @@ dir_families_aust   = check_input_uitable( handles.uitable_slip_dirs_aust.Data )
 plane_families_aust = check_input_uitable( handles.uitable_slip_normals_aust.Data );
 dir_families_mart   = check_input_uitable( handles.uitable_slip_dirs_mart.Data );
 plane_families_mart = check_input_uitable( handles.uitable_slip_normals_mart.Data );
-count_directions_extra = true;
-no = zeros(1,3);
+%
+handles.austenite.slip_dir_families = dir_families_aust;
+handles.austenite.slip_plane_families = plane_families_aust;
+handles.martensite.slip_dir_families = dir_families_mart;
+handles.martensite.slip_plane_families = plane_families_mart;
+
 
 %% do verifications on the given input
+count_directions_extra = true;
+no = zeros(1,3);
 
 considered_plasticity = 0;
 % if martensite has some input for slip systems
@@ -117,19 +125,9 @@ if considered_plasticity == 0
     updateLog_MartCalc( hObject, handles,'no valid slip system could be build, please check input' );
     handles.input_status = false;
 end
-
-% switch considered_plasticity
-% case 1
-% case 2
-% case 3
-% disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
-% disp('nr of solutions cannot be greater than 2-times this value.')
-% end
-
-
-%%
 % save which phases should be considered for slip
 handles.martensite.considered_plasticity = considered_plasticity;
+
 
 guidata(hObject, handles);
 

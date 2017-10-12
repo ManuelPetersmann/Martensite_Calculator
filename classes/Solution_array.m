@@ -7,6 +7,11 @@ classdef Solution_array < dynamicprops % subclass of handle class
     properties
         array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
         no_solutions_available = false;
+        %
+        calculation_method;
+        slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, k...nr of simultaneously active ones
+        selection_criteria; % map-container of "string-criterion" - value pairs
+        sorted_after; % string specifying criterion array is sorted for
     end
     
     methods

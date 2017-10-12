@@ -14,9 +14,8 @@ solutions = Solution_array( Slip_solution() );
 
 %% transform product phase slip systems to parent phase and combine all in one array
 % assemble all shear directions, planes and dyads
-[ds, ns, S] = shear_dyads(martensite, austenite, true); % assemble miller- shear_dyads
-disp( ['Number of possible pairings is = ', num2str( nchoosek(size(ds,1),2) )])
-disp('nr of solutions cannot be greater than 2-times this value.')
+[ds, ns, S, slip_combinations] = shear_dyads(martensite, austenite, true); % assemble miller- shear_dyads
+solutions.slip_combinations = slip_combinations; % nr of possibilites nchoosek (k=2)
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached

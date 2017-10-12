@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 09-Oct-2017 17:05:29
+% Last Modified by GUIDE v2.5 12-Oct-2017 10:42:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -97,7 +97,7 @@ function varargout = Martensite_Calculator_OutputFcn(hObject, eventdata, handles
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% LATH PART %%
 
 %% --- Executes on button press in start_lath_calc.
@@ -112,7 +112,8 @@ if handles.input_status
     % store solution objects in an object array
     switch handles.popup_calc_lath_level.Value
         case 1
-            updateLog_MartCalc(hObject, handles, 'variable doubleshear incremental optimization lath level - started')
+            calculation_method = 'variable doubleshear incremental optimization lath level';
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
             updateLog_MartCalc(hObject, handles, 'please wait...')
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
             % other cases could be added here
@@ -124,9 +125,11 @@ if handles.input_status
             %         maraging_MarescaCurtin_test;
     end
     handles.lath_solutions = true;
+    handles.martensite.IPS_solutions.calculation_method = calculation_method;
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
     % filter solutions
     update_Selection_criteria;
+    handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
 else
      updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');    
 end
@@ -172,19 +175,19 @@ switch hObject.Value
     case 3 % Criterion 3 has been chosen: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
         if handles.asc_status(3) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of CPPs {110}_alpha and {111}_gamma';
+            criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
             default_value = 3.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(3) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                        
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of CPPs {110}_alpha and {111}_gamma" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of {111}_gamma to {110}_alpha" is already active!')
         end
     case 4 % Criterion 4 has been chosen: Maximum misorientation of block HP to {111}_gamma
         if handles.asc_status(4) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma (CPP austenite).';
+            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma.';
             default_value = 5.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(4) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
@@ -208,7 +211,7 @@ switch hObject.Value
     case 6 % Criterion 6 has been chosen: Maximum deviation from KS OR
         if handles.asc_status(6) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of KS OR directions)';
+            criterion_name = 'Maximum deviation of KS OR directions.';
             default_value = 10.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(6) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
@@ -277,8 +280,7 @@ guidata(hObject, handles);
     
 
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% BLOCK PART %%
 
 % --- Executes on button press in start_block_calc.
@@ -296,8 +298,10 @@ if handles.input_status
     switch handles.popup_calc_block_level.Value
         case 1
             %% integrated file: maraging_block_sym_doubleshear.m;
-            updateLog_MartCalc(hObject, handles, 'direct block approach, mirrorsym. & equal double-shears - started');
+            calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
             updateLog_MartCalc(hObject, handles, 'please wait...');
+            %
             % highly symmetric mirror planes from bcc
             % {001} family
             sort_out_negatives = true;
@@ -305,9 +309,13 @@ if handles.input_status
             % {011} family
             ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
             handles.martensite.mirror_planes = ms;
+            %
             handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-            %% other cases can be added here
+            handles.martensite.IPS_solutions.calculation_method = calculation_method;
+            %
+            update_Selection_criteria;
+            handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
         case 2
             if handles.lath_solutions
 %                handles.martensiteblock_solutions = Composite_solution
@@ -316,6 +324,7 @@ if handles.input_status
             end
     end
     handles.block_solutions = true;
+        
     guidata(hObject, handles);
 else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
@@ -323,11 +332,38 @@ end
 guidata(hObject, handles);
 
 
+   
+
 
 
 % --- Executes on selection change in mixing_criteria_for_blocks.
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 
+
+
+
+
+
+% --- Executes on button press in write_lath_solutions_pushbutton.
+function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
+
+filename = handles.filename_results_edittext.String;
+write_input_parameters(filename,'w', handles.martensite, handles.austenite);
+%
+if exist( handles.reduced_solutions,'var')
+    a = 'lol'
+end
+%
+%write_lath_solutions(handles.martensite, handles.austenite)
+
+
+
+
+function filename_results_edittext_Callback(hObject, eventdata, handles)
+
+% can i specify it like this in the function to write the results or do i
+% have to assign it another name here?
+handles.filename_results_edittext.String;
 
 
 
@@ -1353,8 +1389,14 @@ function pushbutton24_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton25.
-function pushbutton25_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton25 (see GCBO)
+% --- Executes during object creation, after setting all properties.
+function filename_results_edittext_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to filename_results_edittext (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
