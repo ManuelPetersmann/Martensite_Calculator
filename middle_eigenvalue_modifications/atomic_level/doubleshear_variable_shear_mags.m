@@ -1,12 +1,16 @@
-function [solutions] = doubleshear_variable_shear_mags(martensite, austenite)
+function doubleshear_variable_shear_mags(martensite, austenite) % [solutions] = 
 % incremental optimization of "distance to middle eigenvalue = 1" approach on the lath level of highly dislocated lath martesite
 % after Petersmann et al 2017 -Blocky lath martensite - theory,experiments and modeling - to be submitted
 % All calulations are carried out in the coordinate system of the parent phase
 % returns object array of solutions for IPSs.
 
-solutions = Solution_array( ); 
-solutions.array = Slip_solution();
-% Construct solutions.array with type of Slip_Solution -> Per default any class property is a double 
+% specify type of solution array
+martensite.IPS_solutions.array = Slip_solution();
+% set calcuation method property in solution_array object
+calculation_method = 'variable doubleshear incremental optimization lath level';
+martensite.IPS_solutions.calculation_method = calculation_method;  
+% create shorthand notation
+solutions = martensite.IPS_solutions;
 
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;

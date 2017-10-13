@@ -115,8 +115,9 @@ if handles.input_status
             calculation_method = 'variable doubleshear incremental optimization lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
             updateLog_MartCalc(hObject, handles, 'please wait...')
-            handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
-            % other cases could be added here
+            %handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            %% other cases could be added here
             %     case 2
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
             %         maraging_multiple_shears;
@@ -125,11 +126,14 @@ if handles.input_status
             %         maraging_MarescaCurtin_test;
     end
     handles.lath_solutions = true;
-    handles.martensite.IPS_solutions.calculation_method = calculation_method;
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
     % filter solutions
+    handles.martensite.IPS_solutions
     update_Selection_criteria;
-    handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
+    handles.martensite.IPS_solutions
+%     if handles.asc_number > 0
+%         handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
+%     end
 else
      updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');    
 end
@@ -255,22 +259,28 @@ update_Selection_criteria;
 function popup_sorting_Callback(hObject, eventdata, handles)
 %
 if handles.lath_solutions
-    unsrt_sols = handles.martensite.IPS_solutions;
+    if isfield(handles,'reduced_solutions')
+        unsrt_sols = handles.reduced_solutions;
+    else
+        unsrt_sols = handles.martensite.IPS_solutions;
+    end
     switch hObject.Value
         case 1
-            handles.sorted_sols = unsrt_sols.sort( 'slip_density' );
+            handles.reduced_solutions = unsrt_sols.sort( 'stepwidth' );
         case 2
-            handles.sorted_sols = unsrt_sols.sort( 'eps_ips' );
+            handles.reduced_solutions = unsrt_sols.sort( 'eps_ips' );
         case 3
-            handles.sorted_sols = unsrt_sols.sort( 'theta_CPP' );
+            handles.reduced_solutions = unsrt_sols.sort( 'theta_CPPs' );
         case 4
-            handles.sorted_sols = unsrt_sols.sort( 'theta_h' );
+            handles.reduced_solutions = unsrt_sols.sort( 'theta_h' );
         case 5
-            handles.sorted_sols = unsrt_sols.sort( 'det' );
+            handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
         case 6
-            handles.sorted_sols = unsrt_sols.sort( 'theta_KS_min' );
+            handles.reduced_solutions = unsrt_sols.sort( 'theta_KS_min' );
         case 7
-            handles.sorted_sols = unsrt_sols.sort( 'theta_NW_min' );
+            handles.reduced_solutions = unsrt_sols.sort( 'theta_NW_min' );
+        case 8
+            handles.reduced_solutions = unsrt_sols.sort('theta_max_ILSdir_to_h');
     end
    updateLog_MartCalc(hObject, handles,'Sorting finished.') 
 else
@@ -312,7 +322,6 @@ if handles.input_status
             %
             handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-            handles.martensite.IPS_solutions.calculation_method = calculation_method;
             %
             update_Selection_criteria;
             handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
@@ -323,8 +332,9 @@ if handles.input_status
                 updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
             end
     end
+    %
     handles.block_solutions = true;
-        
+    %    
     guidata(hObject, handles);
 else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
@@ -333,13 +343,8 @@ guidata(hObject, handles);
 
 
    
-
-
-
 % --- Executes on selection change in mixing_criteria_for_blocks.
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
-
-
 
 
 
@@ -347,11 +352,13 @@ function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 % --- Executes on button press in write_lath_solutions_pushbutton.
 function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
 
-filename = handles.filename_results_edittext.String;
+filename = handles.filename_results_edittext.String{1};
 write_input_parameters(filename,'w', handles.martensite, handles.austenite);
 %
-if exist( handles.reduced_solutions,'var')
-    a = 'lol'
+if isfield(handles,'reduced_solutions')
+    write_calc_specs(filename, 'a', handles.martensite, handles.reduced_solutions);
+else
+    write_calc_specs(filename, 'a', handles.martensite);
 end
 %
 %write_lath_solutions(handles.martensite, handles.austenite)
@@ -363,7 +370,7 @@ function filename_results_edittext_Callback(hObject, eventdata, handles)
 
 % can i specify it like this in the function to write the results or do i
 % have to assign it another name here?
-handles.filename_results_edittext.String;
+%handles.filename_results_edittext.String;
 
 
 

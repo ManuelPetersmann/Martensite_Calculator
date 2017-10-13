@@ -10,7 +10,7 @@ classdef Martensite < Base
         % their Code - for now we take the hard coded Bain-correspondence from the well
         % known figure...
         %R % rotational part of the
-        IPS_solutions;
+        IPS_solutions = Solution_array();
         considered_plasticity; % 1-only mart slip systems, 2-only austenite slip systems, 3-slip systems of both lattices
     end
     properties (Dependent)

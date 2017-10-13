@@ -8,9 +8,10 @@ classdef Solution_array < dynamicprops % subclass of handle class
         array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
         no_solutions_available = false;
         %
-        calculation_method;
-        slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, k...nr of simultaneously active ones
-        selection_criteria; % map-container of "string-criterion" - value pairs
+        calculation_method; % a string specifying the method to trim the middle eigenvalue to one
+        slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, 
+        % k...nr of simultaneously active ones (depending on calculation method)
+        selection_criteria = containers.Map; % containers.map object of "string-criterion" - value pairs c.f. Hashtable, python dict
         sorted_after; % string specifying criterion array is sorted for
     end
     
@@ -20,7 +21,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
             % All matlab classes have a default constructor with no arguments!
             foundnr = 0; % counter for how many matches are found for the construction of constrained solutions
             if nargin == 1 % varargin = { 1-Type of array entry object }
-                % initalize array type
+                % initalize array type e.g. IPS_solutions -or-> Slip_solution
                 obj.array = varargin{1}; % here varargin{1} should be the object_type of class property array
             end
             %
@@ -30,10 +31,17 @@ classdef Solution_array < dynamicprops % subclass of handle class
             %
             if nargin == 5 % to construct subarrays with minimal/maximal 'slip_density' and 'eps_ips' values
                 % as well as ones with specified maximum change of determinant
-                % varargin = {1-Type of array entry object, 2
-                % -Solution_array object, 3- object property, 4-extremum
-                % value for reduction of solutions, 5- string specifying
+                % varargin = {1-Type of array entry object, 
+                % 2 - Solution_array object, 3 - object property, 4 -extremum
+                % value for reduction of solutions, 5 - string specifying
                 % if value from 4 is the allowed maximum 'max or minimum 'min'
+                %
+                %
+                % the following creates a new key-value pair if the key is
+                % not yet contained, otherwise it overwrites the existing
+                % value for the key
+                obj.selection_criteria( varargin{3} ) = varargin{4};
+                %
                 obj.array = varargin{1};
                 for i = 1:size( varargin{2}.array, 2)
                     if strcmp( varargin{5}, 'max')
@@ -48,7 +56,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
                     end
-                    if strcmp( varargin{3}, 'det')
+                    if strcmp( varargin{3}, 'delta_determinant_max')
                         % determiannt should not change more than some value in varargin{4}
                         if ( abs( det(varargin{2}.array(i).F1) - varargin{5} ) <  varargin{4} )
                             foundnr = foundnr + 1;
@@ -64,7 +72,13 @@ classdef Solution_array < dynamicprops % subclass of handle class
                 % 4 - max tolerated deviation from OR,  5 - dynamic property name for least_misorientation-angle, 
                 % 6 - dynamic property name for least_misorientation-vector, 7 - dynamic property name for OR family / or 'h' or 'd' for property,  
                 %8- bool for planes = true (otherwise directions), }
-                obj.array   = varargin{1};    
+                obj.array   = varargin{1};  
+                %
+                % the following creates a new key-value pair if the key is
+                % not yet contained, otherwise it overwrites the existing
+                % value for the key
+                obj.selection_criteria( varargin{5} ) = varargin{4};
+                %
                 if nargin == 8
                     if ~isprop(obj,varargin{7}) % if property not already added add it dynamically
                         obj.addprop( varargin{7} );
@@ -138,6 +152,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
             end
             obj.array = obj.array(idx);
             display(['Solutions sorted in ascending order for property: ' , prop_name ]);
+            obj.sorted_after = prop_name;
         end
         
        

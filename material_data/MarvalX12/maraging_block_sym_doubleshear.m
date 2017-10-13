@@ -1,7 +1,7 @@
 % First execute File - Bain_and_Correspondence_mavalX12
-%clear all;
-%clc;
-%Bain_and_Correspondence_mavalX12;
+clear all;
+clc;
+Bain_and_Correspondence_mavalX12;
 
 %% assemble slip systems in alpha
 % slip systems b.c.c  or  f.c.c

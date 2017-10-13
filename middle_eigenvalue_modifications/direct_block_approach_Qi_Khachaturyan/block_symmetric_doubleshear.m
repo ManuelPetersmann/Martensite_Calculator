@@ -4,13 +4,20 @@ function [solutions] = block_symmetric_doubleshear(martensite, austenite)
 % All calulations are carried out in the coordinate system of the parent phase
 % returns object array of solutions for IPSs.
 
-if nargin < 2
+if (nargin < 2 && martensite.considered_plasticity == 1)
     austenite = 1; % set austenite to some random value to make function callable with just one argument
 end
 
+% specify type of solution array
+martensite.IPS_solutions.array = Slip_solution();
+% set calcuation method property in solution_array object
+calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
+martensite.IPS_solutions.calculation_method = calculation_method;  
+% create shorthand notation
+solutions = martensite.IPS_solutions;
+
 %% set numerical parameters und create solution object
 numerical_parameters;
-solutions = Solution_array( Slip_solution() );
 
 %% transform product phase slip systems to parent phase and combine all in one array
 % assemble all shear directions, planes and dyads

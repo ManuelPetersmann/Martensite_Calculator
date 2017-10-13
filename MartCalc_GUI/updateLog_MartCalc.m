@@ -11,7 +11,7 @@ time = datestr(now,'HH:MM:SS.FFF'); % get time
 %     guidata(hObject, handles); % Update handles structure
 % else
 
-log = get(handles.log_lb, 'string') % fetch log
+log = get(handles.log_lb, 'string'); % fetch log
 nol_log = size(log,1); % Number of Lines - in actual log (size of log)
 
 % first try: of wrapping text automatically in log:
@@ -20,25 +20,25 @@ nol_log = size(log,1); % Number of Lines - in actual log (size of log)
 %if length(str_log_update) > 67
 %    str_log_update = [str_log_update(1:67) newline str_log_update(68:length(str_log_update))];
 %end
-
-% TODO TODO TODO 
-
+%
 % second try: wrapped text with function
-[outstring, newpos] = textwrap(handles.log_lb, {time,' - ',str_log_update } ) % create new string for log
+% handles.log_lb - uicontrols object - ok!
+[outstring, ~] = textwrap(handles.log_lb, {[time,' - ',str_log_update] } ); % create new string for log
 
-%log{nol_log+1,1} = outstring %[time,' - ',str_log_update]; % extend log
-log = [log; outstring]
 
-set(handles.log_lb, 'String',log); %,'Position',newpos)
+% old extend log
+%log{nol_log+1,1} = outstring %[time,' - ',str_log_update]; 
+%
+% new extend log
+log = [log; outstring]; % concatenating cell arrays
 
-% old version
-%set(handles.log_lb, 'string', log, 'value', 1); % update log
-
-% set log to last message
-%set(handles.listbox1, 'Listboxtop', nol_log); % set log to last position
+% update log
+set(handles.log_lb, 'string', log, 'value', nol_log +1 ); 
+%currView = get(handles.log_lb,'ListBoxTop'); 
+%set(handles.log_lb, 'Listboxtop',topIndex);
+%set(handles.log_lb, 'Listboxtop', currView); 
 
 guidata(handles.log_lb, handles); % Update handles structure
-%end
 
 drawnow(); % update GUI
 end

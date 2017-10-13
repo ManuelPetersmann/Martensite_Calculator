@@ -7,6 +7,8 @@ function [ reduced_sols ] = reduce_Solution_array( initial_sols, austenite, prop
 
 % in general slip_soluton could also be IPS_solition or something other -
 % how to generalize?
+metaclass = ?initial_sols;
+
 
 switch prop_string
     case 'theta_CPPs' % (minimum) misorientation angle of between two close packed planes (cpps) in parent and product phase
@@ -22,9 +24,9 @@ switch prop_string
         % upper_bound = eps_max
         Solution_array( Slip_solution(), initial_sols, 'eps_ips', upper_bound, 'max' );
         all_sols.sort( 'eps' )
-    case 'slip_density'
+    case 'stepwidth'
         % upper_bound = g_min
-        reduced_sols = Solution_array( Slip_solution(), initial_sols, 'slip_density', upper_bound, 'min');
+        reduced_sols = Solution_array( Slip_solution(), initial_sols, 'stepwidth', upper_bound, 'min');
     case 'theta_KS_min'
         % upper_bound = thetha_KS_max
         reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_KS_min', 'closest_KS', 'KS', false );
