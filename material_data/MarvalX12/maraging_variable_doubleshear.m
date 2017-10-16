@@ -25,7 +25,7 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
 
-martensite.considered_plasticity = 1; % both mart and aust slip systems
+martensite.considered_plasticity = 1; % 1-mart, 2-aust, 3-both mart and aust slip systems
 %% calculate possible solutions and store solution objects in an object array
 %martensite.IPS_solutions.array = 
 doubleshear_variable_shear_mags( martensite, austenite)

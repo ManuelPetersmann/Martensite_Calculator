@@ -9,7 +9,7 @@ theta = 999.9; % init. angle for comparison of angles between different cpp
 closest_from_vecs = zeros(1,3);
 
 for j = 1 : size(vecs,1)
-    vec1 = vecs(j,:);    
+    vec1 = vecs(j,:);
     theta_new = abs( 90. - get_angle(vec1, plane) ); % returns angle in degree
     if( theta_new < theta )
         theta = theta_new;

@@ -11,8 +11,8 @@ switch prop_name
         sorted_sols = unsrt_sols.sort( 'eps_ips' );
     case 'stepwidth'
         sorted_sols = unsrt_sols.sort( 'stepwidth' );
-    case 'theta_h'
-        sorted_sols = unsrt_sols.sort( 'theta_h' );
+    case 'theta_h_to_cpp'
+        sorted_sols = unsrt_sols.sort( 'theta_h_to_cpp' );
     case 'delta_determinant_max'
         sorted_sols = unsrt_sols.sort( 'delta_determinant_max' );    
     case 'theta_CPPs'
@@ -29,4 +29,3 @@ end
 
 
 end
-

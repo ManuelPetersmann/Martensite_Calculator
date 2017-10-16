@@ -154,21 +154,21 @@ switch hObject.Value
     case 1 % Criterion 1 has been chosen: Minimum slip plane density
         if handles.asc_status(1) == 0 % if inactive
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Minimum slip plane density';
-            default_value = 10.0;
+            criterion_name = 'Minimum average dislocation spacing (stepwidth).';
+            default_value = 5.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(1) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum slip plane density" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
         end
     %
     case 2 % Criterion 2 has been chosen: Maximum shape strain
         if handles.asc_status(2) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum shape strain';
-            default_value = 0.4;
+            criterion_name = 'Maximum (total) shape strain (eps_ips) of invariant plane strain.';
+            default_value = 0.6;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(2) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
@@ -180,7 +180,7 @@ switch hObject.Value
         if handles.asc_status(3) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
             criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
-            default_value = 3.0;
+            default_value = 1.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(3) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                        
@@ -192,7 +192,7 @@ switch hObject.Value
         if handles.asc_status(4) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
             criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma.';
-            default_value = 5.0;
+            default_value = 20.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(4) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                       
@@ -200,44 +200,32 @@ switch hObject.Value
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!')
         end
-    case 5 % Criterion 5 has been chosen: Maximum deviation of determinant det(F) of transformation
+    case 5 % Criterion 6 has been chosen: Maximum deviation from KS OR
         if handles.asc_status(5) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of theoretical volume change from Bain strain.';
-            default_value = 0.0001;
+            criterion_name = 'Maximum deviation of KS OR directions.';
+            default_value = 5.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(5) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-        	updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!')
-        end
-    case 6 % Criterion 6 has been chosen: Maximum deviation from KS OR
-        if handles.asc_status(6) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of KS OR directions.';
-            default_value = 10.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(6) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
-            guidata(hObject, handles); % Update handles structure
-        else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!')
         end
-    case 7 % Criterion 7 has been chosen: Maximum deviation from NW OR
-        if handles.asc_status(7) == 0
+    case 6 % Criterion 7 has been chosen: Maximum deviation from NW OR
+        if handles.asc_status(6) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc    
             criterion_name = 'Maximum deviation from NW OR directions';
-            default_value = 10.0;
+            default_value = 8.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(7) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied       
+            handles.asc_status(6) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied       
             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value); 
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
         end
-    case 8 % Criterion 8 has been chosen: Maximum deviation of preferred invariant line to invariant habit plane
-        if handles.asc_status(8) == 0
+    case 7 % Criterion 8 has been chosen: Maximum deviation of preferred invariant line to invariant habit plane
+        if handles.asc_status(7) == 0
             handles.asc_number = handles.asc_number + 1; % increase number of asc
             criterion_name = 'Maximum tolerance angle between preferred invariant line and habit plane';
             default_value = 3.0;
@@ -248,6 +236,18 @@ switch hObject.Value
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum tolerance angle between preferred invariant line and habit plane" is already active!')
         end
+%     case 8 % Criterion 5 has been chosen: Maximum deviation of determinant det(F) of transformation
+%         if handles.asc_status(8) == 0
+%             handles.asc_number = handles.asc_number + 1; % increase number of asc
+%             criterion_name = 'Maximum deviation of theoretical volume change from Bain strain.';
+%             default_value = 0.001;
+%             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
+%             handles.asc_status(8) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
+%             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+%             guidata(hObject, handles); % Update handles structure
+%         else
+%             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!')
+%         end
 end
 
 % --- Executes on button press in update_selection_button.
@@ -274,13 +274,13 @@ if handles.lath_solutions
         case 4
             handles.reduced_solutions = unsrt_sols.sort( 'theta_h' );
         case 5
-            handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
-        case 6
             handles.reduced_solutions = unsrt_sols.sort( 'theta_KS_min' );
-        case 7
+        case 6
             handles.reduced_solutions = unsrt_sols.sort( 'theta_NW_min' );
-        case 8
+        case 7
             handles.reduced_solutions = unsrt_sols.sort('theta_max_ILSdir_to_h');
+%         case 8
+%             handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
     end
    updateLog_MartCalc(hObject, handles,'Sorting finished.') 
 else
@@ -356,12 +356,12 @@ filename = handles.filename_results_edittext.String{1};
 write_input_parameters(filename,'w', handles.martensite, handles.austenite);
 %
 if isfield(handles,'reduced_solutions')
-    write_calc_specs(filename, 'a', handles.martensite, handles.reduced_solutions);
+    write_calc_specs(filename, 'a',     handles.martensite, handles.reduced_solutions);
+    write_lath_solutions(filename, 'a', handles.martensite, handles.reduced_solutions);
 else
-    write_calc_specs(filename, 'a', handles.martensite);
+    write_calc_specs(filename, 'a',     handles.martensite);
+    write_lath_solutions(filename, 'a', handles.martensite);
 end
-%
-%write_lath_solutions(handles.martensite, handles.austenite)
 
 
 

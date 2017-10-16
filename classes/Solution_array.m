@@ -1,8 +1,7 @@
 classdef Solution_array < dynamicprops % subclass of handle class
-    % This class provides functions to sort for solutions obeying specific
+    % This class provides functions to reduce to and sort for solutions obeying specific
     % criteria e.g. Orientation relations, or shear (slip_density) -, shape strain (lambda_1 - lambda_3) magnitudes
-    %  & Martensite - need not to be derived from Martensite class, but is
-    %  a property of it!
+    %  & Martensite - need not to be derived from Martensite class, but is a property of it!
     % must be derived from dynamicprops because subclass is derived from it
     properties
         array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
@@ -12,7 +11,7 @@ classdef Solution_array < dynamicprops % subclass of handle class
         slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, 
         % k...nr of simultaneously active ones (depending on calculation method)
         selection_criteria = containers.Map; % containers.map object of "string-criterion" - value pairs c.f. Hashtable, python dict
-        sorted_after; % string specifying criterion array is sorted for
+        sorted_after = 'unsorted'; % string specifying criterion array is sorted for
     end
     
     methods
@@ -25,9 +24,9 @@ classdef Solution_array < dynamicprops % subclass of handle class
                 obj.array = varargin{1}; % here varargin{1} should be the object_type of class property array
             end
             %
-            if (nargin > 1) && varargin{2}.no_solutions_available
-                error('No solutions fullfilling specified selection criteria.')
-            end
+%             if (nargin > 1) && varargin{2}.no_solutions_available
+%                 error('No solutions fullfilling specified selection criteria.')
+%             end
             %
             if nargin == 5 % to construct subarrays with minimal/maximal 'slip_density' and 'eps_ips' values
                 % as well as ones with specified maximum change of determinant
@@ -51,12 +50,12 @@ classdef Solution_array < dynamicprops % subclass of handle class
                         end
                     end
                     if strcmp( varargin{5}, 'min')
-                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal toleratred 'slip_density' value
+                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal toleratred 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
                     end
-                    if strcmp( varargin{3}, 'delta_determinant_max')
+                    if strcmp( varargin{3}, 'delta_determinant_max') % should this property be added dynamically? For now I reduce solutions and print out a message.
                         % determiannt should not change more than some value in varargin{4}
                         if ( abs( det(varargin{2}.array(i).F1) - varargin{5} ) <  varargin{4} )
                             foundnr = foundnr + 1;
@@ -131,11 +130,11 @@ classdef Solution_array < dynamicprops % subclass of handle class
                     disp('No Solution fullfilling specified criteria');
                     obj.no_solutions_available = true;
                 else
-                    disp(['Solutions reduced to : ' , num2str(length(obj.array)) ]);
+                    disp(['Solutions reduced to : ' , num2str(length(obj.array))] );
                 end
             end
         end
-
+        
             
         %% Sort 
         function [obj,idx]= sort(obj, prop_name)

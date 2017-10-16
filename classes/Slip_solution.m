@@ -29,7 +29,7 @@ classdef Slip_solution < IPS_solution
             obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, d, h, Q, LT
             %
             if nargin > 8
-                obj.eps_s = varargin{1,9};  % initially here was only one 'slip_density' - equal for both slips
+                obj.eps_s = varargin{1,9};  % initially here was only one 'stepwidth' and it was assummed equal for both slips (see Qi,Khachaturyan 2014 Acta)
                 obj.shear_direction = varargin{1,10};
                 obj.slip_normal_plane_vec = varargin{1,11};
             end
