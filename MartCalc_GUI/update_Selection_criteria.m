@@ -70,7 +70,7 @@ if handles.asc_number > 0
                 reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.cpps_gamma, theta_n_max, 'theta_n', 'closest_to_h', 'h');
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for habit plane misorientation to CP-planes  < ',num2str(theta_n_max),'°'] );
             case 5
-                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'det', delta_determinant_max,  det(martensite.U));
+                reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, 'det', delta_determinant_max,  det(handles.martensite.U));
                 updateLog_MartCalc(hObject, handles, ['Solutions reduced to : ', num2str(length(reduced_solutions.array)) ' for (non-physical) volume change  < ',num2str(delta_determinant_max)] );
             case 6
                 reduced_solutions = Solution_array( Slip_solution(), reduced_solutions, handles.KS, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
