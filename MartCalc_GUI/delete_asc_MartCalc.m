@@ -6,6 +6,8 @@ function [ ] = delete_asc_MartCalc( hObject,eventdata)
 handles = guidata(hObject);
 button_parent = get(hObject,'Parent'); % get parent panel of asc
 
+main_asc_panel = get(button_parent,'Parent'); % get main panel for asc
+
 % children(3) is the textfield with a description of the actual criterion
 % its .Value property is the "internal number" for our sorting of selection
 % criteria
@@ -42,6 +44,7 @@ while(postion_in_asc_list <= size(handles.pan_asc.Children,1))
 end
 
 % update GUI data
-guidata(Martensite_Calculator, handles);
+% % % guidata(Martensite_Calculator, handles);
+guidata(main_asc_panel, handles);
 end
 

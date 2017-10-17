@@ -109,7 +109,7 @@ if handles.lath_solutions
                     %                 red_sols = Solution_array( handles.red_sol_array, red_sols, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U));
                     %                 Log_sol_info(hObject, handles,red_sols,[' for (non-physical) volume change  > ',num2str(delta_determinant_max)] );
             end
-        end
+       end
         handles.reduced_solutions = red_sols;
         %
         handles.reduced_solutions == handles.martensite.IPS_solutions
