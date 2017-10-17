@@ -1,8 +1,10 @@
-classdef Solution_array < dynamicprops % subclass of handle class
+classdef Solution_array < dynamicprops &  matlab.mixin.Copyable % subclass of handle class
     % This class provides functions to reduce to and sort for solutions obeying specific
     % criteria e.g. Orientation relations, or shear (slip_density) -, shape strain (lambda_1 - lambda_3) magnitudes
     %  & Martensite - need not to be derived from Martensite class, but is a property of it!
     % must be derived from dynamicprops because subclass is derived from it
+    % derived from matlab.mixin.Copyable to make one value-copy of it for
+    % updating solutions without modifying/deleting the original solution object
     properties
         array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
         no_solutions_available = false;
@@ -10,14 +12,24 @@ classdef Solution_array < dynamicprops % subclass of handle class
         calculation_method; % a string specifying the method to trim the middle eigenvalue to one
         slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, 
         % k...nr of simultaneously active ones (depending on calculation method)
-        selection_criteria = containers.Map; % containers.map object of "string-criterion" - value pairs c.f. Hashtable, python dict
+        selection_criteria = containers.Map(); % empty containers.map object of "string-criterion" - value pairs c.f. Hashtable, python dict
         sorted_after = 'unsorted'; % string specifying criterion array is sorted for
     end
     
+    methods(Access = protected)
+        function cp = copyElement(obj)
+            cp = Solution_array;
+            cp.array = [];
+            cp.calculation_method = obj.calculation_method;
+            cp.selection_criteria = containers.Map(); % create empty selection criteria map!
+        end
+    end
+    
     methods
-        % constructor
+        % constructors for reduction of solutions 
         function obj = Solution_array( varargin )
             % All matlab classes have a default constructor with no arguments!
+            % This constructor supplied by MATLAB also calls all superclass constructors with no arguments.
             foundnr = 0; % counter for how many matches are found for the construction of constrained solutions
             if nargin == 1 % varargin = { 1-Type of array entry object }
                 % initalize array type e.g. IPS_solutions -or-> Slip_solution

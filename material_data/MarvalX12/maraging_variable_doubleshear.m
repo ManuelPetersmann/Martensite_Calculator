@@ -47,8 +47,8 @@ selection_criteria_maraging;
 
 % Habit plane deviation from experimental observations
 tolerable_HP_deviations = Solution_array( Slip_solution, martensite.IPS_solutions, cpps_gamma, ...
-    theta_n_max, 'theta_h', 'closest_to_h', 'h'); 
-display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_n_max)]);
+    theta_h_to_CPP, 'theta_h_to_CPP', 'closest_to_h', 'h'); 
+display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
 
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
@@ -61,8 +61,8 @@ eps_max_solutions = Solution_array( Slip_solution, tolerable_HP_deviations, 'eps
 display(['with criterion eps_max = ',num2str(eps_max)] );
 
 %% 'misorientation of CPP martensite to austenite - planes of OR';
-tolerable_CPP_deviations = Solution_array( Slip_solution, eps_max_solutions, cpps_gamma, theta_CPP_max, ...
-    'theta_CPP', 'closest_to_cpp', 'cpps_gamma', true);
+tolerable_CPP_deviations = Solution_array( Slip_solution, eps_max_solutions, cpps_gamma, theta_CPPs_max, ...
+    'theta_CPPs', 'closest_to_cpp', 'cpps_gamma', true);
 display(['with criterion delta_CPP_max = ',num2str(theta_CPP_max)] );
     
 %% specify maximum misorientations of solutions to ideal OR directions
@@ -76,7 +76,7 @@ display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPP_max)] );
 
 %% Added: March 2017
 %delta_determinant_max = 0.0001;
-det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'det', delta_determinant_max,  det(martensite.U));
+det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
 display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
 % PET: 10.10.17

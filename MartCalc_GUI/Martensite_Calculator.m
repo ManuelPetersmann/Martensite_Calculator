@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 12-Oct-2017 10:42:21
+% Last Modified by GUIDE v2.5 17-Oct-2017 10:24:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -64,14 +64,13 @@ for tgi=1:length(tabGroups)
     set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
 end
 
-
 % initialize array for keeping track of the active selection criteria
 % 28.08.2017: currently there are 7 possible criteria for selection of solutions
 % default at start of MartCalc-GUI: all = 0 --> inactive
 % asc = Active Selection Criteria
-handles.asc_status = zeros(1,8);
+handles.asc_status = zeros(1,7);
 handles.asc_number = 0;
-handles.asc_list = zeros(1,8);
+handles.asc_list = zeros(1,7);
 handles.log_status = 0; % variable for check if log has already been changed for a first time
 %
 % create austenite and martensite objects
@@ -85,6 +84,10 @@ handles.NW = all_from_family_perms( [1 2 1], false );
 handles.input_status = true; % will be set to false if something is wrong with the input
 handles.lath_solutions = false; % must be true to call my block mixing function
 handles.block_solutions = false;
+%
+handles.red_sol_array = copy(handles.martensite.IPS_solutions);
+handles.red_sol_array
+handles.martensite.IPS_solutions
 %
 guidata(hObject, handles);
 
@@ -115,7 +118,8 @@ if handles.input_status
             calculation_method = 'variable doubleshear incremental optimization lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
             updateLog_MartCalc(hObject, handles, 'please wait...')
-            %handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            % handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            % handles.martensite.IPS_solutions.selection_criteria.keys
             doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
             %% other cases could be added here
             %     case 2
@@ -128,12 +132,7 @@ if handles.input_status
     handles.lath_solutions = true;
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
     % filter solutions
-    handles.martensite.IPS_solutions
     update_Selection_criteria;
-    handles.martensite.IPS_solutions
-%     if handles.asc_number > 0
-%         handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
-%     end
 else
      updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');    
 end
@@ -324,7 +323,6 @@ if handles.input_status
             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
             %
             update_Selection_criteria;
-            handles.martensite.IPS_solutions.selection_criteria = handles.selection_criteria;
         case 2
             if handles.lath_solutions
 %                handles.martensiteblock_solutions = Composite_solution
