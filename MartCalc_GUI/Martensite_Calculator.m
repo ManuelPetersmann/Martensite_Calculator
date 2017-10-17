@@ -75,19 +75,19 @@ handles.log_status = 0; % variable for check if log has already been changed for
 %
 % create austenite and martensite objects
 handles.martensite = Martensite(); % creates martensite object
-handles.austenite = Base();
+handles.austenite  = Base();
 % actually this should be integrated into Bravais object as CPP and CP-direction 
 handles.austenite.CPPs    = all_from_family_perms( [1 1 1] ); % close packed planes of gamma-lattice - formerly 'cpps_gamma'
 handles.austenite.CP_dirs = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0] - formerly 'KS'
 handles.NW = all_from_family_perms( [1 2 1], false );
 %
-handles.input_status = true; % will be set to false if something is wrong with the input
+handles.input_status   = true; % will be set to false if something is wrong with the input
 handles.lath_solutions = false; % must be true to call my block mixing function
 handles.block_solutions = false;
 %
-handles.red_sol_array = copy(handles.martensite.IPS_solutions);
-handles.red_sol_array
-handles.martensite.IPS_solutions
+%handles.red_sol_array = copy(handles.martensite.IPS_solutions);
+%handles.red_sol_array
+%handles.martensite.IPS_solutions
 %
 guidata(hObject, handles);
 

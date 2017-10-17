@@ -1,5 +1,4 @@
-classdef IPS_solution < dynamicprops
-    % needs to be derived from dynamicprops because slip_solution can dynamically add e.g. OR directions!
+classdef IPS_solution 
     % IPS_solution - Baseclass for solutions of the IPS equation: F1 - F2 = eps0 * (d \dyad h)
     
     properties (Access = public)
@@ -20,6 +19,8 @@ classdef IPS_solution < dynamicprops
         Q; % rotation matrix (for invariant planar match between domains of homogeneous deformation F and G
         LT; % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
         %LT; % = RB = ...R von IPS condition
+        %
+        added_props = containers.Map();
     end
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)

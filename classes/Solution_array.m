@@ -1,10 +1,8 @@
-classdef Solution_array < dynamicprops &  matlab.mixin.Copyable % subclass of handle class
+classdef Solution_array 
     % This class provides functions to reduce to and sort for solutions obeying specific
     % criteria e.g. Orientation relations, or shear (slip_density) -, shape strain (lambda_1 - lambda_3) magnitudes
     %  & Martensite - need not to be derived from Martensite class, but is a property of it!
-    % must be derived from dynamicprops because subclass is derived from it
-    % derived from matlab.mixin.Copyable to make one value-copy of it for
-    % updating solutions without modifying/deleting the original solution object
+    
     properties
         array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
         no_solutions_available = false;
@@ -13,16 +11,8 @@ classdef Solution_array < dynamicprops &  matlab.mixin.Copyable % subclass of ha
         slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, 
         % k...nr of simultaneously active ones (depending on calculation method)
         selection_criteria = containers.Map(); % empty containers.map object of "string-criterion" - value pairs c.f. Hashtable, python dict
+        % rewrote this class to value class - store everythin that is added dynamically in "selection_criteria" property
         sorted_after = 'unsorted'; % string specifying criterion array is sorted for
-    end
-    
-    methods(Access = protected)
-        function cp = copyElement(obj)
-            cp = Solution_array;
-            cp.array = [];
-            cp.calculation_method = obj.calculation_method;
-            cp.selection_criteria = containers.Map(); % create empty selection criteria map!
-        end
     end
     
     methods
@@ -82,36 +72,37 @@ classdef Solution_array < dynamicprops &  matlab.mixin.Copyable % subclass of ha
             if nargin >= 6 % varargin = { 1 - Type of array entry object, 2 - Solution_array, 3 - characteristic plane or direction-family (mostly CP families), 
                 % 4 - max tolerated deviation from OR,  5 - dynamic property name for least_misorientation-angle, 
                 % 6 - dynamic property name for least_misorientation-vector, 7 - dynamic property name for OR family / or 'h' or 'd' for property,  
-                %8- bool for planes = true (otherwise directions), }
+                % 8 - bool for planes = true (otherwise directions), }
                 obj.array   = varargin{1};  
                 %
-                % the following creates a new key-value pair if the key is
-                % not yet contained, otherwise it overwrites the existing
-                % value for the key
-                obj.selection_criteria( varargin{5} ) = varargin{4};
-                %
                 if nargin == 8
-                    if ~isprop(obj,varargin{7}) % if property not already added add it dynamically
-                        obj.addprop( varargin{7} );
-                    end
-                    obj.( varargin{7} ) = varargin{3};
+                      % the following creates a new key-value pair if the key is
+                      % not yet contained, otherwise it overwrites the existing
+                      % value for the key
+                      obj.selection_criteria( varargin{7} ) = varargin{3};
+                      
+%                     if ~isprop(obj,varargin{7}) % if property not already added, add it
+%                     obj.addprop( varargin{7} );
+%                     end
+%                     obj.( varargin{7} ) = varargin{3};
                 end
                 for i = 1:size( varargin{2}.array, 2)
                     % add an angle (5) and a vector property -(6) to the object
                     % dynamically if they have not yet been added...
-                    if ~isprop(varargin{2}.array(i),varargin{5}) 
-                        varargin{2}.array(i).addprop( varargin{5} );
-                    end
-                    if ~isprop(varargin{2}.array(i),varargin{6}) 
-                        varargin{2}.array(i).addprop( varargin{6} );
-                    end
+                    %
+%                     if ~isprop(varargin{2}.array(i),varargin{5}) 
+%                         varargin{2}.array(i).addprop( varargin{5} );
+%                     end
+%                     if ~isprop(varargin{2}.array(i),varargin{6}) 
+%                         varargin{2}.array(i).addprop( varargin{6} );
+%                     end
                     %
                     if nargin == 8
                         % calculate minimum angle between plane normal
                         % vector (from the given set of vectors) and its
                         % transformed form. (Bain correspondence determines
                         % unmodified correspondence!)
-                        [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
+                        [ varargin{2}.array(i).added_props(varargin{5}), varargin{2}.array(i).added_props( varargin{6}) ] = ...
                             min_misorientation( varargin{3}, varargin{2}.array(i).LT, varargin{8} );
                     end
                     %
@@ -119,7 +110,7 @@ classdef Solution_array < dynamicprops &  matlab.mixin.Copyable % subclass of ha
                         % misorientation between a crystallographic family
                         % (cp dir or cpp to habit plane or deformation
                         % vector ('h' or 'd' in (7))
-                        [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
+                        [ varargin{2}.array(i).added_props(varargin{5}), varargin{2}.array(i).added_props(varargin{6}) ] = ...
                             min_misorientation( varargin{3}, varargin{2}.array(i).(varargin{7}) ); % 7 'h', 'd' or 'e1'
                     end
                     %
