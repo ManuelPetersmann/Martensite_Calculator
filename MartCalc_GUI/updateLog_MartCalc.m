@@ -15,15 +15,12 @@ log = get(handles.log_lb, 'string'); % fetch log
 nol_log = size(log,1); % Number of Lines - in actual log (size of log)
 
 % first try: of wrapping text automatically in log:
-%handles.log_lb.Position(3) % width
-% handles.log_lb.Position(4) % height
-%
-if length(str_log_update) > 67
-    str_log_update = [str_log_update(1:67) sprintf('\n') str_log_update(68:length(str_log_update))];
-end
-log{nol_log+1,1} = [time,' - ',str_log_update]; % extend log
-set(handles.log_lb, 'string', log, 'value', 1); % update log
-guidata(hObject, handles); % Update handles structure
+% if length(str_log_update) > 67
+%     str_log_update = [str_log_update(1:67) sprintf('\n') str_log_update(68:length(str_log_update))];
+% end
+% log{nol_log+1,1} = [time,' - ',str_log_update]; % extend log
+% set(handles.log_lb, 'string', log, 'value', 1); % update log
+% guidata(hObject, handles); % Update handles structure
 %end
 %
 % second try: wrapped text with function

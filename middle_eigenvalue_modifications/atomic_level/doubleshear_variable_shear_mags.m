@@ -1,4 +1,4 @@
-function doubleshear_variable_shear_mags(martensite, austenite) % [solutions] = 
+function solutions = doubleshear_variable_shear_mags(martensite, austenite) % [solutions] = 
 % incremental optimization of "distance to middle eigenvalue = 1" approach on the lath level of highly dislocated lath martesite
 % after Petersmann et al 2017 -Blocky lath martensite - theory,experiments and modeling - to be submitted
 % All calulations are carried out in the coordinate system of the parent phase

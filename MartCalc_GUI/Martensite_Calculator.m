@@ -81,13 +81,10 @@ handles.austenite.CPPs    = all_from_family_perms( [1 1 1] ); % close packed pla
 handles.austenite.CP_dirs = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0] - formerly 'KS'
 handles.NW = all_from_family_perms( [1 2 1], false );
 %
+handles.InterfaceObj=findobj(handles.figure1,'Enable','on'); % variable to disable interface during calculations
 handles.input_status   = true; % will be set to false if something is wrong with the input
 handles.lath_solutions = false; % must be true to call my block mixing function
 handles.block_solutions = false;
-%
-%handles.red_sol_array = copy(handles.martensite.IPS_solutions);
-%handles.red_sol_array
-%handles.martensite.IPS_solutions
 %
 guidata(hObject, handles);
 
@@ -105,6 +102,12 @@ varargout{1} = handles.output;
 
 %% --- Executes on button press in start_lath_calc.
 function start_lath_calc_Callback(hObject, eventdata, handles)
+
+% disable interface during function call
+set(handles.InterfaceObj,'Enable','off');
+% enable interface again
+%set(handles.InterfaceObj,'Enable','on');
+ 
 updateLog_MartCalc(hObject, handles, '---------------------------------------------')
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI')
 % read user input from GUI for determination of solutions
@@ -118,9 +121,8 @@ if handles.input_status
             calculation_method = 'variable doubleshear incremental optimization lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
             updateLog_MartCalc(hObject, handles, 'please wait...')
-            % handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
-            % handles.martensite.IPS_solutions.selection_criteria.keys
-            doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+
             %% other cases could be added here
             %     case 2
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
@@ -129,7 +131,7 @@ if handles.input_status
             %         updateLog_MartCalc(hObject, handles, '_MarescaCurtin_test - run')
             %         maraging_MarescaCurtin_test;
     end
-    handles.lath_solutions = true;
+    handles.lath_solutions = handles.martensite.IPS_solutions.no_solutions_available;
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
     % filter solutions
     update_Selection_criteria;
@@ -138,7 +140,8 @@ else
 end
 guidata(hObject, handles);
 
-
+% enable interface again
+set(handles.InterfaceObj,'Enable','on');
 
 %% --- Executes on selection change in lsc_popup.
 function lsc_popup_Callback(hObject, eventdata, handles)
@@ -257,12 +260,17 @@ update_Selection_criteria;
 % --- Executes on selection change in popup_sorting.
 function popup_sorting_Callback(hObject, eventdata, handles)
 %
+% disable interface during function call
+set(handles.InterfaceObj,'Enable','off');
+%
 if handles.lath_solutions
     if isfield(handles,'reduced_solutions')
         unsrt_sols = handles.reduced_solutions;
     else
         unsrt_sols = handles.martensite.IPS_solutions;
     end
+    %
+    try
     switch hObject.Value
         case 1
             handles.reduced_solutions = unsrt_sols.sort( 'stepwidth' );
@@ -271,7 +279,7 @@ if handles.lath_solutions
         case 3
             handles.reduced_solutions = unsrt_sols.sort( 'theta_CPPs' );
         case 4
-            handles.reduced_solutions = unsrt_sols.sort( 'theta_h' );
+            handles.reduced_solutions = unsrt_sols.sort( 'theta_h_to_CPP' );
         case 5
             handles.reduced_solutions = unsrt_sols.sort( 'theta_KS_min' );
         case 6
@@ -281,12 +289,16 @@ if handles.lath_solutions
 %         case 8
 %             handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
     end
+    catch ME
+        updateLog_MartCalc(hObject, handles,ME)
+    end
    updateLog_MartCalc(hObject, handles,'Sorting finished.') 
 else
     updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
 end
 guidata(hObject, handles);
-    
+% enable interface again
+set(handles.InterfaceObj,'Enable','on');    
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -297,6 +309,9 @@ function start_block_calc_Callback(hObject, eventdata, handles)
 % hObject    handle to start_block_calc (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+% disable interface during function call
+set(handles.InterfaceObj,'Enable','off');
 
 updateLog_MartCalc(hObject, handles, '---------------------------------------------');
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI');
@@ -338,12 +353,13 @@ else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
 end
 guidata(hObject, handles);
+% enable interface again
+set(handles.InterfaceObj,'Enable','on');
 
 
    
 % --- Executes on selection change in mixing_criteria_for_blocks.
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
-
 
 
 
@@ -360,8 +376,6 @@ else
     write_calc_specs(filename, 'a',     handles.martensite);
     write_lath_solutions(filename, 'a', handles.martensite);
 end
-
-
 
 
 function filename_results_edittext_Callback(hObject, eventdata, handles)

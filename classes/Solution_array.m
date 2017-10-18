@@ -11,7 +11,9 @@ classdef Solution_array
         slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems, 
         % k...nr of simultaneously active ones (depending on calculation method)
         selection_criteria = containers.Map(); % empty containers.map object of "string-criterion" - value pairs c.f. Hashtable, python dict
-        % rewrote this class to value class - store everythin that is added dynamically in "selection_criteria" property
+        cryst_fams = containers.Map(); % KS-dirs, NW-dirs, cpps_fam, cp-dir_fam etc...
+        % rewrote this class to value class - new variable to store
+        % crystallographic families that are added for specific selection criteria
         sorted_after = 'unsorted'; % string specifying criterion array is sorted for
     end
     
@@ -52,12 +54,14 @@ classdef Solution_array
                         end
                     end
                     if strcmp( varargin{5}, 'min')
-                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal toleratred 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
+                        % varargin{2}.array(i).(varargin{3})
+                        % varargin{4}
+                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal tolerated 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
                     end
-                    if strcmp( varargin{3}, 'delta_determinant_max') % should this property be added dynamically? For now I reduce solutions and print out a message.
+                    if strcmp( varargin{3}, 'delta_determinant_max') 
                         % determiannt should not change more than some value in varargin{4}
                         if ( abs( det(varargin{2}.array(i).F1) - varargin{5} ) <  varargin{4} )
                             foundnr = foundnr + 1;
@@ -74,12 +78,13 @@ classdef Solution_array
                 % 6 - dynamic property name for least_misorientation-vector, 7 - dynamic property name for OR family / or 'h' or 'd' for property,  
                 % 8 - bool for planes = true (otherwise directions), }
                 obj.array   = varargin{1};  
+                obj.selection_criteria( varargin{5} ) = varargin{4};
                 %
                 if nargin == 8
                       % the following creates a new key-value pair if the key is
                       % not yet contained, otherwise it overwrites the existing
                       % value for the key
-                      obj.selection_criteria( varargin{7} ) = varargin{3};
+                      obj.cryst_fams( varargin{7} ) = varargin{3};
                       
 %                     if ~isprop(obj,varargin{7}) % if property not already added, add it
 %                     obj.addprop( varargin{7} );
@@ -116,11 +121,11 @@ classdef Solution_array
                     %
                     if nargin == 6
                         % deviation of prefered invariant line e.g. close packed direction from found habit plane (0 if vector is in the plane) 
-                        [ varargin{2}.array(i).(varargin{5}), varargin{2}.array(i).(varargin{6}) ] = ...
+                        [ varargin{2}.array(i).added_props(varargin{5}), varargin{2}.array(i).added_props(varargin{6}) ] = ...
                             misorientation_vector_and_plane( varargin{3}, varargin{2}.array(i).h ); 
                     end
                     % SORT OUT 
-                    if varargin{2}.array(i).(varargin{5}) < varargin{4} % varargin{4} = maximal tolerated value
+                    if varargin{2}.array(i).added_props(varargin{5}) < varargin{4} % varargin{4} = maximal tolerated value
                         foundnr = foundnr + 1;
                         obj.array(foundnr) = varargin{2}.array(i);
                     end                   
@@ -139,18 +144,25 @@ classdef Solution_array
         end
         
             
-        %% Sort 
+        %% Sort
         function [obj,idx]= sort(obj, prop_name)
-            if isprop(obj, prop_name)
-                [~,idx] = sort( obj.array.(prop_name)  ); % key here is the obj.('prop_name') - 
-                % see http://de.mathworks.com/help/matlab/matlab_prog/generate-field-names-from-variables.html
-            else % dynamic properties not directly accesible like above therefore the array that is sorted 
-                 % must be extracted via a loop first
-                prop_array = zeros(1,size( obj.array ,2) );
-                for i = 1: size( obj.array ,2)
-                    prop_array(i) = obj.array(i).(prop_name);
+            prop_array = zeros(1,size( obj.array ,2) );
+            for i = 1: size( obj.array ,2)
+                if isprop(obj.array, prop_name)
+                    if strcmp(prop_name,'stepwidth') % two values - sort for the smaller one 1/stepwidth \propto eps_s (plastic shear magnitude)
+                        prop_array(i) = min(obj.array.(prop_name));
+                    else
+                        prop_array(i) = obj.array.(prop_name);
+                    end
+                else % added properties in 'added_props' not directly accesible like above therefore the array that is sorted
+                    % must be extracted via a loop first
+                    if isKey(obj.array(i).added_props , prop_name)
+                        prop_array(i) = obj.array(i).added_props(prop_name);
+                    else
+                        error('Solutions cannot be sorted for selection since it is not specified in the selection criteria!');
+                    end
                 end
-                [~,idx] = sort( prop_array );
+                [~,idx] = sort( prop_array, 1 );
             end
             obj.array = obj.array(idx);
             display(['Solutions sorted in ascending order for property: ' , prop_name ]);
