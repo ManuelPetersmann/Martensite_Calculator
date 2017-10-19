@@ -4,9 +4,15 @@ function [solutions] = block_symmetric_shear(B, cp, ms, ns, ds )
 % alpha', ns...slip system normals in alpha, ds... slip directios in alpha
 % returns object array of solutions for IPSs.
 
-%% initalize some other vars
-solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+% specify type of solution array
+martensite.IPS_solutions.array = Slip_solution();
+% set calcuation method property in solution_array object
+calculation_method = 'block_symmetric_shear - direct Block approach neglecting lath habit plane';
+martensite.IPS_solutions.calculation_method = calculation_method;  
+% create shorthand notation
+solutions = martensite.IPS_solutions;
 
+%% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
 
 %% calculate only initial eigenvalues without shear modification to determine

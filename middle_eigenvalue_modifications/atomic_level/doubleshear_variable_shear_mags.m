@@ -27,6 +27,7 @@ solutions.slip_combinations = slip_combinations; % nr of possibilites nchoosek (
 [~, lambda2_smaller1_initial] = check_IPS_solution( lambda_1, lambda_2, lambda_3, tolerance);
 delta_lambda2_to_1_initial = abs(1. - lambda_2);
 
+isol = 0;
 % loop over slip system combinations
 for is1 = 1:(size(ds,1)-1) % loop for first slip system
     for is2 = (is1+1):size(ds,1) % loop for second one              
@@ -100,7 +101,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             % is assumed and the solutions are already entailed
             
         end % end while
-              
+  
         if is_possible_solution
             %% calculate solution
             % calculate invariant plane vector n_i etc.
@@ -125,8 +126,10 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
     end % end of loop for second slip system
 end % end of loop for first slip system
 
-
+if isol > 0 
 disp(['number of potential solutions found = ', num2str(isol)])
+solutions.solutions_available = 1;
+end
 
 end
 

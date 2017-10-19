@@ -1,7 +1,8 @@
-function [ eps ] = normed_shearmag_from_planes_between_burgerssteps( b, m, plane_miller ) %, lattice) - up do now d only for cubic lattice!
+function [ eps ] = normed_shearmag_from_planes_between_burgerssteps( b, stepwidth, plane_miller ) %, lattice) - up do now d only for cubic lattice!
 % call: slip_planes_between_burgersstep( b, eps, plane_miller)
 % b... Burgers vector of slip system (miller indizes)
-% g ... average number of of slip_planes between Burgers steps "m"
+% stepwidth ... average number of of slip_planes between steps in interface
+% or equally averge -"- between dislocations in the bulk
 % used in some formulations of crystallographic slip see e.g. Khachaturyans
 % book: Theory of structural transfomrations in solids
 % plane_miller... normal vector of slip system plane (miller indizes)
@@ -15,12 +16,12 @@ function [ eps ] = normed_shearmag_from_planes_between_burgerssteps( b, m, plane
 % m propto eps - hence the function slip_planes_between_burgersvec is
 % sufficient for the transformation in both "directions"
 
-for i = 1:length(m)
+for i = 1:length(stepwidth)
     % TODO add other crystal systems! and generalize Burgers vector with
     % lattice parameters in this function
     d(i) = 1/norm(plane_miller(i,:));
     
-    eps(i) = norm(b(i,:)) / (m*d);
+    eps(i) = norm(b(i,:)) / (stepwidth*d);
     
     % m = norm(b) / (eps * d);
 end

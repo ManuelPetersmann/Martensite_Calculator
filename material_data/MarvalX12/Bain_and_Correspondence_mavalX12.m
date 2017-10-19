@@ -36,7 +36,7 @@ B3 = [eta1 0    0
        0  0  eta3];
 martensite.U = B3;
 
-display(['Volume change in percent is:', num2str(1.-det(B3)*100) ] );
+display(['Volume change in percent is:', num2str( ( det(B3)-1)*100 ) ] );
 %vars = martensite.variants()
 
 % moved into martensite class

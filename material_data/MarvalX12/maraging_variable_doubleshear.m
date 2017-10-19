@@ -25,17 +25,17 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
 
-martensite.considered_plasticity = 1; % 1-mart, 2-aust, 3-both mart and aust slip systems
+martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust slip systems
 %% calculate possible solutions and store solution objects in an object array
 %martensite.IPS_solutions.array = 
-doubleshear_variable_shear_mags( martensite, austenite)
-martensite.IPS_solutions
+martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
+%
 
 %% further checks if solution is appropriate - reduction of total solutions one at a time
 % criteria for selection of solutions:
 % -) angular deviation to nearest cpp theta_n = min{ angle(n, {111} ) } - must be small
 % -) slip density parameter g... number of planes between - steps - must be high
-% -) OR's defiations: theta_CPP_max = min[ {111}_gamma < {011}_alpha = AL^-T * {111}_gamma } - criterion NR_1 see Qi2013 p.28
+% -) OR's defiations: theta_CPPs_max = min[ {111}_gamma < {011}_alpha = AL^-T * {111}_gamma } - criterion NR_1 see Qi2013 p.28
 %    theta_KS and theta_NW
 % -) shape strain - eps_0 - must be small
 % -) determinant must be invariant (could change due to additive mixture of matrices
@@ -63,7 +63,7 @@ display(['with criterion eps_max = ',num2str(eps_max)] );
 %% 'misorientation of CPP martensite to austenite - planes of OR';
 tolerable_CPP_deviations = Solution_array( Slip_solution, eps_max_solutions, cpps_gamma, theta_CPPs_max, ...
     'theta_CPPs', 'closest_to_cpp', 'cpps_gamma', true);
-display(['with criterion delta_CPP_max = ',num2str(theta_CPP_max)] );
+display(['with criterion delta_CPPs_max = ',num2str(theta_CPPs_max)] );
     
 %% specify maximum misorientations of solutions to ideal OR directions
 tolerable_KS_direction = Solution_array( Slip_solution, tolerable_CPP_deviations, KS, ...
@@ -72,18 +72,20 @@ display(['with criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
 
 tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
     'theta_NW_min', 'closest_NW', 'NW', false);
-display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPP_max)] );
+display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPPs_max)] );
 
 %% Added: March 2017
-%delta_determinant_max = 0.0001;
+%delta_determinant_max = 0.001;
 det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
 display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
 % PET: 10.10.17
 % new with 6 arguments! - no property is added dynamically this way
+%theta_max_ILSdir_to_h = 6.;
 reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' ); 
-display(['with criterion maximum misroientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
+display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
+sorted_sols = reduced_sols.sort( 'stepwidth' );    
 
 % to sort fully reduced solution for most important criterion 
 %mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property

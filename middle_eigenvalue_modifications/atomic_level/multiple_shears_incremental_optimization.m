@@ -5,14 +5,22 @@ function [solutions] = multiple_shears_incremental_optimization(martensite, aust
 % All calulations are carried out in the coordinate system of the parent phase
 % returns object array of solutions for IPSs.
 
-solutions = Solution_array( Slip_solution() ); 
-% Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+% specify type of solution array
+martensite.IPS_solutions.array = Slip_solution();
+% set calcuation method property in solution_array object
+calculation_method = 'variable doubleshear incremental optimization lath level';
+martensite.IPS_solutions.calculation_method = calculation_method;  
+% create shorthand notation
+solutions = martensite.IPS_solutions;
 
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
 
-%% assemble all shear directions, planes and dyads
-[ds, ns, S] = shear_dyads(martensite, austenite, false);
+%% transform product phase slip systems to parent phase and combine all in one array
+% assemble all shear dyads in austenite, array of directions, planes and in
+% respective phase (miller indizes)
+[ds, ns, S, slip_combinations] = shear_dyads(martensite, austenite, false); % assemble normed- shear_dyads
+solutions.slip_combinations = slip_combinations; % nr of possibilites nchoosek (k=2)
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached

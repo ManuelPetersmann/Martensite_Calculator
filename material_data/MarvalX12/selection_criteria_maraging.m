@@ -1,3 +1,4 @@
+
 % densest packed plane in austenite
 cpps_gamma = all_from_family_perms( [1 1 1] );
 austenite.CPPs = cpps_gamma;
@@ -35,7 +36,7 @@ theta_KS_max = 5.; %3.5; % 10.;  had 6 here in last calculations
 theta_NW_max = 6.; %5.5; %3.5; % what is allowed, theta_NW_min 
 % what is the smallest angle within the family-transformed_family set
 
-delta_determinant_max = 0.0001;
+delta_determinant_max = 0.001;
 
 % PET 10.10.17
 % angle between preferred ILS direction and habit plane (0 if vector in

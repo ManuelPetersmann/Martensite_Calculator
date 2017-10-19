@@ -29,13 +29,13 @@ classdef Slip_solution < IPS_solution
             obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, d, h, Q, LT
             %
             if nargin > 8
-                obj.eps_s = varargin{1,9};  % initially here was only one 'stepwidth' and it was assummed equal for both slips (see Qi,Khachaturyan 2014 Acta)
-                obj.shear_direction = varargin{1,10};
-                obj.slip_normal_plane_vec = varargin{1,11};
+                obj.eps_s = varargin{9}; %{1,9};  % initially here was only one 'stepwidth' and it was assummed equal for both slips (see Qi,Khachaturyan 2014 Acta)
+                obj.shear_direction = varargin{10}; %{1,10};
+                obj.slip_normal_plane_vec = varargin{11}; %1,11};
             end
             %
             if nargin > 11 % this is only used if a direct averaged block habit plane condition is used as proposed by Qi and Khachaturyan 2014 Acta
-                obj.mirror_plane = varargin{1,11};
+                obj.mirror_plane = varargin{12}; %{1,11};
             end
         end % end constructors (mostly used to reduce solutions)
         %%        

@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 17-Oct-2017 10:24:54
+% Last Modified by GUIDE v2.5 19-Oct-2017 15:43:05
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -83,7 +83,7 @@ handles.NW = all_from_family_perms( [1 2 1], false );
 %
 handles.InterfaceObj=findobj(handles.figure1,'Enable','on'); % variable to disable interface during calculations
 handles.input_status   = true; % will be set to false if something is wrong with the input
-handles.lath_solutions = false; % must be true to call my block mixing function
+%handles.lath_solutions = false; % must be true to call my block mixing function
 handles.block_solutions = false;
 %
 guidata(hObject, handles);
@@ -120,7 +120,8 @@ if handles.input_status
         case 1
             calculation_method = 'variable doubleshear incremental optimization lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
-            updateLog_MartCalc(hObject, handles, 'please wait...')
+            updateLog_MartCalc(hObject, handles, 'please wait...');
+            handles.martensite.IPS_solutions.calculation_method = calculation_method;
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
 
             %% other cases could be added here
@@ -131,9 +132,20 @@ if handles.input_status
             %         updateLog_MartCalc(hObject, handles, '_MarescaCurtin_test - run')
             %         maraging_MarescaCurtin_test;
     end
-    handles.lath_solutions = handles.martensite.IPS_solutions.no_solutions_available;
+    %handles.lath_solutions = handles.martensite.IPS_solutions.solutions_available;
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-    % filter solutions
+    %% filter solutions
+    %  formerly - case 8 - now default reduction to this value!
+    delta_determinant_max = 0.001; % maximum 0.1% non-physical volume change
+    updateLog_MartCalc(hObject, handles, ['checking solutions for non-physical volume change > ',num2str(delta_determinant_max*100),'%...'] );
+    handles.reduced_solutions = Solution_array( Slip_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
+    l1 = length( handles.reduced_solutions.array);
+    l2 = length(handles.martensite.IPS_solutions.array);
+    if l1 ~= l2
+        updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
+    else
+        updateLog_MartCalc(hObject, handles,'all solutions are valid');    
+    end
     update_Selection_criteria;
 else
      updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');    
@@ -142,6 +154,7 @@ guidata(hObject, handles);
 
 % enable interface again
 set(handles.InterfaceObj,'Enable','on');
+
 
 %% --- Executes on selection change in lsc_popup.
 function lsc_popup_Callback(hObject, eventdata, handles)
@@ -254,8 +267,10 @@ end
 
 % --- Executes on button press in update_selection_button.
 function update_selection_button_Callback(hObject, eventdata, handles)
+%
+set(handles.InterfaceObj,'Enable','off');
 update_Selection_criteria;
-
+set(handles.InterfaceObj,'Enable','on');   
 
 % --- Executes on selection change in popup_sorting.
 function popup_sorting_Callback(hObject, eventdata, handles)
@@ -263,7 +278,7 @@ function popup_sorting_Callback(hObject, eventdata, handles)
 % disable interface during function call
 set(handles.InterfaceObj,'Enable','off');
 %
-if handles.lath_solutions
+if handles.martensite.IPS_solutions.solutions_available
     if isfield(handles,'reduced_solutions')
         unsrt_sols = handles.reduced_solutions;
     else
@@ -339,7 +354,7 @@ if handles.input_status
             %
             update_Selection_criteria;
         case 2
-            if handles.lath_solutions
+            if handles.martensite.IPS_solutions.solutions_available %handles.lath_solutions
 %                handles.martensiteblock_solutions = Composite_solution
             else
                 updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
@@ -356,27 +371,30 @@ guidata(hObject, handles);
 % enable interface again
 set(handles.InterfaceObj,'Enable','on');
 
-
    
 % --- Executes on selection change in mixing_criteria_for_blocks.
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 
 
-
 % --- Executes on button press in write_lath_solutions_pushbutton.
 function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
 
-filename = handles.filename_results_edittext.String{1};
-write_input_parameters(filename,'w', handles.martensite, handles.austenite);
-%
-if isfield(handles,'reduced_solutions')
-    write_calc_specs(filename, 'a',     handles.martensite, handles.reduced_solutions);
-    write_lath_solutions(filename, 'a', handles.martensite, handles.reduced_solutions);
+if handles.martensite.IPS_solutions.solutions_available
+    %
+    filename = handles.filename_results_edittext.String{1};
+    write_input_parameters(filename,'w', handles.martensite, handles.austenite);
+    %
+    if isfield(handles,'reduced_solutions')
+        write_calc_specs(filename, 'a',     handles.martensite, handles.reduced_solutions);
+        write_lath_solutions(filename, 'a', handles.martensite, handles.reduced_solutions);
+    else
+        write_calc_specs(filename, 'a',     handles.martensite);
+        write_lath_solutions(filename, 'a', handles.martensite);
+    end
+    %
 else
-    write_calc_specs(filename, 'a',     handles.martensite);
-    write_lath_solutions(filename, 'a', handles.martensite);
-end
-
+    updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
+end % end if handles.lath_solutions = true
 
 function filename_results_edittext_Callback(hObject, eventdata, handles)
 
@@ -1410,6 +1428,37 @@ function pushbutton24_Callback(hObject, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
 function filename_results_edittext_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to filename_results_edittext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+% --- Executes on button press in pushbutton26.
+function pushbutton26_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton26 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function edit156_Callback(hObject, eventdata, handles)
+% hObject    handle to filename_results_edittext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of filename_results_edittext as text
+%        str2double(get(hObject,'String')) returns contents of filename_results_edittext as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit156_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to filename_results_edittext (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called

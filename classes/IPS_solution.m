@@ -7,9 +7,7 @@ classdef IPS_solution
         %
         % PET 10.10.17: replaced 'id' and 'eps_ips' wit lambda_1 and lambda_2,
         % made 'eps_ips' = sqrt(lambda_3) - sqrt(lambda_1) (or sqrt respectively
-        % depending on convention) dependent property
-        %id;
-        %eps_ips; 
+        % depending on convention) dependent property 
         lambda_1; % smallest eigenvalue (deformation)
         %lambda_2 = 1 !-> IPS
         lambda_3; % largest  eigenvalue (deformation)
@@ -20,7 +18,9 @@ classdef IPS_solution
         LT; % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
         %LT; % = RB = ...R von IPS condition
         %
-        added_props = containers.Map();
+        added_props; % PET: 19.10.17 | = containers.Map();
+        %id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6...
+        % could then be incremented in the constructor...
     end
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
@@ -49,6 +49,10 @@ classdef IPS_solution
             end
             %
             if nargin == 8 % constructor from solution arguments
+                %
+                % obj.added_props = containers.Map; % assignment is done in
+                % class Solution_array
+                %
                 obj.F1 = varargin{1};
                 obj.F2  = varargin{2};
                 obj.lambda_1 = varargin{3};
