@@ -64,13 +64,22 @@ for tgi=1:length(tabGroups)
     set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
 end
 
-% initialize array for keeping track of the active selection criteria
-% 28.08.2017: currently there are 7 possible criteria for selection of solutions
+% initialize array for keeping track of the active selection criteria (laths)
+% 20.10.2017: currently there are 7 possible criteria for selection of solutions
 % default at start of MartCalc-GUI: all = 0 --> inactive
 % asc = Active Selection Criteria
 handles.asc_status = zeros(1,7);
 handles.asc_number = 0;
 handles.asc_list = zeros(1,7);
+
+% initialize array for keeping track of the active mixing criteria (blocks)
+% 20.10.2017: currently there are 2 possible criteria for mixing of laths
+% default at start of MartCalc-GUI: all = 0 --> inactive
+% amc = Active Mixing Criteria
+handles.amc_status = zeros(1,2);
+handles.amc_number = 0;
+handles.amc_list = zeros(1,2);
+
 handles.log_status = 0; % variable for check if log has already been changed for a first time
 %
 % create austenite and martensite objects
@@ -173,7 +182,7 @@ switch hObject.Value
             default_value = 5.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(1) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
@@ -186,7 +195,7 @@ switch hObject.Value
             default_value = 0.6;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(2) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!')
@@ -198,7 +207,7 @@ switch hObject.Value
             default_value = 1.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(3) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                        
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of {111}_gamma to {110}_alpha" is already active!')
@@ -210,7 +219,7 @@ switch hObject.Value
             default_value = 20.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(4) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                       
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!')
@@ -222,7 +231,7 @@ switch hObject.Value
             default_value = 5.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(5) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!')
@@ -234,7 +243,7 @@ switch hObject.Value
             default_value = 8.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(6) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied       
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value); 
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
@@ -246,7 +255,7 @@ switch hObject.Value
             default_value = 3.0;
             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status(7) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles = create_ac_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum tolerance angle between preferred invariant line and habit plane" is already active!')
@@ -258,7 +267,7 @@ switch hObject.Value
 %             default_value = 0.001;
 %             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
 %             handles.asc_status(8) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-%             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+%             handles = create_asc_panel_MartCalc(handles, handles.pan_asc, criterion_name, default_value, hObject.Value);
 %             guidata(hObject, handles); % Update handles structure
 %         else
 %             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!')
@@ -374,6 +383,33 @@ set(handles.InterfaceObj,'Enable','on');
    
 % --- Executes on selection change in mixing_criteria_for_blocks.
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
+switch hObject.Value
+    case 1 % Criterion 1 has been chosen: 
+        if handles.amc_status(1) == 0 % if inactive
+            handles.amc_number = handles.amc_number + 1; % increase number of amc
+            criterion_name = 'Case 1';
+            default_value = 42.0;
+            handles.amc_list(handles.amc_number) = hObject.Value; % keep track of which criterion is at which point in the amc list
+            handles.amc_status(1) = handles.amc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_ac_panel_MartCalc(handles, handles.pan_amc, criterion_name, default_value, hObject.Value);
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Case 1" is already active!')
+        end
+    %
+    case 2 % Criterion 2 has been chosen: 
+        if handles.amc_status(2) == 0 % if inactive
+            handles.amc_number = handles.amc_number + 1; % increase number of amc
+            criterion_name = 'Case 2';
+            default_value = 1.234;
+            handles.amc_list(handles.amc_number) = hObject.Value; % keep track of which criterion is at which point in the amc list
+            handles.amc_status(2) = handles.amc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_ac_panel_MartCalc(handles, handles.pan_amc, criterion_name, default_value, hObject.Value);
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Case 2" is already active!')
+        end
+end
 
 
 % --- Executes on button press in write_lath_solutions_pushbutton.
