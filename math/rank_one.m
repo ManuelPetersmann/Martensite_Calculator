@@ -20,7 +20,8 @@ end
 
 Ct = inverse(G)'*(F'*F)*inverse(G); 
 if abs(Ct - eye(3)) < tolerance
-    error('There is no solution')
+%    error('There is no solution')
+    disp('There is no solution')
 end
 % otherwise automatically the eigenvalues are all positive!
 [ y1, y2, y3, e1, ~, e3 ] = sorted_eig_vals_and_vecs( Ct );

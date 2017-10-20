@@ -19,7 +19,7 @@ classdef IPS_solution
         %LT; % = RB = ...R von IPS condition
         %
         added_props; % PET: 19.10.17 | = containers.Map();
-        %id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6...
+        id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6... and for block solutions
         % could then be incremented in the constructor...
     end
     properties (Dependent)
@@ -52,7 +52,8 @@ classdef IPS_solution
                 %
                 % obj.added_props = containers.Map; % assignment is done in
                 % class Solution_array
-                %
+                % obj.id = count_instance_id( 1 ); % add plus one to id for newly created IPS_solution
+                % this is better done directly in the middle_eigenvalue_mod function
                 obj.F1 = varargin{1};
                 obj.F2  = varargin{2};
                 obj.lambda_1 = varargin{3};
@@ -64,6 +65,7 @@ classdef IPS_solution
                                       % Bain strain as property (only needed for this)
             end
         end
+        %
         %% get functions
         function shape_transformation = get.ST( obj )
             shape_transformation = obj.Q * obj.F1; % = G + eps_0 ( a \dyad n )
@@ -105,6 +107,21 @@ classdef IPS_solution
         %         end                                                     %%%%%%%%% Or, if this class is derived from martensite - the object array contains to much data...       
         
     end % methdos
+
+% If i do it like this - how / when do i set it back to zero?
+%     methods (Static, Access = private)
+%         function new_id = count_instance_id(increment)
+%             persistent VALUE
+%             if isempty(VALUE)
+%                 VALUE = 0;
+%             end
+%             if nargin > 0
+%                 VALUE = VALUE + increment;
+%             end
+%             new_id = VALUE;
+%         end
+%     end
+    
 end % class
 
 

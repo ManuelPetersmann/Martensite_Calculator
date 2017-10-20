@@ -22,7 +22,7 @@ function varargout = Martensite_Calculator(varargin)
 
 % Edit the above text to modify the response to help Martensite_Calculator
 
-% Last Modified by GUIDE v2.5 19-Oct-2017 15:43:05
+% Last Modified by GUIDE v2.5 20-Oct-2017 14:21:29
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -107,7 +107,7 @@ function start_lath_calc_Callback(hObject, eventdata, handles)
 set(handles.InterfaceObj,'Enable','off');
 % enable interface again
 %set(handles.InterfaceObj,'Enable','on');
- 
+
 updateLog_MartCalc(hObject, handles, '---------------------------------------------')
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI')
 % read user input from GUI for determination of solutions
@@ -123,7 +123,7 @@ if handles.input_status
             updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.IPS_solutions.calculation_method = calculation_method;
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
-
+            
             %% other cases could be added here
             %     case 2
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
@@ -132,7 +132,6 @@ if handles.input_status
             %         updateLog_MartCalc(hObject, handles, '_MarescaCurtin_test - run')
             %         maraging_MarescaCurtin_test;
     end
-    %handles.lath_solutions = handles.martensite.IPS_solutions.solutions_available;
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
     %% filter solutions
     %  formerly - case 8 - now default reduction to this value!
@@ -144,11 +143,11 @@ if handles.input_status
     if l1 ~= l2
         updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
     else
-        updateLog_MartCalc(hObject, handles,'all solutions are valid');    
+        updateLog_MartCalc(hObject, handles,'all solutions are valid');
     end
     update_Selection_criteria;
 else
-     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');    
+    updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
 end
 guidata(hObject, handles);
 
@@ -158,10 +157,6 @@ set(handles.InterfaceObj,'Enable','on');
 
 %% --- Executes on selection change in lsc_popup.
 function lsc_popup_Callback(hObject, eventdata, handles)
-% hObject    handle to lsc_popup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
 % Hints: contents = cellstr(get(hObject,'String')) returns lsc_popup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from lsc_popup
 
@@ -278,42 +273,43 @@ function popup_sorting_Callback(hObject, eventdata, handles)
 % disable interface during function call
 set(handles.InterfaceObj,'Enable','off');
 %
-if handles.martensite.IPS_solutions.solutions_available
-    if isfield(handles,'reduced_solutions')
-        unsrt_sols = handles.reduced_solutions;
-    else
-        unsrt_sols = handles.martensite.IPS_solutions;
-    end
+%if handles.martensite.IPS_solutions.solutions_available
+if handles.reduced_solutions.solutions_available
+    %    if isfield(handles,'reduced_solutions')
+    unsrt_sols = handles.reduced_solutions;
+    %     else
+    %         unsrt_sols = handles.martensite.IPS_solutions;
+    %     end
     %
     try
-    switch hObject.Value
-        case 1
-            handles.reduced_solutions = unsrt_sols.sort( 'stepwidth' );
-        case 2
-            handles.reduced_solutions = unsrt_sols.sort( 'eps_ips' );
-        case 3
-            handles.reduced_solutions = unsrt_sols.sort( 'theta_CPPs' );
-        case 4
-            handles.reduced_solutions = unsrt_sols.sort( 'theta_h_to_CPP' );
-        case 5
-            handles.reduced_solutions = unsrt_sols.sort( 'theta_KS_min' );
-        case 6
-            handles.reduced_solutions = unsrt_sols.sort( 'theta_NW_min' );
-        case 7
-            handles.reduced_solutions = unsrt_sols.sort('theta_max_ILSdir_to_h');
-%         case 8
-%             handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
-    end
+        switch hObject.Value
+            case 1
+                handles.reduced_solutions = unsrt_sols.sort( 'stepwidth' );
+            case 2
+                handles.reduced_solutions = unsrt_sols.sort( 'eps_ips' );
+            case 3
+                handles.reduced_solutions = unsrt_sols.sort( 'theta_CPPs' );
+            case 4
+                handles.reduced_solutions = unsrt_sols.sort( 'theta_h_to_CPP' );
+            case 5
+                handles.reduced_solutions = unsrt_sols.sort( 'theta_KS_min' );
+            case 6
+                handles.reduced_solutions = unsrt_sols.sort( 'theta_NW_min' );
+            case 7
+                handles.reduced_solutions = unsrt_sols.sort('theta_max_ILSdir_to_h');
+                %         case 8
+                %             handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
+        end
     catch ME
         updateLog_MartCalc(hObject, handles,ME)
     end
-   updateLog_MartCalc(hObject, handles,'Sorting finished.') 
+    updateLog_MartCalc(hObject, handles,'Sorting finished.')
 else
     updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
 end
 guidata(hObject, handles);
 % enable interface again
-set(handles.InterfaceObj,'Enable','on');    
+set(handles.InterfaceObj,'Enable','on');
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -321,21 +317,40 @@ set(handles.InterfaceObj,'Enable','on');
 
 % --- Executes on button press in start_block_calc.
 function start_block_calc_Callback(hObject, eventdata, handles)
-% hObject    handle to start_block_calc (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 % disable interface during function call
-set(handles.InterfaceObj,'Enable','off');
+%set(handles.InterfaceObj,'Enable','off');
 
 updateLog_MartCalc(hObject, handles, '---------------------------------------------');
 updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI');
-% read user input from GUI for determination of solutions
-get_input_MartCalc;
+% read user input from GUI for determination of solutionsh
 
 if handles.input_status
     switch handles.popup_calc_block_level.Value
         case 1
+            if handles.martensite.IPS_solutions.solutions_available
+                handles.tolerances = containers.Map;
+                theta_intersec_cpdir = str2double(handles.misori_HPintersec_cpdir_edit_txt.String);
+                if ~isnan(theta_intersec_cpdir)
+                    handles.tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
+                end
+                theta_hps = str2double(handles.max_misori_HPs_laths_for_blocks_edit_txt.String);
+                if ~isnan(theta_hps)
+                    handles.tolerances('theta_hps') = theta_hps;
+                end
+                %
+                calculation_method = 'NEW - Build blocks from lath-IPS-solutions, optimized phase fractions';
+                updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
+                updateLog_MartCalc(hObject, handles, 'please wait...');
+                %
+                handles.martensiteblock_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.tolerances );
+                updateLog_MartCalc(hObject, handles, 'Optimized determination of composite blocks from lath solutions completed.' );
+            else
+                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
+            end
+        case 2
+            get_input_MartCalc;
+            
             %% integrated file: maraging_block_sym_doubleshear.m;
             calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
@@ -353,23 +368,17 @@ if handles.input_status
             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
             %
             update_Selection_criteria;
-        case 2
-            if handles.martensite.IPS_solutions.solutions_available %handles.lath_solutions
-%                handles.martensiteblock_solutions = Composite_solution
-            else
-                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
-            end
     end
     %
     handles.block_solutions = true;
-    %    
+    %
     guidata(hObject, handles);
 else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
 end
 guidata(hObject, handles);
 % enable interface again
-set(handles.InterfaceObj,'Enable','on');
+%set(handles.InterfaceObj,'Enable','on');
 
    
 % --- Executes on selection change in mixing_criteria_for_blocks.
@@ -379,7 +388,7 @@ function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 % --- Executes on button press in write_lath_solutions_pushbutton.
 function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
 
-if handles.martensite.IPS_solutions.solutions_available
+if handles.reduced_solutions.solutions_available
     %
     filename = handles.filename_results_edittext.String{1};
     write_input_parameters(filename,'w', handles.martensite, handles.austenite);
@@ -396,11 +405,54 @@ else
     updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
 end % end if handles.lath_solutions = true
 
-function filename_results_edittext_Callback(hObject, eventdata, handles)
 
-% can i specify it like this in the function to write the results or do i
-% have to assign it another name here?
-%handles.filename_results_edittext.String;
+
+
+
+%% check input of EDIT TEXT fields directly after typing it in
+
+function lc_edtxt_aust_val_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of lc_edtxt_aust_val as text
+%        str2double(get(hObject,'String')) returns contents of lc_edtxt_aust_val as a double
+
+% if input is a string but not a number change it back to the default value
+if isnan(str2double(get(hObject,'String') ) )
+  set(hObject,'String','3.6017264');
+end
+
+
+function lc_edtxt_mart_val_Callback(hObject, eventdata, handles)
+
+% if input is a string but not a number change it back to the default value
+if isnan(str2double(get(hObject,'String') ) )
+  set(hObject,'String','2.8807346');
+end
+
+function max_misori_HPs_laths_for_blocks_edit_txt_Callback(hObject, eventdata, handles)
+
+% if input is a string but not a number change it back to the default value
+in = str2double(get(hObject,'String') );
+if isnan( in ) || in > 90
+  set(hObject,'String','');
+end
+
+function misori_HPintersec_cpdir_edit_txt_Callback(hObject, eventdata, handles)
+
+% if input is a string but not a number change it back to the default value
+in = str2double(get(hObject,'String') );
+if isnan( in ) || in > 90
+  set(hObject,'String','');
+end
+
+function filename_results_edittext_Callback(hObject, eventdata, handles)
+%
+filename = get(hObject,'String');
+%if ~isempty(regexp(fname, ['^(?!^(PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*)', ...
+%        '(\..+)?$)[^\x00-\x1f\\?*:\"><|/]+$'], 'once') )
+if ~isempty(regexp(filename, '[/\*:?"<>|]', 'once'))
+   set(hObject,'String','');
+end
+
 
 
 
@@ -517,15 +569,6 @@ end
 
 
 
-function lc_edtxt_aust_val_Callback(hObject, eventdata, handles)
-% hObject    handle to lc_edtxt_aust_val (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of lc_edtxt_aust_val as text
-%        str2double(get(hObject,'String')) returns contents of lc_edtxt_aust_val as a double
-
-
 % --- Executes during object creation, after setting all properties.
 function lc_edtxt_aust_val_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to lc_edtxt_aust_val (see GCBO)
@@ -537,16 +580,6 @@ function lc_edtxt_aust_val_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-function lc_edtxt_mart_val_Callback(hObject, eventdata, handles)
-% hObject    handle to lc_edtxt_mart_val (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of lc_edtxt_mart_val as text
-%        str2double(get(hObject,'String')) returns contents of lc_edtxt_mart_val as a double
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1439,15 +1472,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
-% --- Executes on button press in pushbutton26.
-function pushbutton26_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton26 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
 function edit156_Callback(hObject, eventdata, handles)
 % hObject    handle to filename_results_edittext (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1460,6 +1484,68 @@ function edit156_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function edit156_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to filename_results_edittext (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit157_Callback(hObject, eventdata, handles)
+% hObject    handle to edit157 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit157 as text
+%        str2double(get(hObject,'String')) returns contents of edit157 as a double
+
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function max_misori_HPs_laths_for_blocks_edit_txt_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to max_misori_HPs_laths_for_blocks_edit_txt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit159_Callback(hObject, eventdata, handles)
+% hObject    handle to edit159 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit159 as text
+%        str2double(get(hObject,'String')) returns contents of edit159 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit159_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit159 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function misori_HPintersec_cpdir_edit_txt_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to misori_HPintersec_cpdir_edit_txt (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

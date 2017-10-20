@@ -3,7 +3,7 @@ function [x, d_old, Fcomp] = frob_min_green_lagrange_composite_block( F1, F2, x_
 % optimize |Fc^t * Fc - I| = frob(Green_lagrange) , where Fc is a linear mixture
 % Fc =x1 F1 + x2 F2;   x1 +x2 = 1;   Fi are Matrices.
 % using intervall sectioning
-% Minimization proposed by Mühlemann2015 - Morphology of lath martensite a new perspective
+% Minimization proposed by Muehlemann2015 - Morphology of lath martensite a new perspective
 % see Fig. 5 there.
 
 min_sener_change = 1.e-5; % Has been found to be a reasonable value!
@@ -23,8 +23,8 @@ if ((d_old - d_new1) > min_sener_change) || ((d_old - d_new2) > min_sener_change
     end
 else
     x = [x1, 1.-x1];
-    d = d_old;
-    Fcomp = Fcoefs*x;
+%    d = d_old;
+    Fcomp = Fcoefs*x';
     return
 end
 

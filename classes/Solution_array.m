@@ -98,6 +98,7 @@ classdef Solution_array
                       if isempty(obj.cryst_fams)
                           obj.cryst_fams = containers.Map();
                       else
+                          obj.cryst_fams = varargin{2}.cryst_fams;
                           obj.cryst_fams( varargin{7} ) = varargin{3};
                       end
 %                     if ~isprop(obj,varargin{7}) % if property not already added, add it
@@ -164,6 +165,7 @@ classdef Solution_array
                     obj.solutions_available = false;
                 else
                     disp(['Solutions reduced to : ' , num2str(length(obj.array))] );
+                    obj.solutions_available = true;
                 end
             end
         end

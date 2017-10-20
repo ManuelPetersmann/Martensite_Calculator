@@ -8,6 +8,9 @@ classdef Composite_solution < IPS_solution
     % Fcomp = xi * F1 + (1-xi)*F2
     
     properties (Access = public)
+        %
+        lath_id_pair;
+        %
         eps_net; % minimum magnitude of shape vector by means of linear mixture of shape vectors of IPS solutions
         x_eps; % optimized phase fractions of linear mixture
         F_comp_eps; % composite deformation gradient of above solution
@@ -15,13 +18,9 @@ classdef Composite_solution < IPS_solution
         x_dis; % minimum frobenius norm of displacement gradient for linear mixture Fcomp
         frob_opt_displacement_grad; % optimized phase fractions of linear mixture
         %
-        frob_opt_green_lagrange; % minimum frobenius norm of 2*green_lagrange tensor of linear mixture Fcomp
         x_gl; % % optimized phase fractions of linear mixture
-        
+        frob_opt_green_lagrange; % minimum frobenius norm of 2*green_lagrange tensor of linear mixture Fcomp        
     end % end of properties
-    %    properties (Dependent)
-    %        x; %
-    %    end
     
     methods
         % constructor
@@ -43,10 +42,11 @@ classdef Composite_solution < IPS_solution
                 obj.F_comp_eps = varargin{1,11};
                 %
                 obj.x_dis = varargin{1,12};
-                obj.frob_opt_diplacement_grad = varargin{1,13};
+                obj.frob_opt_displacement_grad = varargin{1,13};
                 %
+                                obj.x_gl = varargin{1,15};
                 obj.frob_opt_green_lagrange = varargin{1,14};
-                obj.x_gl = varargin{1,15};
+
             end
         end
     end % end methods

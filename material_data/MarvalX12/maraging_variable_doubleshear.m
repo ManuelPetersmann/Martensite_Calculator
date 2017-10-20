@@ -29,7 +29,7 @@ martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust sli
 %% calculate possible solutions and store solution objects in an object array
 %martensite.IPS_solutions.array = 
 martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
-%
+
 
 %% further checks if solution is appropriate - reduction of total solutions one at a time
 % criteria for selection of solutions:
@@ -51,12 +51,13 @@ tolerable_HP_deviations = Solution_array( Slip_solution, martensite.IPS_solution
 display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
 
+
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 %g_min = 10.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
 %g_min_sols = Solution_array( Slip_solution, theta_p_sols, 'slip_density', g_min, 'min'); 
 
-%% reduce soltuions to ones with eps < something 
+%% reduce solutions to ones with eps < something 
 eps_max_solutions = Solution_array( Slip_solution, tolerable_HP_deviations, 'eps_ips', eps_max, 'max' ); 
 display(['with criterion eps_max = ',num2str(eps_max)] );
 
@@ -85,11 +86,14 @@ display(['with criterion tolerable volume_change_from_averaging = ',num2str(delt
 reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' ); 
 display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
-sorted_sols = reduced_sols.sort( 'stepwidth' );    
+%sorted_sols = reduced_sols.sort( 'stepwidth' );       
+
+composite_solutions = mixing_of_atomic_level_solutions(reduced_sols);
+%composite_solutions = mixing_of_atomic_level_solutions(reduced_sols, theta_hps, theta_intersec_cpdir)
 
 % to sort fully reduced solution for most important criterion 
-%mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
-%theta_NW_sols.array(1) % print out best solution
+% mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
+% theta_NW_sols.array(1) % print out best solution
 
 % these two are vectors...
 %det_sols.sort( 'dir_of_smallest_def' );

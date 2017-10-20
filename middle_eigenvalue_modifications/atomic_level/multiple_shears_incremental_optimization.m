@@ -111,21 +111,23 @@ end % end while
 if is_possible_solution
     %% calculate solution
     % calculate invariant plane vector n_i etc.
-    [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+    %[eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+    [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
     % Note habit plane solutions come in pairs!
     
     isol = isol + 2; % increase counter for number of solutions found
     
-    found = (shear_mag > 1.e-15);
-    %shear_mag
-    shear_magsfound = shear_mag(found);
-    %
-    dsfound = ds(found,:);
-    nsfound = ns(found,:);
+    eps_s = [eps1; eps2];
+    d = [ds(is1,:); ds(is2,:)];
+    n = [ns(is1,:); ns(is2,:)];
     
     % Create Slip_solution objects and append them to object array
-    solutions.array( isol-1 ) =  Slip_solution_multishear(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, shear_magsfound, dsfound, nsfound );
-    solutions.array( isol )   =  Slip_solution_multishear(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, shear_magsfound, dsfound, nsfound );
+    %solutions.array( isol-1 ) =  Slip_solution_multishear(F, I, isol-1, eps_0, a1, h1, Q1, Q1*B, shear_magsfound, dsfound, nsfound );
+    %solutions.array( isol )   =  Slip_solution_multishear(F, I, isol,   eps_0, a2, h2, Q2, Q2*B, shear_magsfound, dsfound, nsfound );
+    solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
+    solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
+    solutions.array( isol-1 ).id = isol-1;
+    solutions.array( isol ).id = isol;
 end
 
 fprintf('number of potential solutions found: n_sol = %i :\n', isol)

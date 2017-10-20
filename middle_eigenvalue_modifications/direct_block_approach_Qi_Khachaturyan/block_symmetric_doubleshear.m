@@ -148,7 +148,9 @@ for im = 1:size(martensite.mirror_planes,1) % number of considered mirror planes
                 end
                 % Create Slip_solution objects and append them to object array 
                 solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n, m_aust' );
-                solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d, n, m_aust' );                
+                solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d, n, m_aust' );   
+                solutions.array( isol-1 ).id = isol-1;
+                solutions.array( isol ).id = isol;
             end
             
         end % end of loop for second slip system
