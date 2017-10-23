@@ -3,9 +3,10 @@ Literature
 saves_local
 integrate
 utils/plotting
-utils/writing
 material_data/NiTi/
 material_data/TiAl/
 material_data/steel/
-# /material_data
+
 # this is a comment
+# /material_data
+#utils/writing

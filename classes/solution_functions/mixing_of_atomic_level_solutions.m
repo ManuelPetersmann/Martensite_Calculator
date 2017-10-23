@@ -1,4 +1,4 @@
-function [composite_solutions] = mixing_of_atomic_level_solutions(lath_solutions, tolerances)
+function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions) % Solution_array_composite 
 % call: mixing_of_atomic_level_solutions(atomic_solutions, tolerances)
 % This function takes deformations F_i of atomic habit plane solutions and averages
 % solutions fullfilling compatibility critera given by:
@@ -33,11 +33,9 @@ function [composite_solutions] = mixing_of_atomic_level_solutions(lath_solutions
 % n->infinity (minor relations) see Bhattacharya - Microstructures of
 % martensties - p.131.
 
-if nargin < 3
-    tolerances = containers.Map; % just an empty one
-end
 
-%% Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+calculation_method = 'NEW Approach: Build blocks from lath-IPS-solutions, optimized phase fractions';
+block_solutions.calculation_method = calculation_method;
 
 I = eye(3); % = austenite
 isol = 0;
@@ -54,16 +52,18 @@ for is1 = 1:(size(lath_solutions.array,2)-1)
         % first angle between common line of invariant habit planes and
         % preferred invariant line (e.g. of set of cp-directions)
         % second angle between habit planes
-        if isKey(tolerances,'theta_intersec_cpdir')
+        if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
             % considering longitudinal dimension of lath -> a
             vec_in_both_planes = cross( sol1.h , sol2.h );
-            if tolerances('theta_intersec_cpdir') < min_misorientation( lath_solutions.cryst_fams, vec_in_both_planes )
+            theta_intersec_cpdir = min_misorientation( lath_solutions.cryst_fams('KS'), vec_in_both_planes );
+            if block_solutions.mixing_tolerances('theta_intersec_cpdir') < theta_intersec_cpdir
                 continue
             end
         end
         %
-        if isKey(tolerances,'theta_hps')
-            if tolerances('theta_hps') < get_angle( sol1.h , sol2.h ) 
+        if isKey(block_solutions.mixing_tolerances,'theta_hps')
+            theta_hps = get_angle( sol1.h , sol2.h ); 
+            if block_solutions.mixing_tolerances('theta_hps') < theta_hps
             % considering width of laths -> b
             continue
             end
@@ -74,6 +74,7 @@ for is1 = 1:(size(lath_solutions.array,2)-1)
         F_comp_eps = reshape( cat(2,reshape(sol1.F1,9,1),reshape(sol1.F1,9,1)) * x_eps , 3,3) ;
         % it has been found that only for F_comp_eps the determinant is
         % invariant! 
+        %
         [x_dis, d_dis] = mixture_matrix_lin_least_squares_opt(cat(3,sol1.ST,sol2.ST));
         % removed third output of above fucntion - ,  F_comp_dis_opt] since
         % determinant is not invariant - same for function call below
@@ -93,14 +94,23 @@ for is1 = 1:(size(lath_solutions.array,2)-1)
         isol = isol + 2;
         % Create Slip_solution objects and append them to object array  - %
         % here i put LT = zeros(3) because it is not directly calculable!
-        composite_solutions( isol-1 ) =  Composite_solution(F_comp_eps, I, y1, y3, d1, h1, Q1, zeros(3),...
+        block_solutions.array( isol-1 ) =  Composite_solution(F_comp_eps, I, y1, y3, d1, h1, Q1, zeros(3),...
         eps_block, x_eps, F_comp_eps, x_dis, d_dis, x_gl, d_gl );
-        composite_solutions( isol )   =  Composite_solution(F_comp_eps, I, y1, y3, d2, h2, Q2, zeros(3),...
+        block_solutions.array( isol )   =  Composite_solution(F_comp_eps, I, y1, y3, d2, h2, Q2, zeros(3),...
         eps_block, x_eps, F_comp_eps, x_dis, d_dis, x_gl, d_gl );
         %
-        composite_solutions( isol-1 ).lath_id_pair = [sol1.id, sol2.id];
-        composite_solutions( isol ).lath_id_pair =   [sol1.id, sol2.id];
-        
+        block_solutions.array( isol-1 ).lath_id_pair = [sol1.id, sol2.id];
+        block_solutions.array( isol ).lath_id_pair =   [sol1.id, sol2.id];
+        %
+        if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
+            block_solutions.array( isol-1 ).tolerances('theta_intersec_cpdir')  = theta_intersec_cpdir;
+            block_solutions.array( isol ).tolerances('theta_intersec_cpdir')    = theta_intersec_cpdir;
+        end
+        if isKey(block_solutions.mixing_tolerances,'theta_hps')
+            block_solutions.array( isol-1 ).tolerances('theta_hps') = theta_hps;
+            block_solutions.array( isol ).tolerances('theta_hps')   = theta_hps;
+        end
+        %
     end % end of loop 1
 end % end of loop 2
 

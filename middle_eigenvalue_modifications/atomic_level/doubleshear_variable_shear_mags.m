@@ -130,7 +130,7 @@ end % end of loop for first slip system
 
 if isol > 0 
 disp(['number of potential solutions found = ', num2str(isol)])
-solutions.solutions_available = 1
+solutions.solutions_available = 1;
 end
 
 end

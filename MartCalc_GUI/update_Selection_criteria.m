@@ -90,9 +90,9 @@ if handles.martensite.IPS_solutions.solutions_available
                     red_sols =    Solution_array( Slip_solution, red_sols, handles.NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
                     crit = [' for a maximum deviation angle between ideal NW-direction-parallelism  < ',num2str(theta_NW_max),'°'];
                 case 7 % theta_max_ILSdir_to_h
-                    red_sols =   Solution_array( Slip_solution, red_sols, handles.austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' );
+                    red_sols =   Solution_array( Slip_solution, red_sols, handles.austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS');
                     crit = [' for a maximum deviation angle of preferred invariant line from invariant habit plane < ',num2str(theta_max_ILSdir_to_h)];
-               %case 8
+               % case 8
                     % red_sols = Solution_array( Slip_solution, red_sols, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U));
                     %  crit = [' for (non-physical) volume change  > ',num2str(delta_determinant_max)];
             end
@@ -102,27 +102,20 @@ if handles.martensite.IPS_solutions.solutions_available
                 handles.reduced_solutions = red_sols;
             else
                 updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped before next active selection criterion (asc). See asc list.');
-                handles.lath_solutions = false;
             end
             %
-            %handles.reduced_solutions
             guidata(hObject, handles);
+            %handles.reduced_solutions.cryst_fams.keys
         end % end for
         
 %         red_sols.array(1).F1
 %         ~isempty(red_sols.array(1).F1)
 %         ~(size( red_sols.array, 2)==1)
 %         handles.reduced_solutions       
-%          handles.reduced_solutions.selection_criteria.keys
-%          handles.reduced_solutions.array(1).added_props.keys
-%          
-%          handles.reduced_solutions.array(1).F1
-%          handles.reduced_solutions.array(2).F1
-%          handles.reduced_solutions.array(3).F1
-%          handles.reduced_solutions.array(4).F1
-%          handles.reduced_solutions.array(5).F1
-%          handles.reduced_solutions.array(6).F1
-%          handles.reduced_solutions.array(7).F1
+%         handles.reduced_solutions.selection_criteria.keys
+%         handles.reduced_solutions.array(1).added_props.keys      
+%         handles.reduced_solutions.array(1).F1
+%         handles.reduced_solutions.array(2).F1
         
         updateLog_MartCalc(hObject, handles, 'Filtering of IPS solutions after specified criteria completed.');
     else
@@ -130,5 +123,5 @@ if handles.martensite.IPS_solutions.solutions_available
     end
 else
     updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
-end % end if handles.lath_solutions = true
+end % end if .solutions_available = true
 

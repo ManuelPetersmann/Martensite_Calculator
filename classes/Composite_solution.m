@@ -9,6 +9,8 @@ classdef Composite_solution < IPS_solution
     
     properties (Access = public)
         %
+        tolerances; % Actually I should write a class like composite_solution_array...
+        %
         lath_id_pair;
         %
         eps_net; % minimum magnitude of shape vector by means of linear mixture of shape vectors of IPS solutions
@@ -46,7 +48,8 @@ classdef Composite_solution < IPS_solution
                 %
                                 obj.x_gl = varargin{1,15};
                 obj.frob_opt_green_lagrange = varargin{1,14};
-
+                %
+                obj.tolerances = containers.Map();
             end
         end
     end % end methods

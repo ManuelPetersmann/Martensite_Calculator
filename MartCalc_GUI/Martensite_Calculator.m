@@ -44,6 +44,7 @@ end
 % End initialization code - DO NOT EDIT
 
 
+
 % --- Executes just before Martensite_Calculator is made visible.
 function Martensite_Calculator_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -57,12 +58,13 @@ function Martensite_Calculator_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 % Initialise tabs
-handles.tabManager = TabManager( hObject );
-% Set-up a selection changed function on the create tab groups
-tabGroups = handles.tabManager.TabGroups;
-for tgi=1:length(tabGroups)
-    set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
-end
+% PET 23.10.17: Commented for one page GUI for now - uncomment to enable tabbing
+% handles.tabManager = TabManager( hObject );
+% % Set-up a selection changed function on the create tab groups
+% tabGroups = handles.tabManager.TabGroups;
+% for tgi=1:length(tabGroups)
+%     set(tabGroups(tgi),'SelectionChangedFcn',@tabChangedCB)
+% end
 
 % initialize array for keeping track of the active selection criteria
 % 28.08.2017: currently there are 7 possible criteria for selection of solutions
@@ -72,32 +74,30 @@ handles.asc_status = zeros(1,7);
 handles.asc_number = 0;
 handles.asc_list = zeros(1,7);
 handles.log_status = 0; % variable for check if log has already been changed for a first time
-%
+
 % create austenite and martensite objects
 handles.martensite = Martensite(); % creates martensite object
 handles.austenite  = Base();
-% actually this should be integrated into Bravais object as CPP and CP-direction 
+
+% integrated into Bravais object: CPPs-close packed planes and CP_dirs - close packed directions 
 handles.austenite.CPPs    = all_from_family_perms( [1 1 1] ); % close packed planes of gamma-lattice - formerly 'cpps_gamma'
 handles.austenite.CP_dirs = all_from_family_perms( [1 1 0], false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0] - formerly 'KS'
 handles.NW = all_from_family_perms( [1 2 1], false );
-%
-handles.InterfaceObj=findobj(handles.figure1,'Enable','on'); % variable to disable interface during calculations
+
 handles.input_status   = true; % will be set to false if something is wrong with the input
-%handles.lath_solutions = false; % must be true to call my block mixing function
-handles.block_solutions = false;
-%
+
+handles.InterfaceObj = findobj(handles.figure1,'Enable','on','-and','-not','Tag','filename_results_edittext'); % variable to disable interface during calculations
+
 guidata(hObject, handles);
-
-% UIWAIT makes Martensite_Calculator wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = Martensite_Calculator_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%#########################################################################
 %% LATH PART %%
 
 %% --- Executes on button press in start_lath_calc.
@@ -118,9 +118,9 @@ if handles.input_status
     % store solution objects in an object array
     switch handles.popup_calc_lath_level.Value
         case 1
-            calculation_method = 'variable doubleshear incremental optimization lath level';
-            updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
-            updateLog_MartCalc(hObject, handles, 'please wait...');
+            calculation_method = 'variable doubleshear incremental minimization of (middle_eigenvalue - 1.) for slip at the lath level';
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+            %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.IPS_solutions.calculation_method = calculation_method;
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
             
@@ -134,11 +134,12 @@ if handles.input_status
     end
     updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
     %% filter solutions
+    l1 = length(handles.martensite.IPS_solutions.array);
     %  formerly - case 8 - now default reduction to this value!
     delta_determinant_max = 0.001; % maximum 0.1% non-physical volume change
     updateLog_MartCalc(hObject, handles, ['checking solutions for non-physical volume change > ',num2str(delta_determinant_max*100),'%...'] );
-    handles.reduced_solutions = Solution_array( Slip_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
-    l1 = length( handles.reduced_solutions.array);
+    % handles.reduced_solutions = 
+    handles.martensite.IPS_solutions = Solution_array( Slip_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
     l2 = length(handles.martensite.IPS_solutions.array);
     if l1 ~= l2
         updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
@@ -155,6 +156,8 @@ guidata(hObject, handles);
 set(handles.InterfaceObj,'Enable','on');
 
 
+
+%%#########################################################################
 %% --- Executes on selection change in lsc_popup.
 function lsc_popup_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns lsc_popup contents as cell array
@@ -260,27 +263,29 @@ switch hObject.Value
 %         end
 end
 
-% --- Executes on button press in update_selection_button.
+
+
+%#########################################################################
+%% --- Executes on button press in update_selection_button.
 function update_selection_button_Callback(hObject, eventdata, handles)
 %
 set(handles.InterfaceObj,'Enable','off');
 update_Selection_criteria;
 set(handles.InterfaceObj,'Enable','on');   
 
-% --- Executes on selection change in popup_sorting.
+
+
+%#########################################################################
+%% --- Executes on selection change in popup_sorting.
 function popup_sorting_Callback(hObject, eventdata, handles)
 %
 % disable interface during function call
 set(handles.InterfaceObj,'Enable','off');
 %
-%if handles.martensite.IPS_solutions.solutions_available
+% reduced_solutions are now directly availble since volumetric changes are
+% thrown out immediately. -> reduced solutions
 if handles.reduced_solutions.solutions_available
-    %    if isfield(handles,'reduced_solutions')
     unsrt_sols = handles.reduced_solutions;
-    %     else
-    %         unsrt_sols = handles.martensite.IPS_solutions;
-    %     end
-    %
     try
         switch hObject.Value
             case 1
@@ -312,7 +317,8 @@ guidata(hObject, handles);
 set(handles.InterfaceObj,'Enable','on');
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%#########################################################################
 %% BLOCK PART %%
 
 % --- Executes on button press in start_block_calc.
@@ -321,30 +327,29 @@ function start_block_calc_Callback(hObject, eventdata, handles)
 % disable interface during function call
 %set(handles.InterfaceObj,'Enable','off');
 
-updateLog_MartCalc(hObject, handles, '---------------------------------------------');
-updateLog_MartCalc(hObject, handles, 'Retrieving input from GUI');
+updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --------------');
 % read user input from GUI for determination of solutionsh
 
 if handles.input_status
     switch handles.popup_calc_block_level.Value
         case 1
+            handles.block_solutions = Solution_array_composite();
+            %
             if handles.martensite.IPS_solutions.solutions_available
-                handles.tolerances = containers.Map;
                 theta_intersec_cpdir = str2double(handles.misori_HPintersec_cpdir_edit_txt.String);
                 if ~isnan(theta_intersec_cpdir)
-                    handles.tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
+                    handles.block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
                 end
                 theta_hps = str2double(handles.max_misori_HPs_laths_for_blocks_edit_txt.String);
                 if ~isnan(theta_hps)
-                    handles.tolerances('theta_hps') = theta_hps;
+                    handles.block_solutions.mixing_tolerances('theta_hps') = theta_hps;
                 end
                 %
                 calculation_method = 'NEW - Build blocks from lath-IPS-solutions, optimized phase fractions';
-                updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
-                updateLog_MartCalc(hObject, handles, 'please wait...');
+                updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
                 %
-                handles.martensiteblock_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.tolerances );
-                updateLog_MartCalc(hObject, handles, 'Optimized determination of composite blocks from lath solutions completed.' );
+                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.block_solutions );
+                updateLog_MartCalc(hObject, handles, ['Optimized determination of composite blocks from lath solutions completed.', num2str(length(handles.block_solutions.array)),' solutions found.'] );
             else
                 updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
             end
@@ -353,8 +358,8 @@ if handles.input_status
             
             %% integrated file: maraging_block_sym_doubleshear.m;
             calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
-            updateLog_MartCalc(hObject, handles, [calculation_method,' - started']);
-            updateLog_MartCalc(hObject, handles, 'please wait...');
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+            %updateLog_MartCalc(hObject, handles, 'please wait...');
             %
             % highly symmetric mirror planes from bcc
             % {001} family
@@ -370,8 +375,6 @@ if handles.input_status
             update_Selection_criteria;
     end
     %
-    handles.block_solutions = true;
-    %
     guidata(hObject, handles);
 else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
@@ -381,34 +384,36 @@ guidata(hObject, handles);
 %set(handles.InterfaceObj,'Enable','on');
 
    
-% --- Executes on selection change in mixing_criteria_for_blocks.
-function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 
-
-% --- Executes on button press in write_lath_solutions_pushbutton.
+%#########################################################################
+%% --- Executes on button press in write_lath_solutions_pushbutton.
 function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
 
+filename = handles.filename_results_edittext.String; %{1};
+write_input_parameters(filename,'w', handles.martensite, handles.austenite);
+
+% write lath solutions
 if handles.reduced_solutions.solutions_available
     %
-    filename = handles.filename_results_edittext.String{1};
-    write_input_parameters(filename,'w', handles.martensite, handles.austenite);
-    %
     if isfield(handles,'reduced_solutions')
-        write_calc_specs(filename, 'a',     handles.martensite, handles.reduced_solutions);
+        write_calc_specs_laths(filename, 'a',     handles.martensite, handles.reduced_solutions);
         write_lath_solutions(filename, 'a', handles.martensite, handles.reduced_solutions);
     else
-        write_calc_specs(filename, 'a',     handles.martensite);
+        write_calc_specs_laths(filename, 'a',     handles.martensite);
         write_lath_solutions(filename, 'a', handles.martensite);
     end
     %
 else
     updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
-end % end if handles.lath_solutions = true
+end % end if solutions_available = true
+
+% write optimized block solutions from lath solutions
+if isfield(handles,'block_solutions')
+   write_opt_block_solutions(filename, 'a',handles.block_solutions)                  
+end
 
 
-
-
-
+%#########################################################################
 %% check input of EDIT TEXT fields directly after typing it in
 
 function lc_edtxt_aust_val_Callback(hObject, eventdata, handles)
@@ -419,6 +424,8 @@ function lc_edtxt_aust_val_Callback(hObject, eventdata, handles)
 if isnan(str2double(get(hObject,'String') ) )
   set(hObject,'String','3.6017264');
 end
+
+handles.reduced_solutions.cryst_fams %.keys %('KS')
 
 
 function lc_edtxt_mart_val_Callback(hObject, eventdata, handles)
@@ -453,16 +460,18 @@ if ~isempty(regexp(filename, '[/\*:?"<>|]', 'once'))
    set(hObject,'String','');
 end
 
+set(handles.InterfaceObj,'Enable','on');
 
 
 
 
 
 
-
-
-
+%#########################################################################
 %% all functions after this are not used...
+
+% --- Executes on selection change in mixing_criteria_for_blocks.
+function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
 function lsc_popup_CreateFcn(hObject, eventdata, handles)
