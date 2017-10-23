@@ -71,6 +71,7 @@ end
 handles.asc_status = zeros(1,7);
 handles.asc_number = 0;
 handles.asc_list = zeros(1,7);
+handles.asc_maxcrit = 7; % maximum number of asc
 
 % initialize array for keeping track of the active mixing criteria (blocks)
 % 20.10.2017: currently there are 2 possible criteria for mixing of laths
@@ -79,6 +80,7 @@ handles.asc_list = zeros(1,7);
 handles.amc_status = zeros(1,2);
 handles.amc_number = 0;
 handles.amc_list = zeros(1,2);
+handles.amc_maxcrit = 2; % maximum number of amc
 
 handles.log_status = 0; % variable for check if log has already been changed for a first time
 %

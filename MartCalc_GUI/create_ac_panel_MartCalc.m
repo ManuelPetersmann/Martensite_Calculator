@@ -9,12 +9,12 @@ function [ handles ] = create_ac_panel_MartCalc( handles, parent_panel, criterio
     if (parent_panel == handles.pan_asc) % panel for active selection criteria for calculation of laths
         tag = ['pan_asc_entry',num2str(criterion_number)]; %tag with number of position in list
         ac_number = handles.asc_number; % number of active criteria
-        maxcrit_number = 7; % maximum number of criteria
+        maxcrit_number = handles.asc_maxcrit; % maximum number of criteria
         
     elseif (parent_panel == handles.pan_amc) % panel for mixing of lath solutions to blocks
         tag = ['pan_amc_entry',num2str(criterion_number)]; %tag with number of position in list
         ac_number = handles.amc_number; % number of active criteria
-        maxcrit_number = 2; % maximum number of criteria
+        maxcrit_number = handles.amc_maxcrit; % maximum number of criteria
     else
         error('This parent is not considered for generation of new panels.')
     end
@@ -83,7 +83,7 @@ function [ handles ] = create_ac_panel_MartCalc( handles, parent_panel, criterio
      'Value', criterion_number,...
      'Visible', 'on',...
      'Tag',tag5,...
-     'Callback',@delete_asc_MartCalc);
+     'Callback',@delete_ac_MartCalc);
 
 end
 
