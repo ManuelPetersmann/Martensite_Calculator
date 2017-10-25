@@ -1,4 +1,5 @@
-clear all; clc;
+clear all; 
+clc;
 
 % First execute File - Bain_and_Correspondence_mavalX12
 Bain_and_Correspondence_mavalX12;
@@ -55,10 +56,10 @@ display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 %g_min = 10.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
-%g_min_sols = Solution_array( Slip_solution, theta_p_sols, 'slip_density', g_min, 'min'); 
+g_min_sols = Solution_array( Slip_solution, tolerable_HP_deviations, 'stepwidth', g_min, 'min'); 
 
 %% reduce solutions to ones with eps < something 
-eps_max_solutions = Solution_array( Slip_solution, tolerable_HP_deviations, 'eps_ips', eps_max, 'max' ); 
+eps_max_solutions = Solution_array( Slip_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
 display(['with criterion eps_max = ',num2str(eps_max)] );
 
 %% 'misorientation of CPP martensite to austenite - planes of OR';
@@ -83,21 +84,31 @@ display(['with criterion tolerable volume_change_from_averaging = ',num2str(delt
 % PET: 10.10.17
 % new with 6 arguments! - no property is added dynamically this way
 %theta_max_ILSdir_to_h = 6.;
-reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' ); 
+reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
 display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
-
-%sorted_sols = reduced_sols.sort( 'stepwidth' );       
-
-composite_solutions = mixing_of_atomic_level_solutions(reduced_sols);
-%composite_solutions = mixing_of_atomic_level_solutions(reduced_sols, theta_hps, theta_intersec_cpdir)
 
 % to sort fully reduced solution for most important criterion 
 % mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
 % theta_NW_sols.array(1) % print out best solution
+%sorted_sols = reduced_sols.sort( 'stepwidth' );       
 
+%theta_hps = 10;
+%theta_intersec_cpdir = 10.; 
+block_solutions = Solution_array_composite();
+%block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
+%block_solutions.mixing_tolerances('theta_hps') = theta_hps;
 % these two are vectors...
 %det_sols.sort( 'dir_of_smallest_def' );
 %det_sols.sort( 'dir_of_largest_def' );
+
+                    
+%composite_sols_eps = mixing_of_atomic_level_solutions(reduced_sols, block_solutions);
+composite_sols_eps = minor_relation_and_IPS(reduced_sols, block_solutions);
+
+
+
+
+
 
 
 %% Best solution - determine Habit planes for all symmetry related variants

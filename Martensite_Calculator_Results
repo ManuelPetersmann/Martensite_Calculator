@@ -1,0 +1,271 @@
+f.c.c - b.c.c highly dislocated, hierarchical - MARTENSITE-CALCULATOR - lath / block invariant plane strain (IPS) microstructure statistics 
+file created: 24-Oct-2017 14:00:46 
+
+ ##########################  INPUT PARAMETERS  ########################## 
+
+ lattice parameters: 
+ austenite  =  3.6017 	  martensite =  2.8807 
+ 
+ specific Bain: 
+[  1.1311  0.0000  0.0000 ]
+[  0.0000  1.1311  0.0000 ]
+[  0.0000  0.0000  0.7998 ]
+
+ Correspondence matrix (coordinate transformation for specific Bain): 
+[  1.0000  0.0000  0.0000 ]
+[  0.0000  1.0000  0.0000 ]
+[  0.0000  0.0000  1.0000 ]
+
+ austenite basis: 
+[  1.0000  0.0000  0.0000 ]
+[  0.0000  1.0000  0.0000 ]
+[  0.0000  0.0000  1.0000 ]
+
+ martensite basis 
+[  1.0000  0.0000  0.0000 ]
+[  0.0000  1.0000  0.0000 ]
+[  0.0000  0.0000  1.0000 ]
+
+ crystallographic families in martensite to build slip systems 
+{1, 1, 1} 	
+{1, 0, 2} 	
+<1, 1, 1> 	
+<1, 1, 0> 	
+
+ crystallographic families in austenite to build slip systems 
+{1, 1, 1} 	
+<1, 1, 1> 	
+<1, 0, 2> 	
+
+ resulting possible combinations of double shears (both slip directions, nchoosek, k=2):  
+ 	  
+
+ ####################  CALCULATION OPTIONS FOR LATHS  #################### 
+
+Calculation method:  
+ 	  
+
+ User specified Selection criteria: 
+	 delta_determinant_max < 0.0010 
+	 eps_ips < 0.6000 
+	 stepwidth > 5.0000 
+	 theta_CPPs < 1.0000 
+	 theta_KS_min < 5.0000 
+	 theta_NW_min < 8.0000 
+	 theta_h_to_CPP < 20.0000 
+	 theta_preferred_ILSdir_to_h < 3.0000 
+
+ ###########################  LATH SOLUTIONS  ########################### 
+
+All variables are given in the coordinate system of the parent phase (austenite) all angles (theta_) are in degree! 
+ 
+--- Invariant plane strain variables --- 
+h  		 ... 	 habit plane normal vector 
+d  		 ... 	 shape deformation direction 
+eps_ips  ... 	 shape deformation magnitude 
+ST  	 ... 	 full shape strain (including everything) 
+LT  	 ... 	 lattice deformation (excluding "invisible" plastic deformation) 
+Q  		 ... 	 rotation of inclusion to obtain an invariant plane strain 
+
+
+--- Slip system variables ---
+m  		 ... 	 slip plane normal 
+s  		 ... 	 shear direction (Burgers vector in glide-plane) 
+eps_s  	 ... 	 shear magnitude of slip system 
+stepwidth... 	averaged dislocation spacing in glide system (unit is: glide plane spacing). 
+
+
+--- Further selected active selection criteria variables ---
+delta_determinant_max 	... 	 maximum deviation of theoretical volume change from Bain strain [%] 
+theta_CPPs 				... 	  maximum misorientation angle of CP relation 
+theta_KS_min 			...   maximum deviation angle of ideal Kurdjumov-Sachs direction parallelism ( <110>_aust || <111>_mart) 
+theta_NW_min 			...  maximum deviation angle of ideal Nishiyama-Wassermann direction parallelism ( <112>_aust || <110>_mart ) 
+theta_h_to_cpp 			... 	  maximum misorientation angle between habit plane and nearest close packed plane {111}_gamma 
+theta_preferred_ILSdir_to_h ... maximum angle between preferred invariant direction (invariant line strain) and habit plane (0° if vector is in habit plane) 
+
+
+ ---Solutions--- 
+ Solutions are unsorted
+
+
+ solution ID =  106 
+ h = [ -0.4899 -0.6680 -0.5601 ]	 d = [ -0.4745 -0.3854  0.7914 ]	  eps_ips = 0.5005 
+ m = (0, 1, 1)_mart 	 s = [1, 1, -1]_mart 	 eps_s = 0.2906 
+ m = (2, -1, 1)_mart 	 s = [1, 1, -1]_mart 	 eps_s = 0.0401 
+F1 = R*B*S2*S1 =  
+[  1.1367  0.0262 -0.0028 ]
+[  0.2684  1.1311 -0.1342 ]
+[  0.0079  0.0370  0.7959 ]
+ theta_CPPs   =  0.9229° to  (1, 1, 1)_aust  
+ theta_KS_min =  0.3154° to  [1, 0, -1]_aust  
+ theta_NW_min =  0.6461° to  [-2, 1, 1]_aust  
+ theta_h_to_CPP =  7.2913° to  (-1, -1, -1)_aust  
+ theta_preferred_ILSdir_to_h =  2.8482° to  [1, 0, -1]__aust  
+
+
+
+ solution ID =  357 
+ h = [ -0.4899 -0.6680  0.5601 ]	 d = [ -0.4745 -0.3854 -0.7914 ]	  eps_ips = 0.5005 
+ m = (0, 1, 1)_mart 	 s = [1, -1, 1]_mart 	 eps_s = 0.2906 
+ m = (2, 1, -1)_mart 	 s = [1, -1, 1]_mart 	 eps_s = 0.0401 
+F1 = R*B*S2*S1 =  
+[  1.1367  0.0262  0.0028 ]
+[  0.2684  1.1311  0.1342 ]
+[ -0.0079 -0.0370  0.7959 ]
+ theta_CPPs   =  0.9229° to  (1, 1, -1)_aust  
+ theta_KS_min =  0.3154° to  [1, 0, 1]_aust  
+ theta_NW_min =  0.6461° to  [2, -1, 1]_aust  
+ theta_h_to_CPP =  7.2913° to  (-1, -1, 1)_aust  
+ theta_preferred_ILSdir_to_h =  2.8482° to  [1, 0, 1]__aust  
+
+
+
+ solution ID =  615 
+ h = [ -0.4899  0.6680  0.5601 ]	 d = [ -0.4745  0.3854 -0.7914 ]	  eps_ips = 0.5005 
+ m = (0, 1, 1)_mart 	 s = [-1, 1, -1]_mart 	 eps_s = 0.2906 
+ m = (2, 1, -1)_mart 	 s = [-1, 1, -1]_mart 	 eps_s = 0.0401 
+F1 = R*B*S2*S1 =  
+[  1.1367 -0.0262  0.0028 ]
+[ -0.2684  1.1311 -0.1342 ]
+[ -0.0079  0.0370  0.7959 ]
+ theta_CPPs   =  0.9229° to  (-1, 1, 1)_aust  
+ theta_KS_min =  0.3154° to  [1, 0, 1]_aust  
+ theta_NW_min =  0.6461° to  [2, 1, 1]_aust  
+ theta_h_to_CPP =  7.2913° to  (-1, 1, 1)_aust  
+ theta_preferred_ILSdir_to_h =  2.8482° to  [1, 0, 1]__aust  
+
+
+
+ solution ID =  876 
+ h = [ -0.4899  0.6680 -0.5601 ]	 d = [ -0.4745  0.3854  0.7914 ]	  eps_ips = 0.5005 
+ m = (0, 1, 1)_mart 	 s = [-1, -1, 1]_mart 	 eps_s = 0.2906 
+ m = (2, -1, 1)_mart 	 s = [-1, -1, 1]_mart 	 eps_s = 0.0401 
+F1 = R*B*S2*S1 =  
+[  1.1367 -0.0262 -0.0028 ]
+[ -0.2684  1.1311  0.1342 ]
+[  0.0079 -0.0370  0.7959 ]
+ theta_CPPs   =  0.9229° to  (1, -1, 1)_aust  
+ theta_KS_min =  0.3154° to  [1, 0, -1]_aust  
+ theta_NW_min =  0.6461° to  [2, 1, -1]_aust  
+ theta_h_to_CPP =  7.2913° to  (-1, 1, -1)_aust  
+ theta_preferred_ILSdir_to_h =  2.8482° to  [1, 0, -1]__aust  
+
+
+
+ solution ID =  2127 
+ h = [  0.5239 -0.7052  0.4777 ]	 d = [  0.1418 -0.5698 -0.8094 ]	  eps_ips = 0.2608 
+ m = (1, 0, 1)_mart 	 s = [-1, -1, 1]_mart 	 eps_s = 0.1750 
+ m = (1, 1, 1)_aust 	 s = [-1, -1, 1]_aust 	 eps_s = 0.0884 
+F1 = R*B*S2*S1 =  
+[  1.0253 -0.0236  0.0744 ]
+[ -0.1058  1.1075  0.0744 ]
+[ -0.1393 -0.0236  0.8910 ]
+ theta_CPPs   =  0.8372° to  (1, -1, 1)_aust  
+ theta_KS_min =  0.5243° to  [1, 0, -1]_aust  
+ theta_NW_min =  1.1444° to  [2, 1, -1]_aust  
+ theta_h_to_CPP =  9.7893° to  (-1, 1, -1)_aust  
+ theta_preferred_ILSdir_to_h =  1.8698° to  [1, 0, -1]__aust  
+
+
+
+ solution ID =  3376 
+ h = [  0.5239 -0.7052 -0.4777 ]	 d = [  0.1418 -0.5698  0.8094 ]	  eps_ips = 0.2608 
+ m = (1, 1, 0)_mart 	 s = [-1, 1, -1]_mart 	 eps_s = 0.1750 
+ m = (1, 1, -1)_aust 	 s = [-1, 1, -1]_aust 	 eps_s = 0.0884 
+F1 = R*B*S2*S1 =  
+[  1.0253 -0.0236 -0.0744 ]
+[ -0.1058  1.1075 -0.0744 ]
+[  0.1393  0.0236  0.8910 ]
+ theta_CPPs   =  0.8372° to  (-1, 1, 1)_aust  
+ theta_KS_min =  0.5243° to  [1, 0, 1]_aust  
+ theta_NW_min =  1.1444° to  [2, 1, 1]_aust  
+ theta_h_to_CPP =  9.7893° to  (-1, 1, 1)_aust  
+ theta_preferred_ILSdir_to_h =  1.8698° to  [1, 0, 1]__aust  
+
+
+
+ solution ID =  5146 
+ h = [  0.5239  0.7052 -0.4777 ]	 d = [  0.1418  0.5698  0.8094 ]	  eps_ips = 0.2608 
+ m = (1, 0, -1)_mart 	 s = [-1, 1, -1]_mart 	 eps_s = 0.1750 
+ m = (-1, 1, 1)_aust 	 s = [-1, 1, -1]_aust 	 eps_s = 0.0884 
+F1 = R*B*S2*S1 =  
+[  1.0253  0.0236 -0.0744 ]
+[  0.1058  1.1075  0.0744 ]
+[  0.1393 -0.0236  0.8910 ]
+ theta_CPPs   =  0.8372° to  (1, 1, -1)_aust  
+ theta_KS_min =  0.5243° to  [1, 0, 1]_aust  
+ theta_NW_min =  1.1444° to  [2, -1, 1]_aust  
+ theta_h_to_CPP =  9.7893° to  (-1, -1, 1)_aust  
+ theta_preferred_ILSdir_to_h =  1.8698° to  [1, 0, 1]__aust  
+
+
+
+ solution ID =  6169 
+ h = [  0.5239  0.7052  0.4777 ]	 d = [  0.1418  0.5698 -0.8094 ]	  eps_ips = 0.2608 
+ m = (1, -1, 0)_mart 	 s = [-1, -1, 1]_mart 	 eps_s = 0.1750 
+ m = (1, -1, 1)_aust 	 s = [-1, -1, 1]_aust 	 eps_s = 0.0884 
+F1 = R*B*S2*S1 =  
+[  1.0253  0.0236  0.0744 ]
+[  0.1058  1.1075 -0.0744 ]
+[ -0.1393  0.0236  0.8910 ]
+ theta_CPPs   =  0.8372° to  (1, 1, 1)_aust  
+ theta_KS_min =  0.5243° to  [1, 0, -1]_aust  
+ theta_NW_min =  1.1444° to  [-2, 1, 1]_aust  
+ theta_h_to_CPP =  9.7893° to  (-1, -1, -1)_aust  
+ theta_preferred_ILSdir_to_h =  1.8698° to  [1, 0, -1]__aust  
+
+ ###############  CALCULATION OPTIONS FOR OPTIMIZED BLOCKS  ############### 
+
+Calculation method:  
+ 	 NEW Approach: Build blocks from lath-IPS-solutions, optimized phase fractions 
+
+ --- Active criteria allowing for mixing of lath solutions---
+
+
+ #######################  OPTIMIZED BLOCK SOLUTIONS  ####################### 
+
+F_comp ... x * F1_lath1 + (1-x) * F1_lath2    
+_composite_block ... Invariant plane strain properties build with Fcomp. 
+x_eps ... optimized phase fractions [x, 1-x] of minimum euklidean norm of d_comp: linear mixture of shape strain vectors "d" of lath solutions. 
+x_dis ... optimized phase fractions [x, 1-x] of minimum frobenius norm of:  F_comp - I              ( displacement gradient ) 
+x_gl  ... optimized phase fractions [x, 1-x] of minimum frobenius norm of:  F_comp^T * F_comp - I   ( Green-Lagrange tensor ) 
+
+
+
+ used lath solutions (IDs) =  [106 , 3376]
+ h_composite_block = [  0.2060 -0.6488  0.7325 ]	 d_composite_block = [  0.5239 -0.7052 -0.4777 ]
+ h_composite_block = [  0.5075 -0.6347 -0.5828 ]	 d_composite_block = [  0.1418 -0.5698  0.8094 ]
+ eps_ips_composite_block = 0.2608 
+ x_eps = [0.0000 , 1.0000] 	 eps_net = 0.2608 
+ x_dis = [0.0828 , 0.9172] 	 frob_opt_displacement_grad = 0.0665 
+ x_gl  = [0.1470 , 0.0100] 	 frob_opt_green_lagrange =    0.9900 
+
+
+
+ used lath solutions (IDs) =  [357 , 2127]
+ h_composite_block = [  0.5239 -0.7052  0.4777 ]	 d_composite_block = [  0.2060 -0.6488 -0.7325 ]
+ h_composite_block = [  0.1418 -0.5698 -0.8094 ]	 d_composite_block = [  0.5075 -0.6347  0.5828 ]
+ eps_ips_composite_block = 0.2608 
+ x_eps = [0.0000 , 1.0000] 	 eps_net = 0.2608 
+ x_dis = [0.0828 , 0.9172] 	 frob_opt_displacement_grad = 0.0665 
+ x_gl  = [0.1470 , 0.0100] 	 frob_opt_green_lagrange =    0.9900 
+
+
+
+ used lath solutions (IDs) =  [615 , 6169]
+ h_composite_block = [  0.5239  0.7052  0.4777 ]	 d_composite_block = [  0.2060  0.6488 -0.7325 ]
+ h_composite_block = [  0.1418  0.5698 -0.8094 ]	 d_composite_block = [  0.5075  0.6347  0.5828 ]
+ eps_ips_composite_block = 0.2608 
+ x_eps = [0.0000 , 1.0000] 	 eps_net = 0.2608 
+ x_dis = [0.0828 , 0.9172] 	 frob_opt_displacement_grad = 0.0665 
+ x_gl  = [0.1470 , 0.0100] 	 frob_opt_green_lagrange =    0.9900 
+
+
+
+ used lath solutions (IDs) =  [876 , 5146]
+ h_composite_block = [  0.2060  0.6488  0.7325 ]	 d_composite_block = [  0.5239  0.7052 -0.4777 ]
+ h_composite_block = [  0.5075  0.6347 -0.5828 ]	 d_composite_block = [  0.1418  0.5698  0.8094 ]
+ eps_ips_composite_block = 0.2608 
+ x_eps = [0.0000 , 1.0000] 	 eps_net = 0.2608 
+ x_dis = [0.0828 , 0.9172] 	 frob_opt_displacement_grad = 0.0665 
+ x_gl  = [0.1470 , 0.0100] 	 frob_opt_green_lagrange =    0.9900 

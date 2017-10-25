@@ -348,7 +348,7 @@ if handles.input_status
                 calculation_method = 'NEW - Build blocks from lath-IPS-solutions, optimized phase fractions';
                 updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
                 %
-                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.block_solutions );
+                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.block_solutions); %,'eps' );
                 updateLog_MartCalc(hObject, handles, ['Optimized determination of composite blocks from lath solutions completed.', num2str(length(handles.block_solutions.array)),' solutions found.'] );
             else
                 updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
@@ -411,6 +411,7 @@ end % end if solutions_available = true
 if isfield(handles,'block_solutions')
    write_opt_block_solutions(filename, 'a',handles.block_solutions)                  
 end
+updateLog_MartCalc(hObject, handles, 'Writing results finished.');
 
 
 %#########################################################################

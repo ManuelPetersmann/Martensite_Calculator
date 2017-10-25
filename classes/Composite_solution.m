@@ -24,6 +24,9 @@ classdef Composite_solution < IPS_solution
         frob_opt_green_lagrange; % minimum frobenius norm of 2*green_lagrange tensor of linear mixture Fcomp        
     end % end of properties
     
+%     properties (Dependent)
+%     end
+    
     methods
         % constructor
         function obj = Composite_solution( varargin ) % IPS_Solution{ F, G, id, eps_0, d, h, Q, LT } + Composite solution variables
@@ -39,15 +42,14 @@ classdef Composite_solution < IPS_solution
             obj = obj@IPS_solution( super_args{:} ); % actually only needs: F, G, id, eps_0, d, h, Q, LT
             %
             if nargin > 8
-                obj.eps_net = varargin{1,9};
-                obj.x_eps   = varargin{1,10};
-                obj.F_comp_eps = varargin{1,11};
+                obj.eps_net = varargin{9};
+                obj.x_eps   = varargin{10};
                 %
-                obj.x_dis = varargin{1,12};
-                obj.frob_opt_displacement_grad = varargin{1,13};
+                obj.x_dis = varargin{11};
+                obj.frob_opt_displacement_grad = varargin{12};
                 %
-                                obj.x_gl = varargin{1,15};
-                obj.frob_opt_green_lagrange = varargin{1,14};
+                obj.x_gl = varargin{13};
+                obj.frob_opt_green_lagrange = varargin{14};
                 %
                 obj.tolerances = containers.Map();
             end

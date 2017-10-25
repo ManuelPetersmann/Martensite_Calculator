@@ -1,4 +1,4 @@
-function [y1,y3, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
+function [y1,y3, a1, a2, h1, h2, Q1, Q2, info] = rank_one(F, G, tolerance)
 % call: [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
 % solves the equation for an invariant interface:
 % Q*F - G = a \otimes n
@@ -10,6 +10,8 @@ function [y1,y3, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
 % "n" is the normal to the invariant interface
 % see Bhattacharya - Microstructure of Martensites p.69
 
+info = 'solution valid';
+
 if nargin < 3
     tolerance = 1.e-8;
 end
@@ -20,14 +22,16 @@ end
 
 Ct = inverse(G)'*(F'*F)*inverse(G); 
 if abs(Ct - eye(3)) < tolerance
-%    error('There is no solution')
-    disp('There is no solution')
+%    disp('There is no solution')
+    error('There is no solution')
+    info = 'Ct = I';
 end
 % otherwise automatically the eigenvalues are all positive!
 [ y1, y2, y3, e1, ~, e3 ] = sorted_eig_vals_and_vecs( Ct );
 
 if (y1 > 1. ||  abs(1-y2) > tolerance  ||  y3 < 1.)
     error('Eigenvalues do not satisfy conditions y1 < 1 , y2 = 1 , y3 > 1 necessary for an invariant plane')
+    info = 'Eigs do not satisfy conditions!';
 end
 
 % shape strain eps_0

@@ -22,9 +22,9 @@ if ((d_old - d_new1) > min_sener_change) || ((d_old - d_new2) > min_sener_change
         dx = -1*dx;
     end
 else
-    x = [x1, 1.-x1];
+    x = [x1; 1.-x1];
 %    d = d_old;
-    Fcomp = Fcoefs*x';
+    Fcomp = Fcoefs*x;
     return
 end
 
@@ -45,8 +45,8 @@ while true
 %    iters = iters + 1;
 end
 %iters
-x = [x1, 1.-x1];
-Fcomp = reshape(Fcoefs*x' ,3,3);
+x = [x1; 1.-x1];
+Fcomp = reshape(Fcoefs*x ,3,3);
 
 %c = linspace(0,1,1000);
 %d = arrayfun(@strain_ener_measure, c);

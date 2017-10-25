@@ -47,7 +47,7 @@ switch prop_string
     %    Log_sol_info(red_sols,[' for (non-physical) volume change  < ',num2str(delta_determinant_max)] );
     case 'theta_max_ILSdir_to_h'
         % upper_bound = theta_e1_cpp_dir
-        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h' );
+        reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' );
     %    Log_sol_info(red_sols,[' for a maximum deviation angle of preferred invariant line from invariant habit plane < ',num2str(theta_max_ILSdir_to_h)] );
         % new with 6 arguments! - no property is added dynamically this way
         % wrong like this: reduced_sols = Solution_array( Slip_solution, initial_sols, austenite.CP_dirs, upper_bound, 'theta_e1_cp_dir', 'closest_cp_dir_to_e1' );

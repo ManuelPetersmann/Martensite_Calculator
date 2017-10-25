@@ -51,7 +51,7 @@ theta_max_ILSdir_to_h = 3.;
 %display(['Selection criteria: g_min a']) 
 
 %% Block level selection criteria
-theta_hps = 30;
+theta_hps = 10;
 theta_intersec_cpdir = 10.; 
 
 %% Packet level selection criteria

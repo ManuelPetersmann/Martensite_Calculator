@@ -66,18 +66,22 @@ for i=1:length( block_sols.array )
                     fprintf( fid,'\t %s %5.4f ','theta_hps = ',s.tolerances('theta_hps') );
             end
         end
-        fprintf( fid,'\n');
     end
     %
-    fprintf( fid,[' h_composite_block = ',fmat,'\t d_composite_block = ',fmat,'\t  eps_ips_composite_block = %5.4f \n'], s.h, s.d,s.eps_ips);
+    fprintf( fid,'\n');
+    fprintf( fid,[' h_composite_block = ',fmat,'\t d_composite_block = ',fmat,'\n'], s.h, s.d);
+    fprintf( fid,' eps_ips_composite_block = %5.4f \n',s.eps_ips);
     %
-    fprintf( fid,' %s [%3.4f , %3.4f] \t %s %5.4f \n','x_eps = ',s.x_eps, 'eps_net =', s.eps_net);
+    fprintf( fid,' x_eps = [%3.4f , %3.4f] \t eps_net = %5.4f \n', s.x_eps(1), s.x_eps(2), s.eps_net);
     %fprintf( fid,'%s \n','F_comp_eps = ');
     %fprintf( fid,[fmat,'\n'],s.F_comp_eps);
     %
-    fprintf( fid,' %s [%3.4f , %3.4f] \t %s %5.4f \n','x_dis = ',s.x_dis, 'frob_opt_displacement_grad = ',s.frob_opt_displacement_grad);
-    fprintf( fid,' %s [%3.4f , %3.4f] \t %s %5.4f \n','x_gl  = ',s.x_gl, ' frob_opt_green_lagrange = ',s.frob_opt_green_lagrange);
-    
+    s.x_dis
+    s.x_gl
+    %
+    fprintf( fid,' x_dis = [%3.4f , %3.4f] \t frob_opt_displacement_grad = %5.4f \n',  s.x_dis, s.frob_opt_displacement_grad);
+    s.x_gl
+    fprintf( fid,' x_gl  = [%3.4f , %3.4f] \t frob_opt_green_lagrange =    %5.4f \n',  s.x_gl,  s.frob_opt_green_lagrange);    
 end
 
 
