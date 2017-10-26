@@ -20,7 +20,7 @@ function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, bloc
 % min_norm2( eps1*d1 + eps2*d2)--> linear constrained optimization
 %
 % 2 ) 'disg':  | F_composite -I |                   - displacement gradient
-% 3 ) 'gl':       | F_composite^T F_composite - I |    - c.f. Green-Lagrange (no rotation)
+% 3 ) 'gl':    | F_composite^T F_composite - I |    - c.f. Green-Lagrange (no rotation)
 %
 % -)F_composite should be mostly volumetric, i.e.  min|F_composite - % F^spherical| --> nonlinear constrained optimization
 % where the diagonal entries of F^spherical are determined from the volume 
@@ -76,6 +76,8 @@ for is1 = 1: 5 %(size(lath_solutions.array,2)-1)
                 continue
             end
         end
+        
+        % x = fmincon(@myfun,x0,A,b)
         
         %[ sol1.id , sol2.id ]
         

@@ -103,7 +103,7 @@ block_solutions = Solution_array_composite();
 
                     
 %composite_sols_eps = mixing_of_atomic_level_solutions(reduced_sols, block_solutions);
-composite_sols_eps = minor_relation_and_IPS(reduced_sols, block_solutions);
+%composite_sols_eps = minor_relation_and_IPS(reduced_sols, block_solutions);
 
 
 
