@@ -33,7 +33,7 @@ theta_h_to_CPP = 20.; %10. % normally between 10 and 20 - see Maresca paper.;
 theta_KS_max = 5.; %3.5; % 10.;  had 6 here in last calculations
 %'Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
 % omega - 5.26 in Paper = theta_NW; angle( [1 -2 1], [1 0 -1] )
-theta_NW_max = 6.; %5.5; %3.5; % what is allowed, theta_NW_min 
+theta_NW_max = 8.; %5.5; %3.5; % what is allowed, theta_NW_min 
 % what is the smallest angle within the family-transformed_family set
 
 delta_determinant_max = 0.001;
@@ -41,7 +41,7 @@ delta_determinant_max = 0.001;
 % PET 10.10.17
 % angle between preferred ILS direction and habit plane (0 if vector in
 % habit plane)
-theta_max_ILSdir_to_h = 3.;
+theta_max_ILSdir_to_h = 3.; % 3 reduces it to only 16 from 872 (last reduction step) with criteria from 27.10.17
 %theta_e1_cpp_dir = 5.; angle between direction with smallest deformation (e1) and
 % close packed direction in austenite NOT REASONABLE!!!
 

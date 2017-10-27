@@ -46,8 +46,12 @@ martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenit
 % load all parameters from the file:
 selection_criteria_maraging;
 
+det_sols = Solution_array( Slip_solution, martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
+display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
+
+
 % Habit plane deviation from experimental observations
-tolerable_HP_deviations = Solution_array( Slip_solution, martensite.IPS_solutions, cpps_gamma, ...
+tolerable_HP_deviations = Solution_array( Slip_solution, det_sols, cpps_gamma, ...
     theta_h_to_CPP, 'theta_h_to_CPP', 'closest_to_h', 'h'); 
 display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
@@ -57,6 +61,7 @@ display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 %g_min = 10.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
 g_min_sols = Solution_array( Slip_solution, tolerable_HP_deviations, 'stepwidth', g_min, 'min'); 
+display(['with criterion g_min = ',num2str(g_min)] );
 
 %% reduce solutions to ones with eps < something 
 eps_max_solutions = Solution_array( Slip_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
@@ -72,19 +77,15 @@ tolerable_KS_direction = Solution_array( Slip_solution, tolerable_CPP_deviations
     theta_KS_max, 'theta_KS_min', 'closest_cp_direction', 'KS', false );
 display(['with criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
 
+
 tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
     'theta_NW_min', 'closest_NW', 'NW', false);
 display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPPs_max)] );
 
-%% Added: March 2017
-%delta_determinant_max = 0.001;
-det_sols = Solution_array( Slip_solution, tolerable_NW_direction, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
-display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
-% PET: 10.10.17
-% new with 6 arguments! - no property is added dynamically this way
-%theta_max_ILSdir_to_h = 6.;
-reduced_sols = Solution_array( Slip_solution, det_sols, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
+%%
+theta_max_ILSdir_to_h = 6.; % 3 reduced it to only 16 from 872 (last reduction step) with criteria from 27.10.17
+reduced_sols = Solution_array( Slip_solution, tolerable_NW_direction, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
 display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
 % to sort fully reduced solution for most important criterion 
@@ -92,18 +93,22 @@ display(['with criterion maximum misorientation of preferred invariant line 110_
 % theta_NW_sols.array(1) % print out best solution
 %sorted_sols = reduced_sols.sort( 'stepwidth' );       
 
-%theta_hps = 10;
-%theta_intersec_cpdir = 10.; 
+theta_hps = 10;
+theta_intersec_cpdir = 6.; 
 block_solutions = Solution_array_composite();
-%block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
-%block_solutions.mixing_tolerances('theta_hps') = theta_hps;
+block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
+block_solutions.mixing_tolerances('theta_hps') = theta_hps;
 % these two are vectors...
 %det_sols.sort( 'dir_of_smallest_def' );
 %det_sols.sort( 'dir_of_largest_def' );
-
-                    
+                   
 %composite_sols_eps = mixing_of_atomic_level_solutions(reduced_sols, block_solutions);
-%composite_sols_eps = minor_relation_and_IPS(reduced_sols, block_solutions);
+
+
+lambda2_tol = 1.e-6;
+cof_tol = 1.e-6;
+det_tol = 1.e-6;
+composite_sols_eps = minors_relation_and_IPS(reduced_sols, block_solutions, lambda2_tol, cof_tol, det_tol, martensite.U);
 
 
 
