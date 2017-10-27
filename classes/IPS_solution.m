@@ -2,7 +2,7 @@ classdef IPS_solution
     % IPS_solution - Baseclass for solutions of the IPS equation: F1 - F2 = eps0 * (d \dyad h)
     
     properties (Access = public)
-        F1; % F1=U1 R1 e.g. modified Bain strain BS or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
+        F1; % F1=B*S2*S1 for double shear or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
         F2; % F2=U2 R2 this should be the reference deformation, e.g. Identiy for austenite, or fixed U_i for twins
         %
         % PET 10.10.17: replaced 'id' and 'eps_ips' wit lambda_1 and lambda_2,

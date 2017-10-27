@@ -94,7 +94,7 @@ display(['with criterion maximum misorientation of preferred invariant line 110_
 %sorted_sols = reduced_sols.sort( 'stepwidth' );       
 
 theta_hps = 10;
-theta_intersec_cpdir = 6.; 
+theta_intersec_cpdir = 10.; 
 block_solutions = Solution_array_composite();
 block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
 block_solutions.mixing_tolerances('theta_hps') = theta_hps;
