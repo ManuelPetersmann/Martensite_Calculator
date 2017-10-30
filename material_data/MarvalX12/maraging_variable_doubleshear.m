@@ -1,4 +1,4 @@
-clear all; 
+ clear all; 
 clc;
 
 % First execute File - Bain_and_Correspondence_mavalX12
@@ -46,12 +46,13 @@ martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenit
 % load all parameters from the file:
 selection_criteria_maraging;
 
-det_sols = Solution_array( Slip_solution, martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
-display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
+% not necessary for laths only for blocks!
+%det_sols = Solution_array( Slip_solution, martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
+%display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
 
 % Habit plane deviation from experimental observations
-tolerable_HP_deviations = Solution_array( Slip_solution, det_sols, cpps_gamma, ...
+tolerable_HP_deviations = Solution_array( Slip_solution, martensite.IPS_solutions, cpps_gamma, ...
     theta_h_to_CPP, 'theta_h_to_CPP', 'closest_to_h', 'h'); 
 display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
@@ -63,6 +64,7 @@ display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)
 g_min_sols = Solution_array( Slip_solution, tolerable_HP_deviations, 'stepwidth', g_min, 'min'); 
 display(['with criterion g_min = ',num2str(g_min)] );
 
+eps_max = 0.9;
 %% reduce solutions to ones with eps < something 
 eps_max_solutions = Solution_array( Slip_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
 display(['with criterion eps_max = ',num2str(eps_max)] );
@@ -91,10 +93,13 @@ display(['with criterion maximum misorientation of preferred invariant line 110_
 % to sort fully reduced solution for most important criterion 
 % mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
 % theta_NW_sols.array(1) % print out best solution
-%sorted_sols = reduced_sols.sort( 'stepwidth' );       
+%sorted_sols = reduced_sols.sort( 'stepwidth' );    
 
-theta_hps = 10;
-theta_intersec_cpdir = 10.; 
+
+reduced_sols.array = multiplicity_check_due_to_slip( reduced_sols );
+
+theta_hps = 5; % does not reduce anything after so many restrictions were placed on laths...
+theta_intersec_cpdir = 7. % 7 - leads to 35 sols % 6. - leads to zero solutions... 
 block_solutions = Solution_array_composite();
 block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
 block_solutions.mixing_tolerances('theta_hps') = theta_hps;
@@ -104,16 +109,10 @@ block_solutions.mixing_tolerances('theta_hps') = theta_hps;
                    
 %composite_sols_eps = mixing_of_atomic_level_solutions(reduced_sols, block_solutions);
 
-
-lambda2_tol = 1.e-6;
+lambda2_tol = 1.e-5; % if taken as 1.e-5 than no solutions get sorted out that way
 cof_tol = 1.e-6;
 det_tol = 1.e-6;
 composite_sols_eps = minors_relation_and_IPS(reduced_sols, block_solutions, lambda2_tol, cof_tol, det_tol, martensite.U);
-
-
-
-
-
 
 
 %% Best solution - determine Habit planes for all symmetry related variants

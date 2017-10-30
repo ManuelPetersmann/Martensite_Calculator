@@ -18,6 +18,13 @@ start_length = size(lath_solutions.array,2);
 is1 = 0;
 while is1 < size(sols,2)-1
     is1 = is1 + 1;
+    % if one shear magnitude is zero - for now it only works for two slips!
+    zero_shears1 = find( sols(is1).eps_s < 1.e-6 ,1);
+    if ~isempty(zero_shears1)
+        bigger_zero1 = find(sols(is1).eps_s > 1.e-6,1);
+        sl1 = sols(is1).slip_normal_plane_vec( bigger_zero1 , :);
+        sd1 = sols(is1).shear_direction(       bigger_zero1 , :);
+    end
     F1 = sols(is1).F1;
     is2 = is1 + 1;
     while is2 < size(sols,2)
@@ -28,16 +35,28 @@ while is1 < size(sols,2)-1
         % deformations are not linearly independent! c.f. non-uniqueness of
         % plastic slip
         if sum(sum(abs(F1 - F2 ))) < 1.e-3
-            % safe slip information from sol2 to sol1
-            multiplicity = multiplicity + 1;
-            sols(is1).id(multiplicity) = sols(is2).id;
-            sols(is1).eps_s(:,:,multiplicity) = sols(is2).eps_s;
-            sols(is1).shear_direction(:,:,multiplicity) = sols(is2).shear_direction;
-            sols(is1).slip_normal_plane_vec(:,:,multiplicity) = sols(is2).slip_normal_plane_vec;
-
-            % remove multiply occuring solution from array
-            sols(is2) = []; 
-%             reduced_by = reduced_by + 1;
+            zero_shears2 = find(sols(is2).eps_s < 1.e-6, 1);
+            if ~isempty(zero_shears2)
+                bigger_zero2 = find(sols(is2).eps_s > 1.e-6, 1);
+                sl2 = sols(is1).slip_normal_plane_vec(bigger_zero2,:);
+                sd2 = sols(is1).shear_direction(      bigger_zero2,:); 
+                if sl2 == sl1 & sd1 == sd2
+                    sols(is2) = [];
+                end
+            else
+                % safe slip information from sol2 to sol1
+                multiplicity = multiplicity + 1;
+%                 sols(is1).id
+%                 sols(is2).id
+                sols(is1).id(multiplicity) = sols(is2).id;
+                sols(is1).eps_s(:,:,multiplicity) = sols(is2).eps_s;
+                sols(is1).shear_direction(:,:,multiplicity) = sols(is2).shear_direction;
+                sols(is1).slip_normal_plane_vec(:,:,multiplicity) = sols(is2).slip_normal_plane_vec;
+                
+                % remove multiply occuring solution from array
+                sols(is2) = [];
+                % reduced_by = reduced_by + 1;
+            end
         end
         
     end % end of loop 1
