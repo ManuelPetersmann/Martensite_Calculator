@@ -15,7 +15,7 @@ switch lattice
     case 'tetragonal'
         x = (pm(1)^2 + pm(2)^2) / lp(1) + pm(3)^2 / lp(3);
     case 'hexagonal'
-        x = 0.75*(pm(1)^2 + pm(1)*pm(2) + pm(2)^2)/lp(1) + pm(3)^2 / lp(3);
+        x = (4./3.) * (pm(1)^2 + pm(1)*pm(2) + pm(2)^2) / lp(1)^2 + pm(3)^2 / lp(2)^2; % lp = [a,c] % Corretion PET: 31.10.17        
     case 'rhombohedral'
         x = sum(pm.^2)*sin(lp(4))^2 +  2*( pm(1)*pm(2) + pm(2)*pm(3) + pm(1)*pm(3) ) * ( cos(lp(4))^2 - cos(lp(4)) );
         x = x / ( lp(1)^2* ( 1. - 3*cos(lp(4))^2 + 2*cos(lp(4))^3 ) );

@@ -14,11 +14,15 @@ NW = all_from_family_perms( [1 2 1], false );
 %% lath level selection criteria
 g_min = 5.; %  % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
 
+% NOTE also check absolute bounds of g_min and eps_max in numerical
+% parameters!!!!!!
+
 % maximum value of shape strain of deformation (lambda1-lambda3) - property
 % name is eps_ips
 eps_max = 0.6; %1 0.3; % 100.; 
 
-theta_CPPs_max = 1.; % 90.;  maximum misorientation angle of cpps gamma & alpha - due to Qi,Khachaturyan 2013
+% I put this value to 2 considering that in bcc there is no close packed  plane
+theta_CPPs_max = 2.; %1.; % 90.;  maximum misorientation angle of cpps gamma & alpha - due to Qi,Khachaturyan 2013
 % misorientation-angle theta_p between the closed-packed planes (cpp) of alpha {110} and gamma {111} lattice
 
 % maximum misorientation angle of block habit-plane to {111}_gamma

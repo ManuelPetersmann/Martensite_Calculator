@@ -51,26 +51,21 @@ selection_criteria_maraging;
 %display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
 
+
+%% ESSENTIAL SELECTION CRITERIA
+
 % Habit plane deviation from experimental observations
 tolerable_HP_deviations = Solution_array( Slip_solution, martensite.IPS_solutions, cpps_gamma, ...
     theta_h_to_CPP, 'theta_h_to_CPP', 'closest_to_h', 'h'); 
 display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
 
-
-%% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
-% average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
-%g_min = 10.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
-g_min_sols = Solution_array( Slip_solution, tolerable_HP_deviations, 'stepwidth', g_min, 'min'); 
-display(['with criterion g_min = ',num2str(g_min)] );
-
-eps_max = 0.9;
-%% reduce solutions to ones with eps < something 
-eps_max_solutions = Solution_array( Slip_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
-display(['with criterion eps_max = ',num2str(eps_max)] );
+% slip_check = multiplicity_check_due_to_slip( tolerable_HP_deviations );
+% sc = Solution_array();
+% sc.array = slip_check;
 
 %% 'misorientation of CPP martensite to austenite - planes of OR';
-tolerable_CPP_deviations = Solution_array( Slip_solution, eps_max_solutions, cpps_gamma, theta_CPPs_max, ...
+tolerable_CPP_deviations = Solution_array( Slip_solution, tolerable_HP_deviations, cpps_gamma, theta_CPPs_max, ...
     'theta_CPPs', 'closest_to_cpp', 'cpps_gamma', true);
 display(['with criterion delta_CPPs_max = ',num2str(theta_CPPs_max)] );
     
@@ -80,14 +75,30 @@ tolerable_KS_direction = Solution_array( Slip_solution, tolerable_CPP_deviations
 display(['with criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
 
 
-tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
-    'theta_NW_min', 'closest_NW', 'NW', false);
-display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPPs_max)] );
 
 
-%%
+%% EXTENDED selection criteria
+
+%% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
+% average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
+g_min = 3.; % 5.; % could also directly be specified in mod_eigenvalue function e.g. block_symmetric_shear
+g_min_sols = Solution_array( Slip_solution, tolerable_KS_direction, 'stepwidth', g_min, 'min'); 
+display(['with criterion g_min = ',num2str(g_min)] );
+% 
+eps_max = 0.9;
+%% reduce solutions to ones with eps < something 
+eps_max_solutions = Solution_array( Slip_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
+display(['with criterion eps_max = ',num2str(eps_max)] );
+
+%% NW 
+% tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
+%     'theta_NW_min', 'closest_NW', 'NW', false);
+% display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPPs_max)] );
+
+
+%% invariant line crit
 theta_max_ILSdir_to_h = 6.; % 3 reduced it to only 16 from 872 (last reduction step) with criteria from 27.10.17
-reduced_sols = Solution_array( Slip_solution, tolerable_NW_direction, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
+reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
 display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
 % to sort fully reduced solution for most important criterion 
@@ -96,32 +107,31 @@ display(['with criterion maximum misorientation of preferred invariant line 110_
 %sorted_sols = reduced_sols.sort( 'stepwidth' );    
 
 
-reduced_sols.array = multiplicity_check_due_to_slip( reduced_sols );
-
-theta_hps = 5; % does not reduce anything after so many restrictions were placed on laths...
-theta_intersec_cpdir = 7. % 7 - leads to 35 sols % 6. - leads to zero solutions... 
+% only CP, KS and CPP constraints
+gelockerte_lath_constraints = multiplicity_check_due_to_slip( tolerable_KS_direction );
+glc = Solution_array();
+glc.cryst_fams = containers.Map;
+glc.cryst_fams('cpps_gamma') = cpps_gamma;
+glc.array = gelockerte_lath_constraints;
+%
 block_solutions = Solution_array_composite();
-block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
-block_solutions.mixing_tolerances('theta_hps') = theta_hps;
-% these two are vectors...
-%det_sols.sort( 'dir_of_smallest_def' );
-%det_sols.sort( 'dir_of_largest_def' );
-                   
-%composite_sols_eps = mixing_of_atomic_level_solutions(reduced_sols, block_solutions);
-
-lambda2_tol = 1.e-5; % if taken as 1.e-5 than no solutions get sorted out that way
+%
+lambda2_tol = 1.e-3; % if taken as 1.e-5 than no solutions get sorted out that way
 cof_tol = 1.e-6;
 det_tol = 1.e-6;
-composite_sols_eps = minors_relation_and_IPS(reduced_sols, block_solutions, lambda2_tol, cof_tol, det_tol, martensite.U);
+%
+composite_sols_eps = minors_relation_and_IPS(glc, block_solutions, martensite.U, lambda2_tol, cof_tol, det_tol);
+
+indices = find(gelockerte_lath_constraints.array.id ==  )
+% ismember
 
 
-%% Best solution - determine Habit planes for all symmetry related variants
-% for interactions.
-% hp must correspond to the solution below for same order!!!
-% Vorzeichen meiner Loesung sind so wie die von Loesung Nr4!
-%hp_near = martensite.symmetry_related( theta_NW_sols.array(4).h ) 
+% theta_hps = 5; % does not reduce anything after so many restrictions were placed on laths...
+% theta_intersec_cpdir = 7. % 7 - leads to 35 sols % 6. - leads to zero solutions... 
+% 
+% block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
+% block_solutions.mixing_tolerances('theta_hps') = theta_hps;
 
-%eshelby = martensite.symmetry
   
 
 

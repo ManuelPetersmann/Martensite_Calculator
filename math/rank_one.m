@@ -1,4 +1,4 @@
-function [y1,y3, a1, a2, h1, h2, Q1, Q2, info] = rank_one(F, G, tolerance)
+function [y1,y3, a1, a2, h1, h2, Q1, Q2, info] = rank_one(F, G, tolerance, lambda2_warning)
 % call: [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
 % solves the equation for an invariant interface:
 % Q*F - G = a \otimes n
@@ -16,6 +16,10 @@ if nargin < 3
     tolerance = 1.e-8;
 end
 
+if nargin < 4
+    lambda2_warning = true;
+end
+
 % check if this gives the same result as that of khachaturyan 
 % if it does then this is more general since here the vectors
 % are normed automatically
@@ -29,9 +33,11 @@ end
 % otherwise automatically the eigenvalues are all positive!
 [ y1, y2, y3, e1, ~, e3 ] = sorted_eig_vals_and_vecs( Ct );
 
-if (y1 > 1. ||  abs(1-y2) > tolerance  ||  y3 < 1.)
-    error('Eigenvalues do not satisfy conditions y1 < 1 , y2 = 1 , y3 > 1 necessary for an invariant plane')
-    info = 'Eigs do not satisfy conditions!';
+if lambda2_warning
+    if (y1 > 1. ||  abs(1-y2) > tolerance  ||  y3 < 1.)
+        error('Eigenvalues do not satisfy conditions y1 < 1 , y2 = 1 , y3 > 1 necessary for an invariant plane')
+        info = 'Eigs do not satisfy conditions!';
+    end
 end
 
 % shape strain eps_0
@@ -48,7 +54,7 @@ h1 = hh3 + hh1;
 h2 = hh3 - hh1;
 % h1 = (-1)*hh1 + hh3;
 % h2 = (-1)*hh1 - hh3;
-if (abs(norm(h1) -1.) > tolerance ) || (abs(norm(h2) -1.) > 1.e-4 )
+if (abs(norm(h1) -1.) > tolerance ) || (abs(norm(h2) -1.) > tolerance )
     error('h vector not unit vector')
 end
 %

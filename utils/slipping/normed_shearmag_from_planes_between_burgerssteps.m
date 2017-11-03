@@ -20,7 +20,7 @@ for i = 1:length(stepwidth)
     % TODO add other crystal systems! and generalize Burgers vector with
     % lattice parameters in this function
     d(i) = 1/norm(plane_miller(i,:));
-    
+        
     eps(i) = norm(b(i,:)) / (stepwidth*d);
     
     % m = norm(b) / (eps * d);

@@ -8,6 +8,7 @@ classdef IPS_solution
         % PET 10.10.17: replaced 'id' and 'eps_ips' wit lambda_1 and lambda_2,
         % made 'eps_ips' = sqrt(lambda_3) - sqrt(lambda_1) (or sqrt respectively
         % depending on convention) dependent property 
+
         lambda_1; % smallest eigenvalue (deformation)
         %lambda_2 = 1 !-> IPS
         lambda_3; % largest  eigenvalue (deformation)
