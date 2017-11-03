@@ -1,8 +1,10 @@
- clear all; 
+clear all; 
 clc;
 
-% First execute File - Bain_and_Correspondence_mavalX12
-Bain_and_Correspondence_mavalX12;
+a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
+a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
+
+Bain_and_Correspondence;
 
 count_directions_extra = true;
 
@@ -25,8 +27,9 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 [austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
-
 martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust slip systems
+
+
 %% calculate possible solutions and store solution objects in an object array
 %martensite.IPS_solutions.array = 
 martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenite);
@@ -101,29 +104,33 @@ theta_max_ILSdir_to_h = 6.; % 3 reduced it to only 16 from 872 (last reduction s
 reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
 display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
+
+
+%% Post Processing of Lath Solutions
+% only CP, KS and CPP constraints
+gelockerte_lath_constraints = multiplicity_check_due_to_slip( tolerable_KS_direction );
+
+% copy last state of solutions except for reduced ones in last step:
+glc = tolerable_KS_direction;
+glc.array = gelockerte_lath_constraints;
+
+
 % to sort fully reduced solution for most important criterion 
 % mar_sols = det_sols.sort( 'theta_CPP' ); % sort in ascending order for specific property
 % theta_NW_sols.array(1) % print out best solution
 %sorted_sols = reduced_sols.sort( 'stepwidth' );    
 
 
-% only CP, KS and CPP constraints
-gelockerte_lath_constraints = multiplicity_check_due_to_slip( tolerable_KS_direction );
-glc = Solution_array();
-glc.cryst_fams = containers.Map;
-glc.cryst_fams('cpps_gamma') = cpps_gamma;
-glc.array = gelockerte_lath_constraints;
-%
+
+%% BLOCK calculations
 block_solutions = Solution_array_composite();
-%
+
 lambda2_tol = 1.e-3; % if taken as 1.e-5 than no solutions get sorted out that way
 cof_tol = 1.e-6;
 det_tol = 1.e-6;
-%
-composite_sols_eps = minors_relation_and_IPS(glc, block_solutions, martensite.U, lambda2_tol, cof_tol, det_tol);
 
-indices = find(gelockerte_lath_constraints.array.id ==  )
-% ismember
+
+composite_sols_eps = minors_relation_and_IPS(glc, block_solutions, martensite.U, lambda2_tol, cof_tol, det_tol);
 
 
 % theta_hps = 5; % does not reduce anything after so many restrictions were placed on laths...

@@ -22,6 +22,7 @@ classdef IPS_solution
         added_props; % PET: 19.10.17 | = containers.Map();
         id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6... and for block solutions
         % could then be incremented in the constructor...
+        %Bain;
     end
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
@@ -47,6 +48,15 @@ classdef IPS_solution
         function obj = IPS_solution( varargin ) % F1, F2, id, eps, d, h, Q, LT)
             if isempty(varargin)
                 return; % no argument constructor
+            end
+            %
+            % used in subclass Composite_solution --> both solutions for
+            % one block composite solution object
+            if nargin == 4 % {F1, F2, Bain, tolerance}
+                obj.F1 = varargin{1};
+                obj.F2  = varargin{2};
+                [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(obj.F1, obj.F2, tolerance );
+                Q2*martensite.U
             end
             %
             if nargin == 8 % constructor from solution arguments

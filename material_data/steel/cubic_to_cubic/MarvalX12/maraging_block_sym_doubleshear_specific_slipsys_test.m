@@ -1,9 +1,10 @@
-
-
-% First execute File - Bain_and_Correspondence_mavalX12
 clear all;
 clc;
-Bain_and_Correspondence_mavalX12;
+
+a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
+a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
+
+Bain_and_Correspondence;
 
 count_directions_extra = true;
 

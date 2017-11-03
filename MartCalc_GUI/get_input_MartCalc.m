@@ -43,13 +43,14 @@ handles.martensite.my_base = base_mart; % checks are done in class!
                    
 %% get input for correspondence matrix from GUI
 C_am = zeros(3,3);
-k = 9; % counter for position in array handles.pan_corrmat.Children(k)
+k = 0; % counter for position in array handles.pan_corrmat.Children(k)
 for i = 1:3
     for j = 1:3
+        k = k+1;
         C_am(i,j) = str2num(handles.pan_corrmat.Children(k).String);
-        k = k-1;
     end
 end
+% C_am
 handles.martensite.C_am = C_am;
 
 %% Set Bain strain and some other properties

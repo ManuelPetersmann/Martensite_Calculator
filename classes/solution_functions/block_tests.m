@@ -76,14 +76,6 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             neg_minors = neg_minors +1;
             continue
         end
-
-        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
-        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol, false); % last 'false' is that no lambda_2_warning occurs
-        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) < block_hp_cp_aust_tol) || ...
-             (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) < block_hp_cp_aust_tol) )
-            neg_hp = neg_hp +1;
-            continue
-        end
         
         %% check deviation of lambda2
         if (mix_y2(x,F1,F2) - 1)  >  lambda2_tol  
@@ -96,6 +88,14 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         % plastic slip
         if sum(sum(abs(F1 - F2 ))) < delta_F
             neg_diff = neg_diff + 1;
+            continue
+        end
+        
+        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
+        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol, false); % last 'false' is that no lambda_2_warning occurs
+        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) < block_hp_cp_aust_tol) || ...
+             (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) < block_hp_cp_aust_tol) )
+            neg_hp = neg_hp +1;
             continue
         end
         

@@ -10,8 +10,7 @@ austenite.Bravais_type  = 'cubic';
 martensite.Bravais_type = 'cubic';
 % austenite.Centering = 
 martensite.Centering = 'I';
-a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
-a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
+
 austenite.Lp = a_aust*[1 1 1];  % 3.5975576 % {1.0, 1.0, 1.0,  pi/2,   pi/2,   pi/2; ...
                                               % 'a'  'b'  'c'  'alpha'  'beta'  'gamma'}
 martensite.Lp = a_mart *[1 1 1];  % 2.8807346   

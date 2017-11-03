@@ -118,9 +118,11 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             n = [ns(is1,:); ns(is2,:)];
             
             % Create Slip_solution objects and append them to object array;
-            % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2
+            % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2            
             solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
             solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
+            % reduced contructor could look like
+            %  solutions.array( isol-1 ) =  Slip_solution(F, I, martensite.U, eps_s, d, n );
             solutions.array( isol-1 ).id = isol-1;
             solutions.array( isol ).id = isol;
         end

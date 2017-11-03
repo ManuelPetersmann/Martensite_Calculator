@@ -26,8 +26,23 @@ classdef Solution_array
             %
             foundnr = 0; % counter for how many matches are found for the construction of constrained solutions
              if nargin > 0 % varargin = { 1-Type of array entry object }
-                 % initalize array type e.g. IPS_solutions -or-> Slip_solution
+                 % COPY CONSTRUCTOR for BLOCKs - just used with one input argument
+                 % copies everything execpt - array property
+                 if isprop(varargin{1},'array')                         
+                     props_to_copy = properties( varargin{1} );
+                     for i=1:length( props_to_copy )
+                         if ~strcmp(props_to_copy{i},'array')
+                             obj.(props_to_copy{i}) = varargin{1}.(props_to_copy{i});
+                         end
+                     end
+                 end
+                 %
+                 if isprop(varargin{1},'F1')                
+                 % PET 3.11.17: initialization of array type e.g.
+                 % IPS_solutions -or Slip_solution - It is however better to do this assignment
+                 % directly in the middle eigenvalue modification function!
                  obj.array = varargin{1}; % here varargin{1} should be the object_type of class property array
+                 end
              end
             %
             if nargin > 4 % PET. 19.10.17

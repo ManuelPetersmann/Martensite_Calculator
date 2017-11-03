@@ -111,7 +111,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
  
         block_sols = block_sols + 1;            
 
-        block_solutions.array( block_sols ).lath_id_pair =   [sol1.id, sol2.id];
+        block_solutions.array( block_sols ).lath_id_pair = [sol1, sol2];
         %
         if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
         %    block_solutions.array( block_sols ).tolerances('theta_intersec_cpdir')    = theta_intersec_cpdir;

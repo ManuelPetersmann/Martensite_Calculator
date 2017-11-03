@@ -32,7 +32,7 @@ else
     %det(vrrotvec2mat( u )) = 1 exactly therefore use this function!
     %det(rotationVectorToMatrix(u(1:3)*phi))
     % both functions are in seperate matlab addons... 
-    R = vrrotvec2mat( u );
+    R = vrrotvec2mat( u ); % function from SIMULINK 3D ANIMATION PACKAGE
 end
 
 

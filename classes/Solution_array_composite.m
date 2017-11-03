@@ -1,7 +1,7 @@
 classdef Solution_array_composite 
     
     properties
-        array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
+        array;   % entries of type "Composite_solution"
         %solutions_available = false;
         %
         calculation_method; % a string specifying the method to trim the middle eigenvalue to one
