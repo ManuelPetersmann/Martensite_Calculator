@@ -4,7 +4,7 @@
 %handles.martensite.IPS_solutions.cryst_fams
 %handles
 
-if handles.martensite.IPS_solutions.solutions_available
+if ~isempty(handles.martensite.IPS_solutions.array) %solutions_available
     %    
     if handles.asc_number > 0
         updateLog_MartCalc(hObject, handles,'Start reducing solutions after specified criteria. Please wait...');
@@ -64,7 +64,7 @@ if handles.martensite.IPS_solutions.solutions_available
         %
         red_sols = handles.martensite.IPS_solutions;
         for criterion = 1:handles.asc_number
-            if ~red_sols.solutions_available
+            if isempty(red_sols.array) % ~red_sols.solutions_available
                 break
             end
             %
@@ -97,11 +97,11 @@ if handles.martensite.IPS_solutions.solutions_available
                     %  crit = [' for (non-physical) volume change  > ',num2str(delta_determinant_max)];
             end
             %
-            if red_sols.solutions_available
+            if isempty(red_sols.array) %red_sols.solutions_available
+                updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped before next active selection criterion (asc). See asc list.');
+            else
                 updateLog_MartCalc(hObject, handles,['Solutions reduced to : ', num2str(length(red_sols.array)), crit ] );
                 handles.reduced_solutions = red_sols;
-            else
-                updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped before next active selection criterion (asc). See asc list.');
             end
             %
             guidata(hObject, handles);
@@ -123,5 +123,5 @@ if handles.martensite.IPS_solutions.solutions_available
     end
 else
     updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
-end % end if .solutions_available = true
+end % end if isempty -- .solutions_available = true
 

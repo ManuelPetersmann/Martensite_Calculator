@@ -284,7 +284,9 @@ set(handles.InterfaceObj,'Enable','off');
 %
 % reduced_solutions are now directly availble since volumetric changes are
 % thrown out immediately. -> reduced solutions
-if handles.reduced_solutions.solutions_available
+if isempty(handles.reduced_solutions.array) %        % ~handles.reduced_solutions.solutions_available
+    updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
+else
     unsrt_sols = handles.reduced_solutions;
     try
         switch hObject.Value
@@ -309,8 +311,6 @@ if handles.reduced_solutions.solutions_available
         updateLog_MartCalc(hObject, handles,ME)
     end
     updateLog_MartCalc(hObject, handles,'Sorting finished.')
-else
-    updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
 end
 guidata(hObject, handles);
 % enable interface again
@@ -335,7 +335,9 @@ if handles.input_status
         case 1
             handles.block_solutions = Solution_array_composite();
             %
-            if handles.martensite.IPS_solutions.solutions_available
+            if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
+                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
+            else
                 theta_intersec_cpdir = str2double(handles.misori_HPintersec_cpdir_edit_txt.String);
                 if ~isnan(theta_intersec_cpdir)
                     handles.block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
@@ -349,9 +351,8 @@ if handles.input_status
                 updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
                 %
                 handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.block_solutions); %,'eps' );
-                updateLog_MartCalc(hObject, handles, ['Optimized determination of composite blocks from lath solutions completed.', num2str(length(handles.block_solutions.array)),' solutions found.'] );
-            else
-                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
+                updateLog_MartCalc(hObject, handles, ['Optimized determination of composite blocks from lath solutions completed.', ...
+                    num2str(length(handles.block_solutions.array)),' solutions found.'] );
             end
         case 2
             get_input_MartCalc;
@@ -393,7 +394,9 @@ filename = handles.filename_results_edittext.String; %{1};
 write_input_parameters(filename,'w', handles.martensite, handles.austenite);
 
 % write lath solutions
-if handles.reduced_solutions.solutions_available
+if isempty(handles.reduced_solutions.array) % ~handles.reduced_solutions.solutions_available
+    updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
+else
     %
     if isfield(handles,'reduced_solutions')
         write_calc_specs_laths(filename, 'a',     handles.martensite, handles.reduced_solutions);
@@ -402,9 +405,6 @@ if handles.reduced_solutions.solutions_available
         write_calc_specs_laths(filename, 'a',     handles.martensite);
         write_lath_solutions(filename, 'a', handles.martensite);
     end
-    %
-else
-    updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
 end % end if solutions_available = true
 
 % write optimized block solutions from lath solutions

@@ -84,7 +84,14 @@ for im = 1:size(martensite.mirror_planes,1) % number of considered mirror planes
                 F = 0.5*( R*S1 + inverse(R)*S_mirror ) * martensite.U; % composite block deformations, matrix multiplication is distributive
                 
                 % get new results
+                %try
                 [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
+                %catch
+                %    S1
+                %    R
+                %    F
+                %    g
+                %end
                 
                 %% check if solution has been found or how it changed if its not sufficient
                 [ is_possible_solution , lambda2_smaller1_new] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
@@ -161,7 +168,7 @@ end % end of loop over considered mirror planes in martensite
 
 if isol > 0 
 disp(['number of potential solutions found = ', num2str(isol)])
-solutions.solutions_available = 1;
+% solutions.solutions_available = 1;
 end
 
 end

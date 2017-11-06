@@ -1,5 +1,7 @@
 function [det_eq, grad_det] = det_grad_sym(F1, F2, x, U)
 %
+% x = fmincon(@myfun,x0,A,b)
+        
 syms FC(y)
 FC(y) = y * F1  +  (1.-y) * F2
 

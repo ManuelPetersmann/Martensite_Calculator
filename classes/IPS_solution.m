@@ -8,6 +8,7 @@ classdef IPS_solution
         % PET 10.10.17: replaced 'id' and 'eps_ips' wit lambda_1 and lambda_2,
         % made 'eps_ips' = sqrt(lambda_3) - sqrt(lambda_1) (or sqrt respectively
         % depending on convention) dependent property 
+
         lambda_1; % smallest eigenvalue (deformation)
         %lambda_2 = 1 !-> IPS
         lambda_3; % largest  eigenvalue (deformation)
@@ -21,6 +22,7 @@ classdef IPS_solution
         added_props; % PET: 19.10.17 | = containers.Map();
         id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6... and for block solutions
         % could then be incremented in the constructor...
+        %Bain;
     end
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
@@ -47,6 +49,19 @@ classdef IPS_solution
             if isempty(varargin)
                 return; % no argument constructor
             end
+            %
+%             % used in subclass Composite_solution --> both solutions for
+%             % one block composite solution object
+%             if nargin == 4 % {lath_sol_pair, Bain, tolerance}
+%                 obj.F1 = varargin{1}(1).ST;
+%                 obj.F2  = varargin{1}(2).ST;
+%                 [obj.lambda_1, obj.lambda_3, d1, d2, h1, h2, Q1, Q2] = rank_one(obj.F1, obj.F2, varargin{3} );
+%                 obj.d = [d1; d2];
+%                 obj.h = [h1; h2];
+%                 obj.LT(:,:,1) = Q1*varargin{2};
+%                 obj.LT(:,:,2) = Q2*varargin{2};
+%                 % 
+%             end
             %
             if nargin == 8 % constructor from solution arguments
                 %

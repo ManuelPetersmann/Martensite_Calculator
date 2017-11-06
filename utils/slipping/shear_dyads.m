@@ -30,10 +30,10 @@ end
 
 % norm vectors and assemble slip systems
 for jj = 1:size(ds,1)
-    if ~miller_dyads
-        S(:,:,jj) = ( ds(jj,:) / norm(ds(jj,:)) )' * ( ns(jj,:) / norm(ns(jj,:)) );
-    else
+    if miller_dyads
         S(:,:,jj)  = (ds(jj,:)' * ns(jj,:) );
+    else
+        S(:,:,jj) = ( ds(jj,:) / norm(ds(jj,:)) )' * ( ns(jj,:) / norm(ns(jj,:)) );
     end
 end
 

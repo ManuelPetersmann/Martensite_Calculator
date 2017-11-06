@@ -3,7 +3,7 @@ classdef Slip_solution < IPS_solution
     % class for the used slip-system(s) to modify a stretch tensor to yield an IPS
     % variable amounts of slip systems possible
     
-    properties (Access = public)
+    properties %(Access = public)
         eps_s; % shear magnitudes of normed shear dyads S
         shear_direction; % slip directions of shears (miller indizes)
         slip_normal_plane_vec; % slip plane normals of glide system (miller indizes)

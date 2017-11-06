@@ -5,7 +5,7 @@ classdef Solution_array
     
     properties
         array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
-        solutions_available = false;
+        %solutions_available = false; use  isempty(obj.array) instead
         %
         calculation_method; % a string specifying the method to trim the middle eigenvalue to one
         slip_combinations; % nr of possible slip combinations nchoosek, n... total nr of slip systems,
@@ -26,8 +26,23 @@ classdef Solution_array
             %
             foundnr = 0; % counter for how many matches are found for the construction of constrained solutions
              if nargin > 0 % varargin = { 1-Type of array entry object }
-                 % initalize array type e.g. IPS_solutions -or-> Slip_solution
+                 % COPY CONSTRUCTOR for BLOCKs - just used with one input argument
+                 % copies everything execpt - array property
+                 if isprop(varargin{1},'array')                         
+                     props_to_copy = properties( varargin{1} );
+                     for i=1:length( props_to_copy )
+                         if ~strcmp(props_to_copy{i},'array')
+                             obj.(props_to_copy{i}) = varargin{1}.(props_to_copy{i});
+                         end
+                     end
+                 end
+                 %
+                 if isprop(varargin{1},'F1')                
+                 % PET 3.11.17: initialization of array type e.g.
+                 % IPS_solutions -or Slip_solution - It is however better to do this assignment
+                 % directly in the middle eigenvalue modification function!
                  obj.array = varargin{1}; % here varargin{1} should be the object_type of class property array
+                 end
              end
             %
             if nargin > 4 % PET. 19.10.17
@@ -46,7 +61,7 @@ classdef Solution_array
                     obj.cryst_fams = varargin{2}.cryst_fams;
                 end
                 
-                if ~varargin{2}.solutions_available
+                if isempty(varargin{2}.array) % ~varargin{2}.solutions_available
                     error('Empty solutions array given as input for reduction - think about that...');
                 end
             end
@@ -144,10 +159,10 @@ classdef Solution_array
                 % after reduction of solutions check if there is at least one non-empty entry in object
                 if (size( obj.array, 2)==1) && isempty(obj.array(1).F1)
                     disp('No Solution fullfilling specified criteria');
-                    obj.solutions_available = false;
+                %    obj.solutions_available = false;
                 else
                     disp(['Solutions reduced to : ' , num2str(length(obj.array))] );
-                    obj.solutions_available = true;
+                %    obj.solutions_available = true;
                 end
             end
         end
@@ -156,7 +171,7 @@ classdef Solution_array
         %% Sort
         function [obj,idx]= sort(obj, prop_name)
             %
-            if ~obj.solutions_available
+            if isempty(obj.array) %~obj.solutions_available
                 error('Empty solutions array cannot be sorted');
             end
             %
@@ -176,8 +191,9 @@ classdef Solution_array
                         error('Solutions cannot be sorted for selection since it is not specified in the selection criteria!');
                     end
                 end
-                [~,idx] = sort( prop_array, 1 );
+%                [~,idx] = sort( prop_array, 1 );
             end
+            [~,idx] = sort( prop_array, 1 );
             obj.array = obj.array(idx);
             display(['Solutions sorted in ascending order for property: ' , prop_name ]);
             obj.sorted_after = prop_name;
