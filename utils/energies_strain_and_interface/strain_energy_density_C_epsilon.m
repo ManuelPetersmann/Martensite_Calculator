@@ -15,11 +15,12 @@ for i = 1:3
     for j = 1:3
         for k = 1:3
             for l = 1:3
-                SENER = SENER + 0.5 * C(i,j,k,l) * epsilon(i,j) * epsilon(k,l);
+                SENER = SENER + C(i,j,k,l) * epsilon(i,j) * epsilon(k,l);
             end
         end
     end
 end
+SENER = SENER *0.5;
 
 
 end

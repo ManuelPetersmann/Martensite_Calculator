@@ -106,6 +106,7 @@ if ~isempty(handles.martensite.IPS_solutions.array) %solutions_available
             %
             guidata(hObject, handles);
             %handles.reduced_solutions.cryst_fams.keys
+            
         end % end for
         
 %         red_sols.array(1).F1

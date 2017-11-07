@@ -85,6 +85,9 @@ for i=1:length( block_sols.array )
 end
 
 
+% block_solutions.array(1).lath_solution_pair(1)
+% block_solutions.array(1).lath_solution_pair(2)
+
 fclose(fid);
 
 

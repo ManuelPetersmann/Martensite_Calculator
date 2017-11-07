@@ -91,11 +91,13 @@ classdef IPS_solution
         end
         %
         function frobgl = get.frob_green_lagrange(obj)
-            frobgl = trace(obj.ST' * obj.ST - eye(3));        
+            gl = obj.ST' * obj.ST - eye(3);
+            frobgl = trace(gl'*gl);        
         end
         %
         function frobdis = get.frob_displacement_grad(obj)
-            frobdis = trace(obj.ST - eye(3));
+            dis = obj.ST - eye(3);
+            frobdis = trace(dis' * dis);
         end
         %
         function vec4 = get.axis_angle_rotvec_inclusion( obj )

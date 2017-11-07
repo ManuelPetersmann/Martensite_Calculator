@@ -13,6 +13,7 @@ function [ full, voigt ] = assembleElasticTensor( )
 % this matrix is symmetric so there are at most 21 independent elastic
 % constants
 
+if nargin < 1
 % Sehitoglu, Wang - Niti modulus dilemma
 v11 = 141.e-9  % 2.54e-7
 v12 = 74.e-9   % 1.04e-7
@@ -149,7 +150,7 @@ v66 = 67.e-9   %5e-9
 % v46 = input( 'Enter the value for c12 = C1122':    )
 % v56 = input( 'Enter the value for c12 = C1122':    )
 % v66 = input( 'Enter the value for c12 = C1122':    )
-
+end
 
 M = zeros(3,3,3,3);
 

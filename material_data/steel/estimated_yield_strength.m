@@ -1,6 +1,6 @@
 function sigma_yield = estimated_yield_strength( T_iso, wC, wSi, wCr, wMo, wN  )
 % rough estimation of yield strength based on some element contents and 
-% isothermal transformation temperature in [°C] due to: 
+% isothermal transformation temperature in [degree C] due to: 
 % Singh, Bhadeshia MSE-A 1998 - Estimation of bainite 
 % plate-thickness in low-alloy steels
 

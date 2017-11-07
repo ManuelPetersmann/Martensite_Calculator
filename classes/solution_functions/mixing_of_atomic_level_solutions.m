@@ -1,4 +1,4 @@
-function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol) % outarg - block_solutions tol) 
+function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol, block_hp_cp_aust_tol, delta_F_min) % outarg - block_solutions tol) 
 % call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, tol)  % opt_func  
 %
 % lath_solutions ... array of lath solutions for building blocks
@@ -22,12 +22,11 @@ function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, bloc
 % now i optimize for everything simultaneously, opt_func)  
 
 if nargin < 4
-    delta_F_min = 0.5
-    lambda2_tol = 3.e-3 % doesnt matter if 0.001 or 0.0001 !!! important!
-    % some more solutions is 0.003
-    cof_tol = 1.e-3
-    det_tol = 1.e-3
-    block_hp_cp_aust_tol = 10.; % degree - even if i just set this only to 10° most solutions fall out 
+    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+    lambda2_tol_laths = 1.e-4
+    cof_tol = 1.e-4
+    det_tol = 1.e-4
+    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out 
 end
 
     function lambda2_mix = mix_y2( x, F1, F2)
@@ -66,8 +65,21 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             continue
         end
         
-        %% check deviation of lambda2
-        if (mix_y2(x,F1,F2) - 1)  >  lambda2_tol  
+        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
+        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
+        % I found that automatically both h's should be within the tolerance
+        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
+             (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) > block_hp_cp_aust_tol) )
+            continue
+        end
+        
+          %% RANK one between laths
+        if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
+            continue
+        end
+
+        %% RANK one between block-aust - check deviation of lambda2
+        if (mix_y2(x,F1,F2) - 1)  > lambda2_tol_block_aust
             continue
         end
         
@@ -77,13 +89,6 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 %         if sum(sum(abs(F1 - F2 ))) < delta_F % alternatively frob distance
 %             continue
 %         end
-
-        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
-        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol, false); % last 'false' is that no lambda_2_warning occurs
-        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) || ... % should here be an && ?
-             (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) > block_hp_cp_aust_tol) )
-            continue
-        end
         
         
         % do not mix variants not fullfilling predefined criteria
@@ -121,6 +126,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
  
         block_sols = block_sols + 1;            
         block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
+        
         
 %         if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
 %         %    block_solutions.array( block_sols ).tolerances('theta_intersec_cpdir')    = theta_intersec_cpdir;

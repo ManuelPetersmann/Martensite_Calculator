@@ -390,13 +390,12 @@ guidata(hObject, handles);
 %% --- Executes on button press in write_lath_solutions_pushbutton.
 function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
 
-filename = handles.filename_results_edittext.String; %{1};
-write_input_parameters(filename,'w', handles.martensite, handles.austenite);
-
 % write lath solutions
 if isempty(handles.reduced_solutions.array) % ~handles.reduced_solutions.solutions_available
     updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
 else
+    filename = handles.filename_results_edittext.String; %{1};
+    write_input_parameters(filename,'w', handles.martensite, handles.austenite);
     %
     if isfield(handles,'reduced_solutions')
         write_calc_specs_laths(filename, 'a',     handles.martensite, handles.reduced_solutions);

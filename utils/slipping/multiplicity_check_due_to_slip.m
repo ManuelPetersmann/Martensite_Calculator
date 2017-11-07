@@ -1,4 +1,4 @@
-function red_sols = multiplicity_check_due_to_slip(lath_solutions, d1_tol) 
+function red_sols = multiplicity_check_due_to_slip(lath_solutions, angle_tol, def_tol) %d1_tol) 
 % call: multiplicity_check_due_to_slip(lath_solutions, d1_tol)
 %
 % Considering that the two F could be equal since the slip
@@ -20,6 +20,8 @@ function red_sols = multiplicity_check_due_to_slip(lath_solutions, d1_tol)
 
 if nargin < 2
     d1_tol = 1.e-2;
+    angle_tol = 2.; % 2 degree
+    def_tol = 1.; % percent of relative stretch - for now 1 percent
 end
 
 sols = lath_solutions.array;
@@ -33,14 +35,14 @@ start_length = size(lath_solutions.array,2);
 %     cannot be set withing the for loop - set only once...
 is1 = 0;
 while is1 < size(sols,2) % <= size(sols,2) -1
-    is1 = is1 + 1
+    is1 = is1 + 1;
     s1 = sols(is1);
     multiplicity = 1;
     % if one shear magnitude is zero - for now it only works for two slips!
     % check if first shear just has one active system
-    zero_shears1 = find( s1.eps_s < 1.e-6 ,1);
+    zero_shears1 = find( s1.eps_s < 1.e-4 ,1);
     if ~isempty(zero_shears1)
-        bigger_zero1 = find(s1.eps_s > 1.e-6,1);
+        bigger_zero1 = find(s1.eps_s > 1.e-4,1);
         sl1 = s1.slip_normal_plane_vec( bigger_zero1 , :);
         sd1 = s1.shear_direction(       bigger_zero1 , :);
     end
@@ -50,10 +52,25 @@ while is1 < size(sols,2) % <= size(sols,2) -1
         s2 = sols(is2);
         
         % if similar / equal within tolerance
-        if sum(sum(abs(s1.F1 - s2.F1 ))) < d1_tol % alternatively not F1 but ST!
-            
+        % NOTE that if the F1's are different the ST's could nevertheless
+        % be the same, but this case should be distinguished!!!!
+%         if sum(sum(abs(s1.F1 - s2.F1 ))) < d1_tol % alternatively ST
+%       if sum(sum(abs( inverse(s1.ST)*s2.ST ))) < d1_tol
+        nf11 = norm(s1.F1(:,1));
+        nf12 = norm(s1.F1(:,2));
+        nf13 = norm(s1.F1(:,3));
+        nf21 = norm(s2.F1(:,1));
+        nf22 = norm(s2.F1(:,2));
+        nf23 = norm(s2.F1(:,3));
+        if (acosd( dot(s1.F1(:,1) / nf11 , s2.F1(:,1) / nf21 ) ) < angle_tol   && ...
+            acosd( dot(s1.F1(:,2) / nf12 , s2.F1(:,2) / nf22 ) ) < angle_tol   && ...
+            acosd( dot(s1.F1(:,3) / nf13 , s2.F1(:,3) / nf23 ) ) < angle_tol   && ...
+            nf11 - nf21 < (nf11 / 100 )*def_tol   && ...
+            nf12 - nf22 < (nf12 / 100 )*def_tol   && ...
+            nf13 - nf23 < (nf13 / 100 )*def_tol )   
+           
             % check if second shear just has one active system
-            zero_shears2 = find( s2.eps_s < 1.e-6, 1);
+            zero_shears2 = find( s2.eps_s < 1.e-4, 1);
             
             if ( isempty(zero_shears1)   &&   isempty(zero_shears2) )
                 % if matrix difference small and other slip systems, both
@@ -75,7 +92,7 @@ while is1 < size(sols,2) % <= size(sols,2) -1
                 % here it is dealt with cases where one or two shears are zero
                 if (  ~isempty(zero_shears2)  &&  ~isempty(zero_shears1)  ) % is there a shear with zero magnitude?
                     % in this case entries get only removed
-                    bigger_zero2 = find(s2.eps_s > 1.e-6, 1);
+                    bigger_zero2 = find(s2.eps_s > 1.e-4, 1);
                     sl2 = s2.slip_normal_plane_vec(bigger_zero2,:);
                     sd2 = s2.shear_direction(      bigger_zero2,:);
                     % first shear has just one active slip and second has also

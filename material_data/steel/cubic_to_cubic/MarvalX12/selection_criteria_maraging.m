@@ -24,7 +24,7 @@ g_min = 5.; %  % could also directly be specified in mod_eigenvalue function e.g
 eps_max = 0.6; %1 0.3; % 100.; 
 
 % I put this value to 2 considering that in bcc there is no close packed  plane
-theta_CPPs_max = 2.; %1.; % 90.;  maximum misorientation angle of CP relation - due to Qi,Khachaturyan 2013
+theta_CPPs_max = 5.; %3.; %1.; % 90.;  maximum misorientation angle of CP relation - due to Qi,Khachaturyan 2013
 % misorientation-angle theta_p between the closed-packed planes (cpp) of alpha {110} and gamma {111} lattice
 
 % maximum misorientation angle of block habit-plane to {111}_gamma
@@ -36,7 +36,7 @@ theta_h_to_CPP = 20.; %10. % normally between 10 and 20 - see Maresca paper.;
 % these two are 5.25 apart - hence these tolerances
 % 'Kurdjumov Sachs directions [110]_aust || [111]_mart';
 % omega in Paper = theta_KS here; angle( [1 -1 0]_gamma, [1-10]_alpha )
-theta_KS_max = 5.; %3.5; % 10.;  had 6 here in last calculations
+theta_KS_max = 6.; % 5.; %3.5; % 10.;  had 6 here in last calculations
 
 %'Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
 % omega - 5.26 in Paper = theta_NW; angle( [1 -2 1], [1 0 -1] )

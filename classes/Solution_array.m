@@ -171,11 +171,12 @@ classdef Solution_array
         %% Sort
         function [obj,idx]= sort(obj, prop_name)
             %
-            if isempty(obj.array) %~obj.solutions_available
+            if isempty(obj.array) % ~obj.solutions_available
                 error('Empty solutions array cannot be sorted');
             end
             %
             prop_array = zeros(1,size( obj.array ,2) );
+            %% TRY WITHOUT FOR LOOP!!! -see Solution_array_composite class
             for i = 1: size( obj.array ,2)
                 % value to sort for must be extracted via a loop first
                 if isprop(obj.array, prop_name)
