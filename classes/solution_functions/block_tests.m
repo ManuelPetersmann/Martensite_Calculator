@@ -14,10 +14,10 @@ function [block_sols, block_solutions] = block_tests(lath_solutions, block_solut
 % error that is made because the determinant is not invariant to addition)
 % In general the linear mixture rule is only valid in the case of
 % n->infinity (minor relations) see Bhattacharya - Microstructures of
-% martensties - p.131.
+% martensties - p.131.dö
 
 if nargin < 4
-    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+    lambda2_tol_block_aust = 1.e-3 % doesnrt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
     lambda2_tol_laths = 1.e-2
     cof_tol = 1.e-2
     det_tol = 1.e-2

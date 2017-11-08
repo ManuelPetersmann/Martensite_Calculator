@@ -37,8 +37,8 @@ If you use our code for your own research, we would be grateful if you cite it v
 Zebodo DOI
 ```
 @article{lath_mart_2017,
-	title={Blocky lath martensite: Theory, Experiment and Modelling},
-	author={Petersmann, Manuel and Ehlenbröker, Ulrich and Sannikov, Alexander and Antretter, Thomas and Mahnken, Rolf and Cailletaud, Georges},
+	title={Blocky lath martensite: Theory, experiment and modelling},
+	author={Petersmann, Manuel and Ehlenbr\"{o}ker, Ulrich and Sannikov, Alexander and Antretter, Thomas and Mahnken, Rolf and Cailletaud, Georges},
 	journal={to be submitted},
 	year={2017}
 }
