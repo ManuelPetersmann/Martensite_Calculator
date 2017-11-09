@@ -1,4 +1,4 @@
-function [block_sols, block_solutions] = block_tests(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol) % outarg - block_solutions
+ffunction [block_sols, block_solutions] = block_tests(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol) % outarg - block_solutions
 % call: block_tests(lath_solutions, block_solutions,tol)
 % function to investigate solution space of blocks
 %
@@ -79,12 +79,12 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         end
 %         
         %% second MINORS RULE
-%         cofFc = cofactor( Fc );
-%         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
-%         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % frob_distance(cofFc , cof_F_sum)
-%             neg_minors = neg_minors +1;
-%             continue
-%         end
+        cofFc = cofactor( Fc );
+        cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
+        if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % frob_distance(cofFc , cof_F_sum)
+            neg_minors = neg_minors +1;
+            continue
+        end
         
         
         [~,R] = polardecomposition( Fc );
@@ -99,18 +99,18 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 
                 
 %         %% RANK one between block-aust -check deviation of lambda2
-%         if (mix_y2(x,F1,F2) - 1)  >  lambda2_tol_block_aust
-%             neg_lamda2_block_aust = neg_lamda2_block_aust +1;
-%             % mix_y2(x,F1,F2) - 1
-%             continue
-%         end
+        if (mix_y2(x,F1,F2) - 1)  >  lambda2_tol_block_aust
+            neg_lamda2_block_aust = neg_lamda2_block_aust +1;
+            % mix_y2(x,F1,F2) - 1
+            continue
+        end
         
         
         %% RANK one between laths
-        if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
-            neg_lamda2_laths = neg_lamda2_laths + 1;
-            continue
-        end
+%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
+%             neg_lamda2_laths = neg_lamda2_laths + 1;
+%             continue
+%         end
         
         %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs

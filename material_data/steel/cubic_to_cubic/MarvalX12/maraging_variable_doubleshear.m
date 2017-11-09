@@ -8,7 +8,7 @@ Bain_and_Correspondence;
 
 count_directions_extra = true;
 
-%Code ab hier in GUI Code einbauen!
+% Code ab hier in GUI Code einbauen!
 
 
 %% assemble slip systems in alpha
