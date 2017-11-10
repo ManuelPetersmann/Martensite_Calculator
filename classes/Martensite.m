@@ -11,6 +11,7 @@ classdef Martensite < Base
         % known figure...
         %R % rotational part of the
         IPS_solutions; % = Solution_array();
+        ILS_solutions;
         considered_plasticity; % 1-only mart slip systems, 2-only austenite slip systems, 3-slip systems of both lattices
     end
     properties (Dependent)
