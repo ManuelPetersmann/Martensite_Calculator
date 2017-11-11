@@ -16,18 +16,21 @@ end
 %% optimization parameters
 res_old = norm( (BS1S2 - I)*inv_vec );
 search_direction = 1.;
-alpha = deg2rad(1.);
-angle_increment = deg2rad(1.);
+alpha = deg2rad(50.);
+dalpha = deg2rad(1.);
 
 %% determine sign (search direction) of alpha and wheter a rotation can improve the ILS characteristics in the first place 
-R = axis_angle_to_rotmat( alpha, inv_vec );
-new_vec = (R*BS1S2 - I)*inv_vec;
-res_new = norm(new_vec);
+R_test = axis_angle_to_rotmat( alpha, inv_vec );
+new_vec = (R_test*BS1S2 - I)*inv_vec;
+res_new = norm(new_vec)
 if res_new > res_old
     search_direction = -1;
-    R = axis_angle_to_rotmat( alpha, inv_vec );
-    new_vec = (R*BS1S2 - I)*inv_vec;
-    res_new = norm(new_vec);
+    dalpha = search_direction * angle_increment;
+    % reverse rotation
+    alpha = search_direction*alpha;
+    R_test = axis_angle_to_rotmat( alpha, inv_vec );
+    new_vec = (R_test*BS1S2 - I)*inv_vec;
+    res_new = norm(new_vec)
     if res_new > res_old
         error('a rotation about the specified axis cannot improve the overall deformation to be an Invariant Line strain (ILS)')
     else
@@ -38,10 +41,9 @@ else
     delta_res = res_old - res_new
     res_old = res_new;
 end
-dalpha = search_direction * angle_increment;
+
 
 %%
-
 counter = 0;
 while (delta_res > 1.e-6)  &&  (res_new > eps) && (counter < 1000)  % same eps for tolerance to end iteration and goal! 
     

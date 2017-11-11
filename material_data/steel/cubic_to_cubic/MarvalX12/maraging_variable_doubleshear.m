@@ -6,8 +6,6 @@ a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check
 
 Bain_and_Correspondence;
 
-count_directions_extra = true;
-
 % Code ab hier in GUI Code einbauen!
 
 
@@ -20,6 +18,9 @@ plane_families_bcc =     [ [1 1 0]
                            [1 1 2] ];   % must be written with linebreak or ";" between vectors!                     
 direction_families_bcc = [ [1 1 1]
                            [1 1 0] ];
+                       
+count_directions_extra = true;
+                       
 % find all possible combination (including different shear directions)
 [martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
 %[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
