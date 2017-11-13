@@ -131,6 +131,7 @@ classdef Solution_array
                     
                     
                     if nargin == 7
+                        % both if and else do the same just with another syntax!
                         if isprop(varargin{2}.array(i),varargin{7})
                             % misorientation between a crystallographic family
                             % (cp dir or cpp to habit plane or deformation

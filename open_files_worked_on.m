@@ -1,7 +1,9 @@
 edit invariant_line_strain.m
 edit test.m
-edit lol.m
-edit plot_quadratic_surface.m 
+edit block_tests.m
+edit numerical_parameters.m
+%edit plot_quadratic_surface.m 
+%edit lol.m
 % edit selection_criteria_maraging.m
 % edit maraging_variable_doubleshear.m
 %edit block_tests.m

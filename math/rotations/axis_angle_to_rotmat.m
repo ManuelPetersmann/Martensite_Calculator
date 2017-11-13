@@ -1,7 +1,7 @@
 function [ R ] = axis_angle_to_rotmat( alpha, n )
 % call as: rotmat_to_axis_angle( alpha, n )
 % v_in - (row) vector to rotate
-% alpha - angle to rotate in ° - degree
+% alpha - angle to rotate in degree!
 % n - around which should be rotated (right-handed system, positive sense)
 
 if size(n'*n) ~= [3,3]

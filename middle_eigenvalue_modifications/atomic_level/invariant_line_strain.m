@@ -38,67 +38,66 @@ isol = 0;
 for is1 = 1:(size(ds,1)-1) % loop for first slip system
     for is2 = (is1+1):size(ds,1) % loop for second one              
 
-        delta_eps = delta_eps_initial;
-        eps1 = eps_initial;
-        eps2 = eps_initial;
-
-        is_possible_solution = false;
-        S_accummulated = I;
-
-        while ( ~is_possible_solution && (eps1 < eps_max) && (eps2 < eps_max) )  
-            % if the solution for g is very high or low respectively, do not consider it
-            if ((eps1 < eps_initial) || (eps2 < eps_initial))
-                error('this should not happen - fix code...')
-            end
-            
-            S1 =  S_accummulated * (I + delta_eps* S(:,:,is1) );  
-            F = martensite.U * S1;
-            [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
-            [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
-  
-            
-            if delta_eps < tolerance h
-                break
-            end          
-            % find g (shear magnitude - m in Paper Qi, Khachaturyan 2014)
-            % within specified limits (g_min, g_max)
-            % e.g. g = 10.0 : 0.1 : 50.0  % maximum shear all 10 layers a step minmum all 50
-            % negative g values are not necessary since mirror symmetry
-            % is assumed and the solutions are already entailed
-            
-        end % end while
+        u = cross( ns(is1,1:3), ns(is2,1:3) );
+        h = cross( ds(is1,1:3), ds(is2,1:3) );
+        
+%         delta_eps = delta_eps_initial;
+%         eps1 = eps_initial;
+%         eps2 = eps_initial;
+% 
+%         is_possible_solution = false;
+%         S_accummulated = I;
+% 
+%         while ( ~is_possible_solution && (eps1 < eps_max) && (eps2 < eps_max) )  
+%             % if the solution for g is very high or low respectively, do not consider it
+%             if ((eps1 < eps_initial) || (eps2 < eps_initial))
+%                 error('this should not happen - fix code...')
+%             end
+%             
+%             S1 =  S_accummulated * (I + delta_eps* S(:,:,is1) );  
+%             F = martensite.U * S1;
+%             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
+%             [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
+%   
+%             
+%             if delta_eps < tolerance h
+%                 break
+%             end          
+% 
+%             
+%         end % end while
  
-        %%
-        if is_possible_solution
-            %% calculate solution
-            % calculate invariant plane vector n_i etc.
-            [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
-            % Note habit plane solutions come in pairs!
-            
-            isol = isol + 2; % increase counter for number of solutions found
-            if mod(isol,500)==0
-                isol
-                %pause(1);
-            end
-            eps_s = [eps1; eps2];
-            d = [ds(is1,:); ds(is2,:)];
-            n = [ns(is1,:); ns(is2,:)];
-            
-            % Create Slip_solution objects and append them to object array;
-            % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2            
-            solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
-            solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
-            % reduced contructor could look like
-            %  solutions.array( isol-1 ) =  Slip_solution(F, I, martensite.U, eps_s, d, n );
-            solutions.array( isol-1 ).id = isol-1;
-            solutions.array( isol ).id = isol;
-        end
+%         %%
+%         if is_possible_solution
+%             %% calculate solution
+%             % calculate invariant plane vector n_i etc.
+%             [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+%             % Note habit plane solutions come in pairs!
+%             
+%             isol = isol + 2; % increase counter for number of solutions found
+%             if mod(isol,500)==0
+%                 isol
+%                 %pause(1);
+%             end
+%             eps_s = [eps1; eps2];
+%             d = [ds(is1,:); ds(is2,:)];
+%             n = [ns(is1,:); ns(is2,:)];
+%             
+%             % Create Slip_solution objects and append them to object array;
+%             % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2            
+%             solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
+%             solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
+%             % reduced contructor could look like
+%             %  solutions.array( isol-1 ) =  Slip_solution(F, I, martensite.U, eps_s, d, n );
+%             solutions.array( isol-1 ).id = isol-1;
+%             solutions.array( isol ).id = isol;
+%         end
         
     end % end of loop for second slip system
 end % end of loop for first slip system
 
-if isol > 0 
-disp(['number of potential solutions found = ', num2str(isol)])
+% if isol > 0 
+% disp(['number of potential solutions found = ', num2str(isol)])
 % solutions.solutions_available = 1;
 end
 

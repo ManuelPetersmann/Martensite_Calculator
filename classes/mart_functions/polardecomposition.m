@@ -1,4 +1,4 @@
-function[U,R] = polardecomposition( F )
+function [U,R] = polardecomposition( F )
 % call: [U,R] = polardecomposition( F )
 % calculates the polar decomposition of a matrix into its rotational part R
 % and its symmetric positive definite part U (pure-distrotion, Bain-strain)

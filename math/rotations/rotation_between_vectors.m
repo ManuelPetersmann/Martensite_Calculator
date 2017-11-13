@@ -9,7 +9,7 @@ vec2 = vec2 / norm(vec2);
 ang = acosd( dot ( vec1, vec2 ) );
 if abs(ang) < eps
     %error('vectors are parallel')
-    disp('Note: vectors are parallel - no rotation calculated');
+    %disp('Note: vectors are parallel - no rotation calculated');
     R = eye(3);
     return
 end

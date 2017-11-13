@@ -6,7 +6,7 @@ function [screw_syst] = equivalent_shear_screwdisloc(s,m)
 
 b = cross(s,m);
 
-screw_syst = [mat2str(b) ,' ', mat2str(m)];
+screw_syst = [b,m];
 
 
 
