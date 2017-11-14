@@ -1,4 +1,4 @@
-function bool = is_rank_one_connected(F,G,tolerance)
+function [bool,y2]  = is_rank_one_connected(F,G,tolerance)
 
 bool = true;
 

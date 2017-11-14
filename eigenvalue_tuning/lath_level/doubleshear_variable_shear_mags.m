@@ -5,7 +5,7 @@ function solutions = doubleshear_variable_shear_mags(martensite, austenite) % [s
 % returns object array of solutions for IPSs.
 
 % specify type of solution array
-martensite.IPS_solutions.array = Slip_solution();
+martensite.IPS_solutions.array = IPS_solution();
 % set calcuation method property in solution_array object
 calculation_method = 'variable doubleshear incremental optimization lath level';
 martensite.IPS_solutions.calculation_method = calculation_method;  
@@ -117,10 +117,14 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             d = [ds(is1,:); ds(is2,:)];
             n = [ns(is1,:); ns(is2,:)];
             
-            % Create Slip_solution objects and append them to object array;
+            % PET 14.11.17 - Slip_solution -> Slip_systems and made this
+            % class independent from other classes
             % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2            
-            solutions.array( isol-1 ) =  Slip_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U, eps_s, d, n );
-            solutions.array( isol )   =  Slip_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U, eps_s, d ,n );
+            solutions.array( isol-1 ) =  IPS_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U);
+            solutions.array( isol-1 ).slip = Slip_systems( eps_s, d, n );
+            solutions.array( isol )   =  IPS_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U);
+            solutions.array( isol ).slip = Slip_systems( eps_s, d, n );
+            
             % reduced contructor could look like
             %  solutions.array( isol-1 ) =  Slip_solution(F, I, martensite.U, eps_s, d, n );
             solutions.array( isol-1 ).id = isol-1;

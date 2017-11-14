@@ -37,10 +37,10 @@ ax.YLim = [0,5000];
                 end
             end
         else
-            if isprop( all_sols.array(1), prop_string)
+            if isprop( all_sols.array(1), prop_string) || isprop( all_sols.array(1).slip, prop_string)
                 for j = 1 : size(all_sols.array, 2)
                     if strcmp(prop_string,'stepwidth') % two values - sort for the smaller one 1/stepwidth \propto eps_s (plastic shear magnitude)
-                        if  min(all_sols.array(j).(prop_string)) < maxi
+                        if  min(all_sols.array(j).slip.(prop_string)) < maxi
                             amount = amount+1;
                         end
                     else

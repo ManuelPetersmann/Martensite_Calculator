@@ -89,7 +89,7 @@ classdef Solution_array
                     if strcmp( varargin{5}, 'min')
                         % varargin{2}.array(i).(varargin{3})
                         % varargin{4}
-                        if varargin{2}.array(i).(varargin{3}) > varargin{4} % = minimal tolerated 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
+                        if varargin{2}.array(i).slip.(varargin{3}) > varargin{4} % = minimal tolerated 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
                         end

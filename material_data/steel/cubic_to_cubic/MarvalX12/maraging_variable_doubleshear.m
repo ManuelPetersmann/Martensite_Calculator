@@ -30,7 +30,7 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 [austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
-martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust slip systems
+martensite.considered_plasticity = 1; % 1-mart, 2-aust, 3-both mart and aust slip systems
 
 
 
@@ -55,7 +55,7 @@ martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenit
 selection_criteria_maraging;
 
 % not necessary for laths only for blocks!
-det_sols = Solution_array( Slip_solution, martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
+det_sols = Solution_array( IPS_solution, martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
 display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
 
@@ -64,21 +64,21 @@ display(['with criterion tolerable volume_change_from_averaging = ',num2str(delt
 %% ESSENTIAL SELECTION CRITERIA
 
 % Habit plane deviation from experimental observations - theta_h_to_CPP = 20.; %10. % normally between 10 and 20 - see Maresca paper.;  
-tolerable_HP_deviations = Solution_array( Slip_solution, det_sols, cpps_gamma, ...
+tolerable_HP_deviations = Solution_array( IPS_solution, det_sols, cpps_gamma, ...
     theta_h_to_CPP, 'theta_h_to_CPP', 'closest_to_h', 'h'); 
 display(['with criterion del_habitplane_111gamma_max = ',num2str(theta_h_to_CPP)]);
 % alternatively {557}_gamma could be used here see Iwashita 2011
 
 
 %% 'misorientation of CPP martensite to austenite - planes of OR';
-tolerable_CPP_deviations = Solution_array( Slip_solution, tolerable_HP_deviations, cpps_gamma, theta_CPPs_max, ...
+tolerable_CPP_deviations = Solution_array( IPS_solution, tolerable_HP_deviations, cpps_gamma, theta_CPPs_max, ...
     'theta_CPPs', 'closest_to_cpp', 'cpps_gamma', true);
 display(['with criterion delta_CPPs_max = ',num2str(theta_CPPs_max)] );
   
 
 %% specify maximum misorientations of solutions to ideal OR directions 
 theta_KS_max = 10.; % 6.; 5.; %3.5; % 10.;  had 6 here in last calculations
-tolerable_KS_direction = Solution_array( Slip_solution, tolerable_CPP_deviations, KS, ...
+tolerable_KS_direction = Solution_array( IPS_solution, tolerable_CPP_deviations, KS, ...
     theta_KS_max, 'theta_KS_min', 'closest_cp_direction', 'KS', false );
 display(['with criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
 
@@ -91,24 +91,24 @@ display(['with criterion tolerable_KS_direction = ',num2str(theta_KS_max)] );
 %% invariant line crit
 % theta_max_ILSdir_to_h = 3.; %
 theta_max_ILSdir_to_h = 10.; % 3 reduced it to only 16 from 872 (last reduction step) with criteria from 27.10.17
-reduced_sols = Solution_array( Slip_solution, tolerable_KS_direction, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
+reduced_sols = Solution_array( IPS_solution, tolerable_KS_direction, austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS' ); 
 display(['with criterion maximum misorientation of preferred invariant line 110_aust to from invariant habit plane = ',num2str(theta_max_ILSdir_to_h)] );
 
 
 %% reduce solutions to ones with g < 20. i.e. at least 20 planes between dislocations
 % average number of atom layers before a step due to the (continuum) applied shear occurs (LIS)
 g_min = 5.; %7.; % 10 % lower bound in numerical_parameters file is 5.!
-g_min_sols = Solution_array( Slip_solution, reduced_sols, 'stepwidth', g_min, 'min'); 
+g_min_sols = Solution_array( IPS_solution, reduced_sols, 'stepwidth', g_min, 'min'); 
 display(['with criterion g_min = ',num2str(g_min)] );
 
 
 %% reduce solutions to ones with eps < something 
 eps_max = 0.9;
-eps_max_solutions = Solution_array( Slip_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
+eps_max_solutions = Solution_array( IPS_solution, g_min_sols, 'eps_ips', eps_max, 'max' ); 
 display(['with criterion eps_max = ',num2str(eps_max)] );
 
 %% NW 
-% tolerable_NW_direction = Solution_array( Slip_solution, tolerable_KS_direction, NW, theta_NW_max, ...
+% tolerable_NW_direction = Solution_array( IPS_solution, tolerable_KS_direction, NW, theta_NW_max, ...
 %     'theta_NW_min', 'closest_NW', 'NW', false);
 % display(['with criterion tolerable delta_CPP_max = ',num2str(theta_CPPs_max)] );
 
@@ -185,6 +185,12 @@ block_tests(glc, block_solutions, martensite.U); %, lambda2_tol, cof_tol, det_to
 % + crit g_min > 10  --> 64 entries, 0 solutions
 
 block_solutions = mixing_of_atomic_level_solutions(glc, block_solutions, martensite.U);
+
+
+%% ILS approach
+martensite.ILS_solutions = invariant_line_strain(martensite, austenite);
+
+[block_sols, block_solutions] = deformation_mixture_tests(lath_solutions, block_solutions, U,
 
 
 

@@ -1,5 +1,5 @@
 classdef IPS_solution 
-    % IPS_solution - Baseclass for solutions of the IPS equation: F1 - F2 = eps0 * (d \dyad h)
+    % IPS_solution - Baseclass for solutions of the IPS equation: Q*F1 - F2 = eps0 * (d \dyad h)
     
     properties (Access = public)
         F1; % F1=B*S2*S1 for double shear or 0.5*( R*S + inverse(R)*S_mirror ) * B as in Qi2013
@@ -13,9 +13,10 @@ classdef IPS_solution
         %lambda_2 = 1 !-> IPS
         lambda_3; % largest  eigenvalue (deformation)
         %
+        %% the only reason why the following properties are not dependent is because otherwise the function rank_one would have to be called twice
         h; % normal vector to habit plane (unit vector)
         d; % shear direction of transformation (unit vector)
-        Q; % rotation matrix (for invariant planar match between domains of homogeneous deformation F and G
+        Q; % rotation matrix (for invariant planar match between domains of homogeneous deformation Q*F1 and F2
         LT; % calculation of Lattice-Transformation (A_L in Qi2014 Paper)
         %LT; % = RB = ...R von IPS condition
         %
@@ -23,6 +24,7 @@ classdef IPS_solution
         id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6... and for block solutions
         % could then be incremented in the constructor...
         %Bain;
+        slip; % Slip_systems()
     end
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
@@ -102,8 +104,8 @@ classdef IPS_solution
         %
         function vec4 = get.axis_angle_rotvec_inclusion( obj )
             [~,R] = polardecomposition( obj.ST );
-            vec4 = vrrotmat2vec( R );
-            vec4(4) = rad2deg( vec4(4) );
+            [angle, axis] = rotmat_to_axis_angle( R ); %vrrotmat2vec( R );
+            vec4 = cat(1,axis,angle);
         end
         %
 %         function smallest_eigenvector = get.e1( obj )

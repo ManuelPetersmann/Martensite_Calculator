@@ -1,4 +1,4 @@
-%function [block_sols, block_solutions] = block_tests(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol) % outarg - block_solutions
+function [block_sols, block_solutions] = deformation_mixture_tests(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol) % outarg - block_solutions
 % call: block_tests(lath_solutions, block_solutions,tol)
 % function to investigate solution space of blocks
 %
@@ -16,7 +16,7 @@
 % n->infinity (minor relations) see Bhattacharya - Microstructures of
 % martensties - p.131.dö
 
-%if nargin < 4
+if nargin < 4
     lambda2_tol_block_aust = 1.e-1 % doesnrt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
     lambda2_tol_laths = 1.e-2
     cof_tol = 1.e-5
@@ -24,12 +24,12 @@
     block_hp_cp_aust_tol = 3.; % degree - even if i just set this only to 10 most solutions fall out  
     %
     rot_angle_block = 3.
-%end
+end
 
 
 
-%d = det(U);
-detU = det( B3 );
+d = det(U);
+%detU = det( B3 );
 I = eye(3); % = austenite
 count = 0;
 block_sols = 0;
@@ -52,26 +52,28 @@ xi = linspace(0,1,10);
 
 
 % loop over slip system combinations
-% for is1 = 1: (size(lath_solutions.array,2)-1)
-%     for is2 = (is1+1): size(lath_solutions.array,2)
-%         sol1 = lath_solutions.array(is1);
-%         sol2 = lath_solutions.array(is2);    
-%         F1 = sol1.ST;
-%         F2 = sol2.ST;
+for is1 = 1: (size(lath_solutions.array,2)-1)
+    for is2 = (is1+1): size(lath_solutions.array,2)
+        sol1 = lath_solutions.array(is1);
+        sol2 = lath_solutions.array(is2);    
+        F1 = sol1.ST;
+        F2 = sol2.ST;
 
-for is1 = 1: (size(ILS_laths,3)-1)
-    for is2 = (is1+1): size(ILS_laths,3)
-        F1 = ILS_laths(:,:,is1);
-        F2 = ILS_laths(:,:,is2);
+% for is1 = 1: (size(solutions.array,2)-1)
+%     for is2 = (is1+1): size(solutions.array,2)
+%         F1 = solutions.array(is1).ST;
+%         F2 = solutions.array(is2).ST;
+
         count = count + 1;
         
-        x = 0.5;
-        Fc = linmix2(x,F1,F2);
+        %% never seems to be the case...
+        if solutions.array(is1).u ~= solutions.array(is2).u
+            F1
+            F2
+        end
         
-%         cofFc = cofactor( Fc );
-%         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
-%         sum(sum(abs(cofFc - cof_F_sum)))
-     
+        x = 0.5;
+        Fc = linmix2(x,F1,F2);    
         
         %% third MINORS RULE
         det_Fc = det( Fc ); % plotting showed that if the determinant changes then the maximum deviation is at xi=0.5
@@ -79,7 +81,8 @@ for is1 = 1: (size(ILS_laths,3)-1)
             neg_minors = neg_minors + 1;
             continue
         end
-%         
+        
+        
         %% second MINORS RULE
         cofFc = cofactor( Fc );
         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
@@ -88,7 +91,7 @@ for is1 = 1: (size(ILS_laths,3)-1)
             continue
         end
         
-        
+        %%
         [~,R] = polardecomposition( Fc );
         [ angle, axis ] = rotmat_to_axis_angle( R );
         %vec4 = vrrotmat2vec( R );
@@ -98,10 +101,10 @@ for is1 = 1: (size(ILS_laths,3)-1)
             neg_rot_angle = neg_rot_angle +1;
             continue
         end
-%        angle
+        % angle
 
                 
-%         %% RANK one between block-aust -check deviation of lambda2
+        %% RANK one between block-aust -check deviation of lambda2
         if (lambda2_linmix(x,F1,F2) - 1)  >  lambda2_tol_block_aust
             neg_lamda2_block_aust = neg_lamda2_block_aust +1;
             % lambda2_linmix(x,F1,F2) - 1
@@ -118,17 +121,18 @@ for is1 = 1: (size(ILS_laths,3)-1)
         %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
 %        PET 5.11. - corrected Error > instead of < !
-%        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
-%             (min_misorientation( cpps_gamma, h2) > block_hp_cp_aust_tol) )
-         if ( (min_misorientation( cpps_gamma, h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
-              (min_misorientation( cpps_gamma, h2) > block_hp_cp_aust_tol) )
+       if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
+            (min_misorientation( cpps_gamma, h2) > block_hp_cp_aust_tol) )
+%          if ( (min_misorientation( cpps_gamma, h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
+%               (min_misorientation( cpps_gamma, h2) > block_hp_cp_aust_tol) )
             neg_hp = neg_hp +1;
             continue
         end
 %         min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1)
 %         min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2)
         
-%         % Considering that the two F could be equal since the slip
+
+%%         % Considering that the two F could be equal since the slip --- basically I take care of that in an extra function
 %         deformations are not linearly independent! c.f. non-uniqueness of
 %         plastic slip
 %         if sum(sum(abs(F1 - F2 ))) < 0.1 %delta_F_min
@@ -137,15 +141,12 @@ for is1 = 1: (size(ILS_laths,3)-1)
 %             continue
 %         end
 
-%         cofFc = cofactor( Fc );
-%         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
-%         sum(sum(abs(cofFc - cof_F_sum)))
-
-        
+       
 %        lath_solutions.cryst_fams('KS')
 %         sol1.id
 %         sol2.id        
         
+
         % do not mix variants not fullfilling predefined criteria
         % e.g. habit plane deviation from {111}_aust or something else
         % up to now there are two criteria ( both angle tolerances )
@@ -249,7 +250,16 @@ for is1 = 1: (size(ILS_laths,3)-1)
 % 
 %         F1
 %         F2
-if frob_distance(F1,F2) > 0.1
+
+% turned out that only one invariant line is found - always -- [1 1 0]
+% solutions.array(is1).u
+% solutions.array(is2).u
+
+R = inverse(solutions.array(is1).LT) * solutions.array(is2).LT;
+[ angle, axis ] = rotmat_to_axis_angle( R )
+acosd( dot(axis,solutions.array(is1).u) )
+
+%if frob_distance(F1,F2) > 0.1
 %         det(F1) - det(F2)
 %         lambda2_linmix(x,F1,F2) - 1.
 
@@ -258,7 +268,7 @@ if frob_distance(F1,F2) > 0.1
                    
      %   block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
          
-end
+%end
 %          if mod(block_sols,100)==0
 %              block_sols
 %              count

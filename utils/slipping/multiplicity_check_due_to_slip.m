@@ -40,11 +40,11 @@ while is1 < size(sols,2) % <= size(sols,2) -1
     multiplicity = 1;
     % if one shear magnitude is zero - for now it only works for two slips!
     % check if first shear just has one active system
-    zero_shears1 = find( s1.eps_s < 1.e-4 ,1);
+    zero_shears1 = find( s1.slip.eps_s < 1.e-4 ,1);
     if ~isempty(zero_shears1)
-        bigger_zero1 = find(s1.eps_s > 1.e-4,1);
-        sl1 = s1.slip_normal_plane_vec( bigger_zero1 , :);
-        sd1 = s1.shear_direction(       bigger_zero1 , :);
+        bigger_zero1 = find(s1.slip.eps_s > 1.e-4,1);
+        sl1 = s1.slip.slip_normal_plane_vec( bigger_zero1 , :);
+        sd1 = s1.slip.shear_direction(       bigger_zero1 , :);
     end
     %
     is2 = is1 + 1;
@@ -70,7 +70,7 @@ while is1 < size(sols,2) % <= size(sols,2) -1
             nf13 - nf23 < (nf13 / 100 )*def_tol )   
            
             % check if second shear just has one active system
-            zero_shears2 = find( s2.eps_s < 1.e-4, 1);
+            zero_shears2 = find( s2.slip.eps_s < 1.e-4, 1);
             
             if ( isempty(zero_shears1)   &&   isempty(zero_shears2) )
                 % if matrix difference small and other slip systems, both
@@ -78,9 +78,9 @@ while is1 < size(sols,2) % <= size(sols,2) -1
                 % safe slip information from sol2 to sol1 then delete sol2
                 %    sols(is1).id;   sols(is2).id
                 sols(is1).id(multiplicity) = s2.id;
-                sols(is1).eps_s(:,:,multiplicity) = s2.eps_s;
-                sols(is1).shear_direction(:,:,multiplicity) = s2.shear_direction;
-                sols(is1).slip_normal_plane_vec(:,:,multiplicity) = s2.slip_normal_plane_vec;
+                sols(is1).slip.eps_s(:,:,multiplicity) = s2.slip.eps_s;
+                sols(is1).slip.shear_direction(:,:,multiplicity) = s2.slip.shear_direction;
+                sols(is1).slip.slip_normal_plane_vec(:,:,multiplicity) = s2.slip.slip_normal_plane_vec;
                 %
                 multiplicity = multiplicity + 1;
                 
@@ -92,9 +92,9 @@ while is1 < size(sols,2) % <= size(sols,2) -1
                 % here it is dealt with cases where one or two shears are zero
                 if (  ~isempty(zero_shears2)  &&  ~isempty(zero_shears1)  ) % is there a shear with zero magnitude?
                     % in this case entries get only removed
-                    bigger_zero2 = find(s2.eps_s > 1.e-4, 1);
-                    sl2 = s2.slip_normal_plane_vec(bigger_zero2,:);
-                    sd2 = s2.shear_direction(      bigger_zero2,:);
+                    bigger_zero2 = find(s2.slip.eps_s > 1.e-4, 1);
+                    sl2 = s2.slip.slip_normal_plane_vec(bigger_zero2,:);
+                    sd2 = s2.slip.shear_direction(      bigger_zero2,:);
                     % first shear has just one active slip and second has also
                     % just one active one and it is the same --> delete second
                     if cat(2, sl2 == sl1 , sd1 == sd2)
