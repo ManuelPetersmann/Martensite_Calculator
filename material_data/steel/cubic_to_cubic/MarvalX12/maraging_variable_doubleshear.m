@@ -30,7 +30,7 @@ direction_families_fcc = [ [1 1 0]; [1 1 2] ];
 [austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 
-martensite.considered_plasticity = 1; % 1-mart, 2-aust, 3-both mart and aust slip systems
+martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust slip systems
 
 
 
@@ -54,7 +54,8 @@ martensite.IPS_solutions = doubleshear_variable_shear_mags( martensite, austenit
 % load all parameters from the file:
 selection_criteria_maraging;
 
-% not necessary for laths only for blocks!
+
+%% not necessary for laths only for blocks!
 det_sols = Solution_array( IPS_solution, martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(martensite.U));
 display(['with criterion tolerable volume_change_from_averaging = ',num2str(delta_determinant_max)] );
 
@@ -166,7 +167,8 @@ glc.array = gelockerte_lath_constraints;
 %% BLOCK calculations
 block_solutions = Solution_array_composite();
 
-% other block contraints...
+
+%% other block contraints...
 % theta_hps = 5; % does not reduce anything after so many restrictions were placed on laths...
 % theta_intersec_cpdir = 7. % 7 - leads to 35 sols % 6. - leads to zero solutions... 
 % block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
@@ -190,7 +192,8 @@ block_solutions = mixing_of_atomic_level_solutions(glc, block_solutions, martens
 %% ILS approach
 martensite.ILS_solutions = invariant_line_strain(martensite, austenite);
 
-[block_sols, block_solutions] = deformation_mixture_tests(lath_solutions, block_solutions, U,
+%%
+[block_sols, block_solutions] = deformation_mixture_tests(martensite.ILS_solutions, block_solutions, martensite.U)
 
 
 

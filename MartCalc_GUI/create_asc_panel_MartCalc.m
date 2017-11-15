@@ -2,17 +2,25 @@ function [ handles ] = create_asc_panel_MartCalc( handles, criterion_name, defau
 % CREATE_ASC_PANEL_MARTCALC
 
     % position of criterion in asc list
-    postion_in_asc_list = handles.asc_status(criterion_number);
+    % postion_in_asc_list = handles.asc_status(criterion_number);
     
-    %%% create panel and text fields
+    
+    % PET 15.11.17 - replaced    handles.pan_asc   - by - handles.('paneltag')
+    switch handles.paneltag
+        case 
+            
+    end
+    
+    %% create panel and text fields
     % parent panel for actual selection criterion
 	tag = ['pan_asc_entry',num2str(criterion_number)]; %tag with number of position in list
-    handles.pan_asc_entry = uipanel('Parent',handles.pan_asc,...
+    
+    handles.pan_asc_entry = uipanel('Parent',handles.(handles.paneltag),... %handles.pan_asc,...
     'FontSize',12,...
-    'Position', [0.01 (((handles.pan_asc.Position(4)-handles.asc_number*(handles.pan_asc.Position(4)/8))/handles.pan_asc.Position(4))-0.02) 0.985 0.12],...
+    'Position', [0.01 (((handles.(handles.paneltag).Position(4)-handles.asc_number*(handles.(handles.paneltag).Position(4)/8))/handles.(handles.paneltag).Position(4))-0.02) 0.985 0.12],...
     'Tag', tag );
             
-% % %             guidata(hObject, handles); % Update handles structure
+%%
             
      % text field for displaying the postion of the criterion in the
      % list
@@ -70,7 +78,9 @@ function [ handles ] = create_asc_panel_MartCalc( handles, criterion_name, defau
      'Value', criterion_number,...
      'Visible', 'on',...
      'Tag',tag5,...
-     'Callback',@delete_asc_MartCalc);
+     'Callback',@delete_asc_MartCalc ); 
+     % PET: @(x)parameterfun(x,a,b,c) --- @delete_asc_MartCalc); --> not
+     % working - introduced a handle variable to choose which is deleted!
 
 end
 

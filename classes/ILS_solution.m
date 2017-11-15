@@ -4,7 +4,8 @@ classdef ILS_solution
     properties (Access = public)
         u; % invariant line vector
         ST; % (ST= R*B*S2*S1) u = u   % shape transformation for invariant line
-        LT; % lattice transformation - RB - 
+        LT; % lattice transformation - RB
+        R_Bain; % rotation necessary to bring  B*u - back to u (same direction but in general stretched!)
         %
         added_props; % = containers.Map();
         id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6... and for block solutions
@@ -13,7 +14,8 @@ classdef ILS_solution
     end
     properties (Dependent)
         lambda2; % % characterises how close the ILS is to an IPS
-        R; % rotation matrix (for invariant line), without rotation due to shear! --> lattice rotation
+        R_inclusion;
+        R_lattice; % rotation matrix (for invariant line), without rotation due to shear! --> lattice rotation
         frob_green_lagrange;
         frob_displacement_grad;
         axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
@@ -33,12 +35,17 @@ classdef ILS_solution
             obj.ST = varargin{2};
             obj.LT = varargin{3}; % the lattice transformation = Q*Bain is given here directly 
             % so that the class does not need the Bain strain as property (only needed for this)
+            obj.R_Bain = varargin{4};
             end
         end
         %
         %% get functions
-        function R = get.R( obj )
+        function R = get.R_lattice( obj )
             [~,R] = polardecomposition( obj.LT );
+        end
+        %
+        function R = get.R_inclusion( obj )
+            [~,R] = polardecomposition( obj.ST );
         end
         %
         function l2 = get.lambda2( obj )

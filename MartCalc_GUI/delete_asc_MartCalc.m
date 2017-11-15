@@ -1,6 +1,7 @@
-function [ ] = delete_asc_MartCalc( hObject,eventdata)
-%DELETE_ASC_MARTCALC Summary of this function goes here
-%   Detailed explanation goes here
+function [ ] = delete_asc_MartCalc( hObject )
+% DELETE_ASC_MARTCALC 
+
+% PET 15.11.17 - replaced    handles.pan_asc   - by - handles.(handles.paneltag)
 
 % retrieve data of GUI
 handles = guidata(hObject);
@@ -18,25 +19,26 @@ postion_in_asc_list = handles.asc_status(criterion_number);
 % NOTE: with deletion of this panel, the following panels in the list are
 % switched one position forward in the list of .Children!
 % % % handles.pan_asc.Children(handles.asc_number-postion_in_asc_list+1).delete(); 
-handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).delete() 
+handles.(handles.paneltag).Children(size(handles.(handles.paneltag).Children,1)+1-postion_in_asc_list).delete() 
 handles.asc_number = handles.asc_number - 1; % decrease number of asc
 handles.asc_status(criterion_number) = 0; % set criterion inactive
 
 
 % update positions of the following list entries
 % % while(handles.asc_list(postion_in_asc_list) > 0)
-while(postion_in_asc_list <= size(handles.pan_asc.Children,1))
+while(postion_in_asc_list <= size(handles.(handles.paneltag).Children,1))
    % update position of the panel
-   handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Position(2)=...
-       handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Position(2)+((handles.pan_asc.Position(4)/8)/handles.pan_asc.Position(4));
+   handles.(handles.paneltag).Children(size(handles.(handles.paneltag).Children,1)+1-postion_in_asc_list).Position(2)=...
+       handles.(handles.paneltag).Children(size(handles.(handles.paneltag).Children,1)+1-postion_in_asc_list).Position(2)+ ...
+       ((handles.(handles.paneltag).Position(4)/8)/handles.(handles.paneltag).Position(4));
    
    % update number of position in list
-   handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Children(4).String = num2str(postion_in_asc_list);
+   handles.(handles.paneltag).Children(size(handles.(handles.paneltag).Children,1)+1-postion_in_asc_list).Children(4).String = num2str(postion_in_asc_list);
    
    % update status of criterion in order to fit new position in list
-   handles.asc_status(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Children(3).Value) = postion_in_asc_list; 
+   handles.asc_status(handles.(handles.paneltag).Children(size(handles.(handles.paneltag).Children,1)+1-postion_in_asc_list).Children(3).Value) = postion_in_asc_list; 
    
-   handles.asc_list(postion_in_asc_list)=handles.pan_asc.Children(postion_in_asc_list).Children(3).Value;
+   handles.asc_list(postion_in_asc_list)=handles.(handles.paneltag).Children(postion_in_asc_list).Children(3).Value;
    
    postion_in_asc_list = postion_in_asc_list+1;
 end

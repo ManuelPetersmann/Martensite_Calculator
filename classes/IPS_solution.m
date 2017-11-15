@@ -36,6 +36,8 @@ classdef IPS_solution
         %e3; %dir_of_smallest_def; % = eigenvector corresponding to lambda_1 - should be close to largest dimension 'a' of lath
         frob_green_lagrange;
         frob_displacement_grad;
+        % R_inclusion
+        % R_lattice 
         axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
         % for this term a cosserat like contribution to the strain energy could be written,
         % however preferable it should be vanishingly small in reality!
@@ -106,40 +108,9 @@ classdef IPS_solution
             [~,R] = polardecomposition( obj.ST );
             [angle, axis] = rotmat_to_axis_angle( R ); %vrrotmat2vec( R );
             vec4 = cat(1,axis,angle);
-        end
-        %
-%         function smallest_eigenvector = get.e1( obj )
-%             [~,~,~,smallest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1'*obj.F1 ); % [ y1, y2, y3, e1, e2, e3] = 
-%         end
-%         %
-%         function largest_eigenvector = get.e3( obj )
-%             [~,~,~,~,~,largest_eigenvector] = sorted_eig_vals_and_vecs( obj.F1'*obj.F1 ); % [ y1, y2, y3, e1, e2, e3] =
-%         end
-%%  is not done like this, but added via the class Solution_array_dynamically   
-%        function ang = get.angle_e1_to_cpdir(obj)
-%            %if isprop(obj,'closest_KS') % generally cp-direction
-%            min_misorientation( cpps_gamma, obj.e1 );
-%            %end
-%        end
-        %         function lattice_transformation = get.LT( obj )
-        %             lattice_transformation = obj.Q * obj.U; % = G + eps_0 ( a \dyad n )   %%%%%%%%% Problem like this is that the bain strain would occur in two classes...
-        %         end                                                     %%%%%%%%% Or, if this class is derived from martensite - the object array contains to much data...       
+        end                              
         
     end % methdos
-
-% If i do it like this - how / when do i set it back to zero?
-%     methods (Static, Access = private)
-%         function new_id = count_instance_id(increment)
-%             persistent VALUE
-%             if isempty(VALUE)
-%                 VALUE = 0;
-%             end
-%             if nargin > 0
-%                 VALUE = VALUE + increment;
-%             end
-%             new_id = VALUE;
-%         end
-%     end
     
 end % class
 

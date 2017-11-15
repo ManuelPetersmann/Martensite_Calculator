@@ -17,11 +17,11 @@ function [block_sols, block_solutions] = deformation_mixture_tests(lath_solution
 % martensties - p.131.dö
 
 if nargin < 4
-    lambda2_tol_block_aust = 1.e-1 % doesnrt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    lambda2_tol_laths = 1.e-2
+    lambda2_tol_block_aust = 1.e-3 % doesnrt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+    %lambda2_tol_laths = 1.e-2
     cof_tol = 1.e-5
     det_tol = 1.e-5
-    block_hp_cp_aust_tol = 3.; % degree - even if i just set this only to 10 most solutions fall out  
+    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out  
     %
     rot_angle_block = 3.
 end

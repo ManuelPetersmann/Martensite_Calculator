@@ -4,6 +4,8 @@
 %handles.martensite.IPS_solutions.cryst_fams
 %handles
 
+%% TODO - FIRST IT MUST BE CHECKED WHETER ILS OR IPS CRITERIA ARE SELECTED
+
 if ~isempty(handles.martensite.IPS_solutions.array) %solutions_available
     %    
     if handles.asc_number > 0
@@ -16,7 +18,7 @@ if ~isempty(handles.martensite.IPS_solutions.array) %solutions_available
         
         % Criterion 2: Maximum shape strain
         if(handles.asc_status(2) > 0)
-            eps_ips_max = str2num(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-handles.asc_status(2)).Children(2).String);
+            eps_ips_max = str2num( handles.pan_asc.Children( size(handles.pan_asc.Children,1)+1-handles.asc_status(2) ).Children(2).String );
         end
         
         % Criterion 3: Maximum misorientation of CPPs {110}_alpha and {111}_gamma

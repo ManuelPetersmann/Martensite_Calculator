@@ -41,7 +41,7 @@
 % us = us / sqrt(2);
 % 
 % u = us(1,:)';
-%B3 * u
+% martensite.U * u
 
 
 
@@ -51,8 +51,10 @@ function solutions = invariant_line_strain(martensite, austenite)
 % austenite!
 
 if isempty( martensite.invariant_lines )
-    us = martensite.CP_dirs;
+    us = austenite.CP_dirs;
+    % VECTORS MUST BE NORMED!
 end
+us
 
 %% NOTE: martensite is a handle class so everything that is set here is set everywhere!
 % specify type of solution array
@@ -74,10 +76,14 @@ solutions.slip_combinations = slip_combinations; % nr of possibilites nchoosek (
 
 
 %% tolerances for selection of solutions - up to now done directly...
-lambda2_ips_tolerance_lath = 1.e-2
-rot_angle_tolerance = 6. % degree
-% tolerance (see - file numerical parameters) - for deviation of invariant line
+lambda2_ips_tolerance_lath = 2.e-2
+rot_angle_tolerance = 15. % degree
+added_mass_angle_tolerance = rot_angle_tolerance;
+vec_residual = 1.e-4
 theta_CP_max = 2. % degree
+% tolerance (see - file numerical parameters) - for deviation of invariant line
+
+delta_eps_tolerance = 1.e-5;
 
 neg_no_convergence_to_ILS = 0;
 neg_theta_CP = 0;
@@ -93,17 +99,18 @@ neg_rot = 0;
 isol = 0;
 for iu = 1:length(us)
     u = us(iu,:)';
-    u2  = B3 * u;
-    R   = rotation_between_vectors( u2,     u );
+    u = u / norm(u); % VECTOR MUST BE NORMED!
+    u2  = martensite.U * u;
+    R_Bain   = rotation_between_vectors( u2,     u );
     %try
-    [angle, ax] = rotmat_to_axis_angle( R );
-    angle_mod = angle;
-    ax_mod = ax;
+    %[angle_Bain, ax_Bain] = rotmat_to_axis_angle( R_Bain );
+    %angle_inclusion = angle_Bain;
+    %ax_inclusion = ax_Bain;
     %catch
     % it has been tested that the specific directions of <110> that
-    % remain unrotated by B3 cannot be made any better using shears!
+    % remain unrotated by B3 = martensite.U cannot be made any better using shears!
     %end
-    u2_unrot = R * u2;
+    u2_unrot = R_Bain * u2;
     %
     for is1 = 1:length(S)
         for is2 = is1+1:length(S)
@@ -114,7 +121,8 @@ for iu = 1:length(us)
             %  [screw_syst] = equivalent_shear_screwdisloc( ds(i,1:3), ns(i,1:3) );
             %  fprintf(fid,'\n %s \t \t %s \t \t %s', mat2str(ds(i,1:3)), mat2str(screw_syst(1:3)), mat2str(screw_syst(4:6)) );
             
-            res_old = norm( u - u2_unrot ); % If an invariant line is specified a -
+            res_initial = norm( u - u2_unrot ); % If an invariant line is specified a -
+            res_old = res_initial;
             % priori and it does not ly on the cone of undistorted line
             % then, even it is rotated back to its inital position it may be
             % distorted. Also the rotation to bring it back may be quite large. In
@@ -127,6 +135,8 @@ for iu = 1:length(us)
             eps1 = eps_initial;
             eps2 = eps_initial;
             S_accummulated = eye(3);
+            %
+            first_iteration = true; % 
             
             while ( ( res_old > tolerance )  ...
                     && (eps1 < eps_max)        && (eps2 < eps_max) )
@@ -135,7 +145,7 @@ for iu = 1:length(us)
                     error('this should not happen - fix code...')
                 end
                 
-                u2_dS1 = B3 *  S_accummulated * ( eye(3) + delta_eps*S(:,:,is1) ) * u;
+                u2_dS1 = martensite.U *  S_accummulated * ( eye(3) + delta_eps*S(:,:,is1) ) * u;
                 %try
                 % calculate R such that u2_dS1 is unrotated
                 R_dS1 = rotation_between_vectors( u2_dS1, u );
@@ -146,7 +156,7 @@ for iu = 1:length(us)
                 new_res_dS1 = norm( u - u2_dS1_unrot ); % check deviation from invariance
                 
                 
-                u2_dS2 = B3 *  S_accummulated * ( eye(3) + delta_eps*S(:,:,is2) ) * u;
+                u2_dS2 = martensite.U *  S_accummulated * ( eye(3) + delta_eps*S(:,:,is2) ) * u;
                 %try
                 % calculate R such that u2_dS1 is unrotated
                 R_dS2 = rotation_between_vectors( u2_dS2, u );
@@ -183,51 +193,56 @@ for iu = 1:length(us)
                     end
                 end
                 
-                if (delta_eps < tolerance)
+                if (delta_eps < delta_eps_tolerance) % 0.5^16 = 1.e-5||
                     break
                 end
                 
             end % end while
             
             
-            if ( res_old < tolerance )
-                F_tot = R_mod * B3 *  S_accummulated;
+            if ( res_old < vec_residual )
+                F_tot = R_mod * martensite.U *  S_accummulated;
                 [~ , R_total] = polardecomposition( F_tot );
                 % this is executed for constant inv line u  before: [angle, ax] = rotmat_to_axis_angle( R );
-                [angle_mod, ax_mod] = rotmat_to_axis_angle( R_total );
+                [angle_inclusion, ax_inclusion] = rotmat_to_axis_angle( R_total );
+                %angle_inclusion
+                %angle_ax_u = get_angle( ax_inclusion, u );
+                %added_mass_angle = angle_ax_u + angle_inclusion; % added_mass_angle XD 
                 
-                if (angle_mod < rot_angle_tolerance)
-                    [angle_R, ax_R] = rotmat_to_axis_angle( R_mod );
+                if (angle_inclusion < rot_angle_tolerance)
+                %if (added_mass_angle < added_mass_angle_tolerance)
+                    %[angle_lattice, ax_lattice] = rotmat_to_axis_angle( R_mod );
                     
                     [bool, lambda2] = is_rank_one_connected(F_tot,eye(3), lambda2_ips_tolerance_lath);
                     if bool
                         
-                        LT = R_mod*B3;
-                        [ theta_CP, closest_111aust_to_CP ] = min_misorientation( cpps_gamma, LT, true );
+                        LT = R_mod*martensite.U;
+                        [ theta_CP, closest_111aust_to_CP ] = min_misorientation( austenite.CPPs, LT, true );
+                        %theta_CP
                         if theta_CP < theta_CP_max
                             
                             %                         res = norm( u - u2_unrot )
                             %                         res_old % modified res
-                            %                         ax
-                            %                         ax_R
-                            %                         ax_mod
-                            %                         angle
-                            %                         angle_R
-                            %                         angle_mod
-                            %                         eps1
-                            %                         eps2
+                            
+                            %                         ax_Bain
+                            %                         ax_lattice
+                            %                         ax_inclusion
+                            
+                            %                         angle_Bain
+                            %                         angle_lattice
+                            %                         angle_inclusion
                             
                             isol = isol + 1;
-%                             if mod(isol,100)==0
-%                                 isol
-%                                 %pause(1);
-%                             end
+                            if mod(isol,100)==0
+                                isol
+                                %pause(1);
+                            end
                             eps_s = [eps1; eps2];
                             d = [ds(is1,:); ds(is2,:)];
                             n = [ns(is1,:); ns(is2,:)];
                             %solutions.array( isol-1 ) =  ILS_solution(u, F_tot, LT); % F_tot = ST...shape transformation
                             %solutions.array( isol-1 ).slip = Slip_systems( eps_s, d, n );
-                            solutions.array( isol )      =  ILS_solution(u, F_tot, LT);
+                            solutions.array( isol )      =  ILS_solution(u, F_tot, LT, R_Bain);
                             solutions.array( isol ).slip = Slip_systems( eps_s, d, n );
                         else
                             neg_theta_CP = neg_theta_CP +1;
@@ -247,9 +262,10 @@ for iu = 1:length(us)
 end
 %%
 
-disp( [num2str(nchoosek(length(S),2)*length(u)),' slip combinations tested ',num2str(isol),'solutions found, ' num2str(neg_no_convergence_to_ILS), ' did not converge to ILS'] );
-disp( ['First crit: rotation angle of lath > ', num2str(rot_angle_tolerance),' degree --> ', num2str(neg_rot), ' neglected'] );
+disp( [num2str(nchoosek(length(S),2)*size(us,1)),' combinations {u_i,S1_j,S2_k} tested, ', ...
+    num2str(isol),' solutions found, ' num2str(neg_no_convergence_to_ILS), ' did not converge to ILS'] );
+disp( ['First crit: rotation target function of lath > ', num2str(added_mass_angle_tolerance),' degree --> ', num2str(neg_rot), ' neglected'] );
 disp( ['Second crit: lambda2_ips_tolerance_lath > ' num2str(lambda2_ips_tolerance_lath), ' --> ' num2str(neg_far_from_IPS), ' neglected'] );
-disp( ['Third crit: neg_theta_CP >', num2str(theta_CP_max), ' degree --> ', num2str(neg_theta_CP) ,' neglected'] );
+disp( ['Third crit: theta_CP > ', num2str(theta_CP_max), ' degree --> ', num2str(neg_theta_CP) ,' neglected'] );
 
 end

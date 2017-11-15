@@ -23,7 +23,7 @@ function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, bloc
 
 if nargin < 4
     lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    lambda2_tol_laths = 1.e-4
+    %lambda2_tol_laths = 1.e-4
     cof_tol = 1.e-4
     det_tol = 1.e-4
     block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out 
@@ -65,6 +65,17 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             continue
         end
         
+        %% rotation of Block_inclusion
+        [~,R] = polardecomposition( Fc );
+        [ angle, axis ] = rotmat_to_axis_angle( R );
+        %vec4 = vrrotmat2vec( R );
+        % convert angle to degree
+        %angle = rad2deg( vec4(4) );
+        if angle > rot_angle_block
+            neg_rot_angle = neg_rot_angle +1;
+            continue
+        end
+        
         %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
         [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
         % I found that automatically both h's should be within the tolerance
@@ -74,9 +85,9 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         end
         
           %% RANK one between laths
-        if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
-            continue
-        end
+%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
+%             continue
+%         end
 
         %% RANK one between block-aust - check deviation of lambda2
         if (mix_y2(x,F1,F2) - 1)  > lambda2_tol_block_aust
