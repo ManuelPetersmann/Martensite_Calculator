@@ -22,11 +22,14 @@ function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, bloc
 % now i optimize for everything simultaneously, opt_func)  
 
 if nargin < 4
-    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    %lambda2_tol_laths = 1.e-4
+    % minors tolerances
     cof_tol = 1.e-4
     det_tol = 1.e-4
-    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out 
+    % block tolerances
+    rot_angle_block = 3.
+    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
+    %lambda2_tol_laths = 1.e-4
 end
 
     function lambda2_mix = mix_y2( x, F1, F2)
@@ -52,13 +55,14 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         x = 0.5;
         Fc = linmix2(x,F1,F2);
         
-        %% third MINORS RULE
+        %% Minors rules
+        % third MINORS RULE
         det_Fc = det( Fc ); % plotting showed that if the determinant changes then the maximum deviation is at xi=0.5
         if abs(detU - det_Fc) > det_tol
             continue
         end
         
-        %% second MINORS RULE
+        % second MINORS RULE
         cofFc = cofactor( Fc );
         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % alternatively frob distance
@@ -75,8 +79,13 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             neg_rot_angle = neg_rot_angle +1;
             continue
         end
+
+        %% RANK one between block-aust - check deviation of lambda2
+        if (mix_y2(x,F1,F2) - 1)  > lambda2_tol_block_aust
+            continue
+        end
         
-        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
+        % deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
         [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
         % I found that automatically both h's should be within the tolerance
         if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
@@ -89,11 +98,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 %             continue
 %         end
 
-        %% RANK one between block-aust - check deviation of lambda2
-        if (mix_y2(x,F1,F2) - 1)  > lambda2_tol_block_aust
-            continue
-        end
-        
+ 
         %% Considering that the two F could be equal since the slip
         % deformations are not linearly independent! c.f. non-uniqueness of
         % plastic slip

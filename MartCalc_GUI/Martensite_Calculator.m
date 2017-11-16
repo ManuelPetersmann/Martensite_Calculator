@@ -20,9 +20,7 @@ function varargout = Martensite_Calculator(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help Martensite_Calculator
-
-% Last Modified by GUIDE v2.5 15-Nov-2017 16:34:45
+% Last Modified by GUIDE v2.5 16-Nov-2017 16:39:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -67,17 +65,24 @@ handles.output = hObject;
 % end
 
 % initialize array for keeping track of the active selection criteria
-% 28.08.2017: currently there are 7 possible criteria for selection of solutions
+% 28.08.2017: currently there are 7 possible criteria for selection of IPS solutions
 % default at start of MartCalc-GUI: all = 0 --> inactive
 % asc = Active Selection Criteria
 handles.asc_status_IPS = zeros(1,7);
 handles.asc_number_IPS = 0;
 handles.asc_list_IPS = zeros(1,7);
+handles.asc_IPS_maxcrit = 8;
 %
+% criteria for ILS solutions
 handles.asc_status_ILS = zeros(1,7);
 handles.asc_number_ILS = 0;
 handles.asc_list_ILS = zeros(1,7);
-handles.paneltag = 'pan_asc_IPS';
+handles.asc_ILS_maxcrit = 8;
+
+handles.asc_status_blocks = zeros(1,3);
+handles.asc_number_blocks = 0;
+handles.asc_list_blocks = zeros(1,3);
+handles.asc_blocks_maxcrit = 3;
 
 % create austenite and martensite objects
 handles.martensite = Martensite(); % creates martensite object
@@ -113,18 +118,20 @@ function popup_calc_lath_level_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_lath_level contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popup_calc_lath_level
 switch hObject.Value %handles.popup_calc_lath_level.Value
-    case 1
+    case 1 % or or or...
         set(handles.pan_lsc_IPS,'visible','on')
         set(handles.pan_asc_IPS,'visible','on')
+        set(handles.pan_sort_IPS,'visible','on')
         set(handles.pan_lsc_ILS,'visible','off')
         set(handles.pan_asc_ILS,'visible','off')
-        handles.paneltag = 'pan_asc_IPS';
-    case 2
+        set(handles.pan_sort_ILS,'visible','off')
+    case 2 % or or or
         set(handles.pan_lsc_ILS,'visible','on')
         set(handles.pan_asc_ILS,'visible','on')
+        set(handles.pan_sort_ILS,'visible','on')
         set(handles.pan_lsc_IPS,'visible','off')
         set(handles.pan_asc_IPS,'visible','off')
-        handles.paneltag = 'pan_asc_ILS';
+        set(handles.pan_sort_IPS,'visible','off')
 end
 guidata(hObject, handles);
 
@@ -152,7 +159,8 @@ if handles.input_status
             %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.IPS_solutions.calculation_method = calculation_method;
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
-            
+            %
+            updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
             % ILS
         case 2
             calculation_method = 'ILS, doubleshear, incremental minimization of unrotated vector residual';
@@ -160,6 +168,8 @@ if handles.input_status
             %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.ILS_solutions.calculation_method = calculation_method;
             handles.martensite.ILS_solutions = invariant_line_strain(handles.martensite, handles.austenite); 
+            %
+            updateLog_MartCalc(hObject, handles, ['Determination of ILS solutions for laths completed: ' num2str(size(handles.martensite.ILS_solutions.array,2)),' solutions found.'] );
             
             %% other cases can be added here         
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
@@ -168,21 +178,21 @@ if handles.input_status
             %         updateLog_MartCalc(hObject, handles, '_MarescaCurtin_test - run')
             %         maraging_MarescaCurtin_test;
     end
-    updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-    %% filter solutions
-    l1 = length(handles.martensite.IPS_solutions.array);
-    %  formerly - case 8 - now default reduction to this value!
-    delta_determinant_max = 0.001; % maximum 0.1% non-physical volume change
-    updateLog_MartCalc(hObject, handles, ['checking solutions for non-physical volume change > ',num2str(delta_determinant_max*100),'%...'] );
-    % handles.reduced_solutions = 
-    handles.martensite.IPS_solutions = Solution_array( Slip_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
-    l2 = length(handles.martensite.IPS_solutions.array);
-    if l1 ~= l2
-        updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
-    else
-        updateLog_MartCalc(hObject, handles,'all solutions are valid');
-    end
-    update_Selection_criteria;
+    
+    %% filter solutions for volume change not necessary - volume does not change in my calculations!
+%     l1 = length(handles.martensite.IPS_solutions.array);
+%     %  formerly - case 8 - now default reduction to this value!
+%     delta_determinant_max = 0.001; % maximum 0.1% non-physical volume change
+%     updateLog_MartCalc(hObject, handles, ['checking solutions for non-physical volume change > ',num2str(delta_determinant_max*100),'%...'] );
+%     % handles.reduced_solutions = 
+%     handles.martensite.IPS_solutions = Solution_array( Slip_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
+%     l2 = length(handles.martensite.IPS_solutions.array);
+%     if l1 ~= l2
+%         updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
+%     else
+%         updateLog_MartCalc(hObject, handles,'all solutions are valid');
+%     end
+%     update_lath_selection_criteria;
 else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
 end
@@ -207,7 +217,7 @@ switch hObject.Value
             default_value = 5.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(1) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
@@ -220,7 +230,7 @@ switch hObject.Value
             default_value = 0.6;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(2) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!')
@@ -232,7 +242,7 @@ switch hObject.Value
             default_value = 1.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(3) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value );                        
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                        
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of {111}_gamma to {110}_alpha" is already active!')
@@ -244,7 +254,7 @@ switch hObject.Value
             default_value = 20.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(4) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value );                       
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                       
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!')
@@ -256,7 +266,7 @@ switch hObject.Value
             default_value = 5.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(5) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!')
@@ -268,7 +278,7 @@ switch hObject.Value
             default_value = 8.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(6) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied       
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value); 
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value); 
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
@@ -280,7 +290,7 @@ switch hObject.Value
             default_value = 3.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(7) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum tolerance angle between preferred invariant line and habit plane" is already active!')
@@ -302,37 +312,54 @@ end
 
 % --- Executes on selection change in lsc_popup_ILS.
 function lsc_popup_ILS_Callback(hObject, eventdata, handles)
-% hObject    handle to lsc_popup_ILS (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns lsc_popup_ILS contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from lsc_popup_ILS
+switch hObject.Value
+    case 1 % Criterion 1 has been chosen: Minimum slip plane density
+        if handles.asc_status_ILS(1) == 0 % if inactive
+            handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
+            criterion_name = 'Minimum average dislocation spacing (stepwidth).';
+            default_value = 5.0;
+            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_ILS(1) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
+        end
+    %
+    case 2 % Criterion 2 has been chosen: Maximum shape strain
+end
 
 
 
 %#########################################################################
-%% --- Executes on button press in update_selection_button.
-function update_selection_button_Callback(hObject, eventdata, handles)
+%% --- Executes on button press in pushbutton_update_lath_crit.
+function pushbutton_update_lath_crit_Callback(hObject, eventdata, handles)
 %
 set(handles.InterfaceObj,'Enable','off');
-update_Selection_criteria;
-set(handles.InterfaceObj,'Enable','on');   
+update_lath_selection_criteria;
+set(handles.InterfaceObj,'Enable','on'); 
 
+% --- Executes on button press in pushbutton_update_block_crit.
+function pushbutton_update_block_crit_Callback(hObject, eventdata, handles)
+
+set(handles.InterfaceObj,'Enable','off');
+update_block_selection_criteria;
+set(handles.InterfaceObj,'Enable','on'); 
 
 
 %#########################################################################
-%% --- Executes on selection change in popup_sorting.
-function popup_sorting_Callback(hObject, eventdata, handles)
+%% --- Executes on selection change in popup_sorting_IPS.
+function popup_sorting_IPS_Callback(hObject, eventdata, handles)
 %
-% disable interface during function call
-set(handles.InterfaceObj,'Enable','off');
 %
 % reduced_solutions are now directly availble since volumetric changes are
 % thrown out immediately. -> reduced solutions
-if isempty(handles.reduced_solutions.array) %        % ~handles.reduced_solutions.solutions_available
+if isempty(handles.martensite.IPS_solutions.array)
     updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
 else
+    % disable interface during function call
+    set(handles.InterfaceObj,'Enable','off');
     unsrt_sols = handles.reduced_solutions;
     try
         switch hObject.Value
@@ -353,14 +380,25 @@ else
                 %         case 8
                 %             handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
         end
+        updateLog_MartCalc(hObject, handles,'Sorting finished.')
     catch ME
-        updateLog_MartCalc(hObject, handles,ME)
+        updateLog_MartCalc(hObject, handles,ME.message)
     end
-    updateLog_MartCalc(hObject, handles,'Sorting finished.')
+    set(handles.InterfaceObj,'Enable','on');
 end
 guidata(hObject, handles);
 % enable interface again
-set(handles.InterfaceObj,'Enable','on');
+
+
+
+% --- Executes on selection change in popup_sorting_ILS.
+function popup_sorting_ILS_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_sorting_ILS (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_sorting_ILS contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_sorting_ILS
 
 
 
@@ -377,7 +415,7 @@ updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --
 % read user input from GUI for determination of solutionsh
 
 if handles.input_status
-    switch handles.popup_calc_block_level.Value
+    switch handles.popup_asc_block_level.Value
         case 1
             handles.block_solutions = Solution_array_composite();
             %
@@ -419,7 +457,7 @@ if handles.input_status
             handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
             %
-            update_Selection_criteria;
+            update_lath_selection_criteria;
     end
     %
     guidata(hObject, handles);
@@ -1424,14 +1462,14 @@ end
 
 
 
-% --- Executes on selection change in popup_calc_block_level.
-function popup_calc_block_level_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_calc_block_level (see GCBO)
+% --- Executes on selection change in popup_asc_block_level.
+function popup_asc_block_level_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_asc_block_level (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_block_level contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_calc_block_level
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_asc_block_level contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_asc_block_level
 
 
 % --- Executes during object creation, after setting all properties.
@@ -1447,8 +1485,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % --- Executes during object creation, after setting all properties.
-function popup_calc_block_level_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_calc_block_level (see GCBO)
+function popup_asc_block_level_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_asc_block_level (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1472,8 +1510,8 @@ end
 
 
 % --- Executes during object creation, after setting all properties.
-function popup_sorting_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_sorting (see GCBO)
+function popup_sorting_IPS_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_sorting_IPS (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1611,6 +1649,227 @@ function lsc_popup_ILS_CreateFcn(hObject, eventdata, handles)
 % handles    empty - handles not created until after all CreateFcns called
 
 % Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit161_Callback(hObject, eventdata, handles)
+% hObject    handle to edit161 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit161 as text
+%        str2double(get(hObject,'String')) returns contents of edit161 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit161_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit161 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit162_Callback(hObject, eventdata, handles)
+% hObject    handle to edit162 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit162 as text
+%        str2double(get(hObject,'String')) returns contents of edit162 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit162_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit162 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit163_Callback(hObject, eventdata, handles)
+% hObject    handle to edit163 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit163 as text
+%        str2double(get(hObject,'String')) returns contents of edit163 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit163_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit163 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit164_Callback(hObject, eventdata, handles)
+% hObject    handle to edit164 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit164 as text
+%        str2double(get(hObject,'String')) returns contents of edit164 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit164_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit164 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu11.
+function popupmenu11_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu11 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu11
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu11_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+% --- Executes during object creation, after setting all properties.
+function popup_sorting_ILS_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_sorting_ILS (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit169_Callback(hObject, eventdata, handles)
+% hObject    handle to edit169 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit169 as text
+%        str2double(get(hObject,'String')) returns contents of edit169 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit169_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit169 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_minors_det_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_minors_det (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_minors_det as text
+%        str2double(get(hObject,'String')) returns contents of edit_minors_det as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_minors_det_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_minors_det (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit171_Callback(hObject, eventdata, handles)
+% hObject    handle to edit171 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit171 as text
+%        str2double(get(hObject,'String')) returns contents of edit171 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit171_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit171 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_minors_cof_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_minors_cof (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_minors_cof as text
+%        str2double(get(hObject,'String')) returns contents of edit_minors_cof as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_minors_cof_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_minors_cof (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');

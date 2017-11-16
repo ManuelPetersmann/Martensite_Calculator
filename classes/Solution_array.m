@@ -180,9 +180,9 @@ classdef Solution_array
             %% TRY WITHOUT FOR LOOP!!! -see Solution_array_composite class
             for i = 1: size( obj.array ,2)
                 % value to sort for must be extracted via a loop first
-                if isprop(obj.array, prop_name)
+                if isprop(obj.array(1), prop_name) || isprop(obj.array(1).slip, prop_name)
                     if strcmp(prop_name,'stepwidth') % two values - sort for the smaller one 1/stepwidth \propto eps_s (plastic shear magnitude)
-                        prop_array(i) = min(obj.array(i).(prop_name));
+                        prop_array(i) = min( obj.array(i).slip.(prop_name) );
                     else
                         prop_array(i) = obj.array(i).(prop_name);
                     end
