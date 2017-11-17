@@ -4,13 +4,14 @@ function solutions = doubleshear_variable_shear_mags(martensite, austenite) % [s
 % All calulations are carried out in the coordinate system of the parent phase
 % returns object array of solutions for IPSs.
 
-% specify type of solution array
-martensite.IPS_solutions.array = IPS_solution();
-% set calcuation method property in solution_array object
-calculation_method = 'variable doubleshear incremental optimization lath level';
-martensite.IPS_solutions.calculation_method = calculation_method;  
+%% NOTE: martensite is a handle class so everything that is set here is set everywhere!
+
 % create shorthand notation
 solutions = martensite.IPS_solutions;
+% specify type of solution array
+solutions.array = IPS_solution();
+% set calcuation method property in solution_array object
+solutions.calculation_method = 'variable doubleshear incremental optimization lath level';
 
 %% set numerical parameters (see file numerical_parameters.m)
 numerical_parameters;
@@ -91,7 +92,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 end
             end
             
-            if delta_eps < tolerance 
+            if delta_eps < delta_eps_tolerance
                 break
             end          
             % find g (shear magnitude - m in Paper Qi, Khachaturyan 2014)

@@ -13,15 +13,16 @@ classdef ILS_solution
         slip; % Slip_systems()
     end
     properties (Dependent)
-        lambda2; % % characterises how close the ILS is to an IPS
+        lambda2_IPS_to_one; % % characterises how close the ILS is to an IPS
         R_inclusion;
-        R_lattice; % rotation matrix (for invariant line), without rotation due to shear! --> lattice rotation
-        frob_green_lagrange;
-        frob_displacement_grad;
         axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
+        rotangle_inclusion; % same as above but specifically used for reduction of solutions
         % for this term a cosserat like contribution to the strain energy could be written,
         % however preferable it should be vanishingly small in reality!
         % here the rotation due to the shear is incorporated!!!
+        R_lattice; % rotation matrix (for invariant line), without rotation due to shear! --> lattice rotation
+        frob_green_lagrange;
+        frob_displacement_grad;
     end
     
     methods
@@ -48,8 +49,9 @@ classdef ILS_solution
             [~,R] = polardecomposition( obj.ST );
         end
         %
-        function l2 = get.lambda2( obj )
-            [ ~, l2] = sorted_eig_vals_and_vecs( obj.ST' * obj.ST );
+        function l2 = get.lambda2_IPS_to_one( obj )
+            [ ~, y2] = sorted_eig_vals_and_vecs( obj.ST' * obj.ST );
+            l2 = abs(y2 -1.);
         end
         %
         function frobgl = get.frob_green_lagrange(obj)
@@ -66,6 +68,11 @@ classdef ILS_solution
             [~,Q] = polardecomposition( obj.ST );
             [angle, axis] = rotmat_to_axis_angle( Q ); %vrrotmat2vec( Q );
             vec4 = cat(1,axis,angle);
+        end
+        %
+        function angle = get.rotangle_inclusion( obj )
+            [~,Q] = polardecomposition( obj.ST );
+            angle = signed_angle_from_rotmatrix( Q );
         end
 
     end % methdos

@@ -38,6 +38,7 @@ classdef IPS_solution
         frob_displacement_grad;
         % R_inclusion
         % R_lattice 
+        rotangle_inclusion;
         axis_angle_rotvec_inclusion; % returns 1x4 vector of rotation axis [1:3] and angle in degree [4]
         % for this term a cosserat like contribution to the strain energy could be written,
         % however preferable it should be vanishingly small in reality!
@@ -108,7 +109,12 @@ classdef IPS_solution
             [~,R] = polardecomposition( obj.ST );
             [angle, axis] = rotmat_to_axis_angle( R ); %vrrotmat2vec( R );
             vec4 = cat(1,axis,angle);
-        end                              
+        end 
+        %
+        function angle = get.rotangle_inclusion( obj )
+            [~,R] = polardecomposition( obj.ST );
+            angle = signed_angle_from_rotmatrix( R );
+        end
         
     end % methdos
     

@@ -1,11 +1,17 @@
-%edit invariant_line_strain.m
+%% priority 1
 
-edit deformation_mixture_tests.m
-edit mixing_of_atomic_level_solutions.m
+edit invariant_line_strain.m
 edit Martensite_Calculator.m
-edit update_block_selection_criteria.m
 edit update_lath_selection_criteria.m 
 
+%% priority 2
+
+edit update_block_selection_criteria.m
+%edit deformation_mixture_tests.m
+%edit mixing_of_atomic_level_solutions.m
+
+
+%% priority 3
 
 %edit plot_quadratic_surface.m 
 %edit lol.m

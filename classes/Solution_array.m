@@ -4,7 +4,7 @@ classdef Solution_array
     %  & Martensite - need not to be derived from Martensite class, but is a property of it!
     
     properties
-        array;   % entries of array can be objects of type "IPS_solution", "Slip_solution", etc.
+        array;   % entries of array can be objects of type "IPS_solution", "ILS_solution", etc.
         %solutions_available = false; use  isempty(obj.array) instead
         %
         calculation_method; % a string specifying the method to trim the middle eigenvalue to one
@@ -25,26 +25,40 @@ classdef Solution_array
             % This constructor supplied by MATLAB also calls all superclass constructors with no arguments.
             %
             foundnr = 0; % counter for how many matches are found for the construction of constrained solutions
-             if nargin > 0 % varargin = { 1-Type of array entry object }
-                 % COPY CONSTRUCTOR for BLOCKs - just used with one input argument
-                 % copies everything execpt - array property
-                 if isprop(varargin{1},'array')                         
-                     props_to_copy = properties( varargin{1} );
-                     for i=1:length( props_to_copy )
-                         if ~strcmp(props_to_copy{i},'array')
-                             obj.(props_to_copy{i}) = varargin{1}.(props_to_copy{i});
-                         end
-                     end
-                 end
-                 %
-                 if isprop(varargin{1},'F1')                
-                 % PET 3.11.17: initialization of array type e.g.
-                 % IPS_solutions -or Slip_solution - It is however better to do this assignment
-                 % directly in the middle eigenvalue modification function!
-                 obj.array = varargin{1}; % here varargin{1} should be the object_type of class property array
-                 end
-             end
-            %
+
+            if nargin > 1 % varargin = { 1- Solution_array object 
+                obj.array = varargin{1}; % this first property could even be determined with the code below
+%                 ClassName = class( varargin{1}.array(1) );
+%                 switch ClassName
+%                     case 'IPS_solution'
+%                         varargin{1}.array = IPS_solution();
+%                     case 'ILS_solution'
+%                         varargin{1}.array = ILS_solution();
+%                 end
+                %% COPY CONSTRUCTOR for solution_array - copies everything execpt - array property
+                if isprop(varargin{2},'array')
+                    props_to_copy = properties( varargin{2} );
+                    for i=1:length( props_to_copy )
+                        if ~strcmp(props_to_copy{i},'array')
+                            obj.(props_to_copy{i}) = varargin{2}.(props_to_copy{i});
+                        end
+                    end
+                end
+           end
+            
+            %%  ILS specific Stuff
+            if nargin == 4 % ILS: 
+                for i = 1:size( varargin{2}.array, 2)
+                    % abs(lambda2_IPS - 1) > delta_lambda2
+                    % rotangle_inclusion   > max_rotation_angle_inclusion
+                    if varargin{2}.array(i).varargin{3} < varargin{4} % lambda2 or rot_angle_block
+                        foundnr = foundnr + 1;
+                        obj.array(foundnr) = varargin{2}.array(i);
+                    end
+                end
+            end
+            
+            %% IPS and partially ILS criteria
             if nargin > 4 % PET. 19.10.17
                 %
                 if isempty(varargin{2}.selection_criteria)
@@ -65,7 +79,8 @@ classdef Solution_array
                     error('Empty solutions array given as input for reduction - think about that...');
                 end
             end
-            %
+            
+            
             if nargin == 5 % to construct subarrays with minimal/maximal 'slip_density' and 'eps_ips' values
                 % as well as ones with specified maximum change of determinant
                 % varargin = {1-Type of array entry object,
@@ -89,6 +104,11 @@ classdef Solution_array
                     if strcmp( varargin{5}, 'min')
                         % varargin{2}.array(i).(varargin{3})
                         % varargin{4}
+                        % here the condition is only fullfilled if all entries are bigger, i.e. the minimum counts!
+
+                        varargin{2}.array(i)
+                        obj.array
+
                         if varargin{2}.array(i).slip.(varargin{3}) > varargin{4} % = minimal tolerated 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
@@ -104,7 +124,8 @@ classdef Solution_array
                     end
                 end
             end
-            %
+            
+            
             % to generate minimum misorientation angles with corresponding
             % vector from orientation relations (close packed planes and directions) given as families
             if nargin >= 7 % varargin = { 1 - Type of array entry object, 2 - Solution_array, 3 - characteristic plane or direction-family (mostly CP families),
@@ -160,10 +181,10 @@ classdef Solution_array
                 % after reduction of solutions check if there is at least one non-empty entry in object
                 if (size( obj.array, 2)==1) && isempty(obj.array(1).F1)
                     disp('No Solution fullfilling specified criteria');
-                %    obj.solutions_available = false;
+                    %    obj.solutions_available = false;
                 else
                     disp(['Solutions reduced to : ' , num2str(length(obj.array))] );
-                %    obj.solutions_available = true;
+                    %    obj.solutions_available = true;
                 end
             end
         end
@@ -193,7 +214,7 @@ classdef Solution_array
                         error('Solutions cannot be sorted for selection since it is not specified in the selection criteria!');
                     end
                 end
-%                [~,idx] = sort( prop_array, 1 );
+                %                [~,idx] = sort( prop_array, 1 );
             end
             [~,idx] = sort( prop_array, 1 );
             obj.array = obj.array(idx);

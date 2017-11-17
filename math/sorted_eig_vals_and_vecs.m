@@ -1,10 +1,14 @@
-function [ y1, y2, y3, e1, e2, e3] = sorted_eig_vals_and_vecs( Ct )
+function [ y1, y2, y3, e1, e2, e3] = sorted_eig_vals_and_vecs( Ct, only_real )
 % This function takes a matrix and returns its eigenvalues in ascending 
 % order as well as the corresponding (normalized!) eigenvectors 
 
 [V,D] = eig( Ct );
 
-if ~isreal(V)
+if nargin < 2
+    only_real = true;
+end
+
+if only_real && ~isreal(V)
     error('complex eigenvectors')
 end
 

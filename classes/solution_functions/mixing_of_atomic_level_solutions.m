@@ -1,4 +1,4 @@
-function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol, block_hp_cp_aust_tol, delta_F_min) % outarg - block_solutions tol) 
+function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, lambda2_tol_block_aust, cof_tol, det_tol, block_hp_cp_aust_tol) 
 % call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, tol)  % opt_func  
 %
 % lath_solutions ... array of lath solutions for building blocks

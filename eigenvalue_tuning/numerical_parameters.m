@@ -1,6 +1,9 @@
 %% options for numerical prodecures in "middle_eigenvalue_modifications"
 
-tolerance = 1.e-6; % maximum deviation of lambda_2 to 1
+tolerance = 1.e-6; % maximum deviation of lambda_2 to 1 for IPS solution
+vec_residual = 1.e-4; % max deviatoin of least square residual for ILS solution
+%  variable tolerance (see - file numerical parameters) - for deviation of invariant line
+delta_eps_tolerance = 1.e-5; % minimum shear perturbation at which algorithm stops -> local divergence
 stepwidth_change = 0.5; % smaller and inverse to make increment bigger to escape local minima
 
 %% Khachaturyans slip formulation (g or/= m)   S = 1/g  d \otimes m  % not clear wheter 
