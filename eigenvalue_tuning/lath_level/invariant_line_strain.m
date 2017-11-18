@@ -1,58 +1,58 @@
-% clc
-% clear all;
-% 
-% a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
-% a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
-% 
-% Bain_and_Correspondence;
-% 
-% %% assemble slip systems in alpha
-% % since the shear is a substantial part of the transformation only 
-% % shear systems which are favorable in the b.c.c. lattices are considered. 
-% % the plane and direction families are {110}_alpha, {112}_alpha,
-% % <111>_alpha, <110>_alpha
-% plane_families_bcc =     [ [1 1 0]
-%                            [1 1 2] ];   % must be written with linebreak or ";" between vectors!                     
-% direction_families_bcc = [ [1 1 1]
-%                            [1 1 0] ];
-%                        
-% count_directions_extra = true;
-%                        
-% % find all possible combination (including different shear directions)
-% [martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
-% %[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
-% 
-% plane_families_fcc =     [ [1 1 1] ];
-% direction_families_fcc = [ [1 1 0]; [1 1 2] ];
-% [austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
-% %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
-% 
-% martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust slip systems
-%     
-% cpps_gamma = all_from_family_perms( [1 1 1] );
-% austenite.CPPs = cpps_gamma;
+clc
+clear all;
+
+a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius
+a_mart = 2.8807346; % for 140 Grad Celsius, 2.8790068 for 80 Grad Celsius- check if something changes 
+
+Bain_and_Correspondence;
+
+%% assemble slip systems in alpha
+% since the shear is a substantial part of the transformation only 
+% shear systems which are favorable in the b.c.c. lattices are considered. 
+% the plane and direction families are {110}_alpha, {112}_alpha,
+% <111>_alpha, <110>_alpha
+plane_families_bcc =     [ [1 1 0]
+                           [1 1 2] ];   % must be written with linebreak or ";" between vectors!                     
+direction_families_bcc = [ [1 1 1]
+                           [1 1 0] ];
+                       
+count_directions_extra = true;
+                       
+% find all possible combination (including different shear directions)
+[martensite.slip_planes, martensite.slip_directions] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
+%[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
+
+plane_families_fcc =     [ [1 1 1] ];
+direction_families_fcc = [ [1 1 0]; [1 1 2] ];
+[austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
+%[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
+
+martensite.considered_plasticity = 3; % 1-mart, 2-aust, 3-both mart and aust slip systems
+    
+cpps_gamma = all_from_family_perms( [1 1 1] );
+austenite.CPPs = cpps_gamma;
 
 
 %%
 % 'Kurdjumov Sachs directions [110]_aust || [111]_mart';
 % densest packed direction in austenite
 % KS = u !!!!
-% us = all_from_family_perms( [1 1 0] ); %, false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
-% us = us / sqrt(2);
+us = all_from_family_perms( [1 1 0] ); %, false ); % second argument sorts out sign-ambiguous vectors, i.e. [1 1 0] = [-1 -1 0]
+us = us / sqrt(2);
 % 
 % u = us(1,:)';
 %B3 * u
 
 
 
-function solutions = invariant_line_strain(martensite, austenite)
-% calculates invariant line strain (rototated, unstreched) - per default
-% the invariant line is assummed to be the close packed direction in
-% austenite!
-
-if isempty( martensite.invariant_lines )
-    us = martensite.CP_dirs;
-end
+% function solutions = invariant_line_strain(martensite, austenite)
+% % calculates invariant line strain (rototated, unstreched) - per default
+% % the invariant line is assummed to be the close packed direction in
+% % austenite!
+% 
+% if isempty( martensite.invariant_lines )
+%     us = martensite.CP_dirs;
+% end
 
 %% NOTE: martensite is a handle class so everything that is set here is set everywhere!
 % specify type of solution array
@@ -247,9 +247,9 @@ for iu = 1:length(us)
 end
 %%
 
-disp( [num2str(nchoosek(length(S),2)*length(u)),' slip combinations tested ',num2str(isol),'solutions found, ' num2str(neg_no_convergence_to_ILS), ' did not converge to ILS'] );
+disp( [num2str(nchoosek(length(S),2)*size(us,1)),' slip combinations tested ',num2str(isol),'solutions found, ' num2str(neg_no_convergence_to_ILS), ' did not converge to ILS'] );
 disp( ['First crit: rotation angle of lath > ', num2str(rot_angle_tolerance),' degree --> ', num2str(neg_rot), ' neglected'] );
 disp( ['Second crit: lambda2_ips_tolerance_lath > ' num2str(lambda2_ips_tolerance_lath), ' --> ' num2str(neg_far_from_IPS), ' neglected'] );
 disp( ['Third crit: neg_theta_CP >', num2str(theta_CP_max), ' degree --> ', num2str(neg_theta_CP) ,' neglected'] );
 
-end
+%end
