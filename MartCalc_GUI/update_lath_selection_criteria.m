@@ -145,20 +145,14 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                     theta_CPPs_max = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(2)).Children(2).String);
                 end
                 
-                % Criterion 3 has been chosen: Maximum deviation from NW OR
-                %'Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
+                % crit 3 - deviaton from IPS condition
                 if (handles.asc_status_ILS(3) > 0)
-                    theta_NW_max = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(3)).Children(2).String);
-                end
-                
-                % crit 4 - deviaton from IPS condition
-                if (handles.asc_status_ILS(4) > 0)
-                    lambda2_ips_tolerance_lath = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(4)).Children(2).String);
+                    lambda2_ips_tolerance_lath = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(3)).Children(2).String);
                 end
                 
                 % crit 5 - maximum rotation angle of inclusion
-                if (handles.asc_status_ILS(5) > 0)
-                    max_rot_angle_inclusion = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(5)).Children(2).String);
+                if (handles.asc_status_ILS(4) > 0)
+                    max_rot_angle_inclusion = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(4)).Children(2).String);
                 end
                 
                 
@@ -179,7 +173,7 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                             crit = [' for a stepwidth > ',num2str(min_stepwidth)];
                         case 2 % deviation of IPS condition
                             red_sols =    Solution_array( ILS_solution, red_sols, handles.austenite.CPPs, theta_CPPs_max, 'theta_CPPs', 'closest_CPPs', 'cpps_gamma', true);
-                            crit = [' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'Â°'];
+                            crit = [' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'°'];
                         case 3
                             red_sols =    Solution_array( ILS_solution, red_sols, 'lambda2_IPS_to_one', lambda2_ips_tolerance_lath);
                             crit = [' for deviation from abs(lambda2_ips - 1) < ',num2str(lambda2_ips_tolerance_lath)];
@@ -195,7 +189,7 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                         updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped before next active selection criterion (asc). See asc list.');
                     else
                         updateLog_MartCalc(hObject, handles,['Solutions reduced to : ', num2str(length(red_sols.array)), crit ] );
-                        handles.reduced_solutions = red_sols;
+                        handles.reduced_solutions_ILS = red_sols;
                     end
                     %
                     guidata(hObject, handles);

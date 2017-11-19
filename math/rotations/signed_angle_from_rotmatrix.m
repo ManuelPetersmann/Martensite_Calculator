@@ -16,7 +16,7 @@ yyy = [y1,y2,y3];
 eee = [e1';e2';e3'];
 if any(abs(yyy-1.) < 1.e-6)
     idx = find(abs(yyy-1.) < 1.e-6);
-    eee(idx,:)
+    %eee(idx,:)
     sig = sign( dot( cross(n, R*n), eee(idx,:) ) ) ;
     phi = sig * abs_phi;
 else

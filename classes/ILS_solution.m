@@ -70,9 +70,9 @@ classdef ILS_solution
             vec4 = cat(1,axis,angle);
         end
         %
-        function angle = get.rotangle_inclusion( obj )
+        function abs_angle = get.rotangle_inclusion( obj )
             [~,Q] = polardecomposition( obj.ST );
-            angle = signed_angle_from_rotmatrix( Q );
+            abs_angle = acosd( (trace(Q)-1.) / 2.);
         end
 
     end % methdos
