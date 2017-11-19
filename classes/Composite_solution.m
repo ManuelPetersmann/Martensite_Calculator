@@ -9,6 +9,7 @@ classdef Composite_solution %< IPS_solution
     
     properties %(Access = public)
         lath_solution_pair; % type (e.g. IPS_solution or Slip_solution) is set in the constructor
+        Fc05; % linear mixture of deformations at xi=0.5
     end
     
     properties (Dependent) % all depend on lath_id_pair
@@ -64,6 +65,9 @@ classdef Composite_solution %< IPS_solution
             % obj.tolerances = containers.Map();
         end  
         
+%         function Fc05 = get.Fc05( obj )
+%          Fc05 = linmix2( 0.5, obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST );
+%         end
         %% phase fraction (x) optimization methods
         % x = fmincon(@myfun,x0,A,b)
         function svo = get.shape_vec_opt( obj )

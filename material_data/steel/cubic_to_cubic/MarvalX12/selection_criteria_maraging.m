@@ -58,8 +58,14 @@ theta_max_ILSdir_to_h = 3.; % 3 reduces it to only 16 from 872 (last reduction s
 %display(['Selection criteria: g_min a']) 
 
 %% Block level selection criteria
-theta_hps = 10;
-theta_intersec_cpdir = 10.; 
+%theta_hps = 10;
+%theta_intersec_cpdir = 10.;
+
+% block tolerances
+rot_angle_block = 3.
+lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
+%lambda2_tol_laths = 1.e-4
 
 %% Packet level selection criteria
 % it seems reasonable that each packet has approximately a hydrostatic 

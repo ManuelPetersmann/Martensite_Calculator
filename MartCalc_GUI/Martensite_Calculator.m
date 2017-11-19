@@ -20,9 +20,7 @@ function varargout = Martensite_Calculator(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help Martensite_Calculator
-
-% Last Modified by GUIDE v2.5 20-Oct-2017 14:21:29
+% Last Modified by GUIDE v2.5 18-Nov-2017 11:22:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -67,13 +65,24 @@ handles.output = hObject;
 % end
 
 % initialize array for keeping track of the active selection criteria
-% 28.08.2017: currently there are 7 possible criteria for selection of solutions
+% 28.08.2017: currently there are 7 possible criteria for selection of IPS solutions
 % default at start of MartCalc-GUI: all = 0 --> inactive
 % asc = Active Selection Criteria
-handles.asc_status = zeros(1,7);
-handles.asc_number = 0;
-handles.asc_list = zeros(1,7);
-handles.log_status = 0; % variable for check if log has already been changed for a first time
+handles.asc_status_IPS = zeros(1,7);
+handles.asc_number_IPS = 0;
+handles.asc_list_IPS = zeros(1,7);
+handles.asc_IPS_maxcrit = 7;
+%
+% criteria for ILS solutions
+handles.asc_status_ILS = zeros(1,7);
+handles.asc_number_ILS = 0;
+handles.asc_list_ILS = zeros(1,7);
+handles.asc_ILS_maxcrit = 7;
+
+handles.asc_status_blocks = zeros(1,3);
+handles.asc_number_blocks = 0;
+handles.asc_list_blocks = zeros(1,3);
+handles.asc_blocks_maxcrit = 3;
 
 % create austenite and martensite objects
 handles.martensite = Martensite(); % creates martensite object
@@ -85,8 +94,11 @@ handles.austenite.CP_dirs = all_from_family_perms( [1 1 0], false ); % second ar
 handles.NW = all_from_family_perms( [1 2 1], false );
 
 handles.input_status   = true; % will be set to false if something is wrong with the input
+%handles.log_status = 0; % variable for check if log has already been changed for a first time
 
-handles.InterfaceObj = findobj(handles.figure1,'Enable','on','-and','-not','Tag','filename_results_edittext'); % variable to disable interface during calculations
+handles.InterfaceObj = findobj(handles.figure1,'Style','pushbutton','-or','Style','popupmenu'); % variable to disable interface during calculations
+%handles.InterfaceObj = findobj(handles.figure1,'Style','pushbutton','-or','Tag','popup_sorting_ILS','-or','Tag','popup_sorting_IPS'); % variable to disable interface during calculations
+%handles.InterfaceObj = findobj(handles.figure1,'Enable','on','-and','-not','Tag','filename_results_edittext'); % variable to disable interface during calculations
 
 guidata(hObject, handles);
 
@@ -100,8 +112,34 @@ varargout{1} = handles.output;
 %%#########################################################################
 %% LATH PART %%
 
-%% --- Executes on button press in start_lath_calc.
-function start_lath_calc_Callback(hObject, eventdata, handles)
+% --- Executes on selection change in popup_calc_lath_level.
+function popup_calc_lath_level_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_calc_lath_level (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_lath_level contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_calc_lath_level
+switch hObject.Value %handles.popup_calc_lath_level.Value
+    case 1 % or or or...
+        set(handles.pan_lsc_IPS,'visible','on')
+        set(handles.pan_asc_IPS,'visible','on')
+        set(handles.pan_sort_IPS,'visible','on')
+        set(handles.pan_lsc_ILS,'visible','off')
+        set(handles.pan_asc_ILS,'visible','off')
+        set(handles.pan_sort_ILS,'visible','off')
+    case 2 % or or or
+        set(handles.pan_lsc_ILS,'visible','on')
+        set(handles.pan_asc_ILS,'visible','on')
+        set(handles.pan_sort_ILS,'visible','on')
+        set(handles.pan_lsc_IPS,'visible','off')
+        set(handles.pan_asc_IPS,'visible','off')
+        set(handles.pan_sort_IPS,'visible','off')
+end
+guidata(hObject, handles);
+
+
+%% --- Executes on button press in pushbutton_start_lath_calc.
+function pushbutton_start_lath_calc_Callback(hObject, eventdata, handles)
 
 % disable interface during function call
 set(handles.InterfaceObj,'Enable','off');
@@ -118,35 +156,45 @@ if handles.input_status
     % store solution objects in an object array
     switch handles.popup_calc_lath_level.Value
         case 1
-            calculation_method = 'variable doubleshear incremental minimization of (middle_eigenvalue - 1.) for slip at the lath level';
+            calculation_method = 'IPS by doubleshear shear, incremental minimization of IPS condition abs(lambda2 -1.) at the lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
             %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.IPS_solutions.calculation_method = calculation_method;
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
+            %
+            updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
+            % ILS
+        case 2
+            calculation_method = 'ILS, doubleshear, incremental minimization of unrotated vector residual';
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+            %updateLog_MartCalc(hObject, handles, 'please wait...');
+            handles.martensite.ILS_solutions.calculation_method = calculation_method;
+            handles.martensite.ILS_solutions = invariant_line_strain(handles.martensite, handles.austenite); 
+            %
+            updateLog_MartCalc(hObject, handles, ['Determination of ILS solutions for laths completed: ' num2str(size(handles.martensite.ILS_solutions.array,2)),' solutions found.'] );
             
-            %% other cases could be added here
-            %     case 2
+            %% other cases can be added here         
             %         updateLog_MartCalc(hObject, handles, 'multiple shears incremental minimization - started')
             %         maraging_multiple_shears;
             %     case 3
             %         updateLog_MartCalc(hObject, handles, '_MarescaCurtin_test - run')
             %         maraging_MarescaCurtin_test;
     end
-    updateLog_MartCalc(hObject, handles, ['Determination of IPS solutions for laths completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-    %% filter solutions
-    l1 = length(handles.martensite.IPS_solutions.array);
-    %  formerly - case 8 - now default reduction to this value!
-    delta_determinant_max = 0.001; % maximum 0.1% non-physical volume change
-    updateLog_MartCalc(hObject, handles, ['checking solutions for non-physical volume change > ',num2str(delta_determinant_max*100),'%...'] );
-    % handles.reduced_solutions = 
-    handles.martensite.IPS_solutions = Solution_array( Slip_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
-    l2 = length(handles.martensite.IPS_solutions.array);
-    if l1 ~= l2
-        updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
-    else
-        updateLog_MartCalc(hObject, handles,'all solutions are valid');
-    end
-    update_Selection_criteria;
+    
+    %% filter solutions for volume change not necessary - volume does not change in my calculations!
+%     l1 = length(handles.martensite.IPS_solutions.array);
+%     %  formerly - case 8 - now default reduction to this value!
+%     delta_determinant_max = 0.001; % maximum 0.1% non-physical volume change
+%     updateLog_MartCalc(hObject, handles, ['checking solutions for non-physical volume change > ',num2str(delta_determinant_max*100),'%...'] );
+%     % handles.reduced_solutions = 
+%     handles.martensite.IPS_solutions = Solution_array( IPS_solution(), handles.martensite.IPS_solutions, 'delta_determinant_max', delta_determinant_max,  det(handles.martensite.U) );
+%     l2 = length(handles.martensite.IPS_solutions.array);
+%     if l1 ~= l2
+%         updateLog_MartCalc(hObject, handles, [num2str(l2-l1),' solutions discarded' ] );
+%     else
+%         updateLog_MartCalc(hObject, handles,'all solutions are valid');
+%     end
+    update_lath_selection_criteria;
 else
     updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
 end
@@ -158,104 +206,104 @@ set(handles.InterfaceObj,'Enable','on');
 
 
 %%#########################################################################
-%% --- Executes on selection change in lsc_popup.
-function lsc_popup_Callback(hObject, eventdata, handles)
-% Hints: contents = cellstr(get(hObject,'String')) returns lsc_popup contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from lsc_popup
+%% --- Executes on selection change in lsc_popup_IPS.
+function lsc_popup_IPS_Callback(hObject, eventdata, handles)
+% Hints: contents = cellstr(get(hObject,'String')) returns lsc_popup_IPS contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from lsc_popup_IPS
 
 switch hObject.Value
     case 1 % Criterion 1 has been chosen: Minimum slip plane density
-        if handles.asc_status(1) == 0 % if inactive
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Minimum average dislocation spacing (stepwidth).';
+        criterion_name = 'Minimum average transformation-dislocation spacing (stepwidth on interface).';
+        if handles.asc_status_IPS(1) == 0 % if inactive
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 5.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(1) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(1) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
     %
     case 2 % Criterion 2 has been chosen: Maximum shape strain
-        if handles.asc_status(2) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum (total) shape strain (eps_ips) of invariant plane strain.';
+        criterion_name = 'Maximum (total) shape strain (eps_ips) of invariant plane strain.';
+        if handles.asc_status_IPS(2) == 0
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 0.6;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(2) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(2) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
     case 3 % Criterion 3 has been chosen: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
-        if handles.asc_status(3) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
-            default_value = 1.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(3) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                        
+        criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
+        if handles.asc_status_IPS(3) == 0
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
+            default_value = 2.0;
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(3) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                        
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of {111}_gamma to {110}_alpha" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
     case 4 % Criterion 4 has been chosen: Maximum misorientation of block HP to {111}_gamma
-        if handles.asc_status(4) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma.';
+        criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma.';
+        if handles.asc_status_IPS(4) == 0
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 20.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(4) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);                       
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(4) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                       
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
     case 5 % Criterion 6 has been chosen: Maximum deviation from KS OR
-        if handles.asc_status(5) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of KS OR directions.';
+        criterion_name = 'Maximum deviation of perfect KS direction parallelism.';
+        if handles.asc_status_IPS(5) == 0
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 5.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(5) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(5) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
     case 6 % Criterion 7 has been chosen: Maximum deviation from NW OR
-        if handles.asc_status(6) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc    
-            criterion_name = 'Maximum deviation from NW OR directions';
+        criterion_name = 'Maximum deviation from perfect NW direction parallelism';
+        if handles.asc_status_IPS(6) == 0
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc    
             default_value = 8.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(6) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied       
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value); 
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(6) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied       
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value); 
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
     case 7 % Criterion 8 has been chosen: Maximum deviation of preferred invariant line to invariant habit plane
-        if handles.asc_status(7) == 0
-            handles.asc_number = handles.asc_number + 1; % increase number of asc
-            criterion_name = 'Maximum tolerance angle between preferred invariant line and habit plane';
+        criterion_name = 'Maximum tolerance angle between preferred invariant line and habit plane';
+        if handles.asc_status_IPS(7) == 0
+            handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 3.0;
-            handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-            handles.asc_status(7) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_IPS(7) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum tolerance angle between preferred invariant line and habit plane" is already active!')
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
         end
 %     case 8 % Criterion 5 has been chosen: Maximum deviation of determinant det(F) of transformation
-%         if handles.asc_status(8) == 0
-%             handles.asc_number = handles.asc_number + 1; % increase number of asc
+%         if handles.asc_status_IPS(8) == 0
+%             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
 %             criterion_name = 'Maximum deviation of theoretical volume change from Bain strain.';
 %             default_value = 0.001;
-%             handles.asc_list(handles.asc_number) = hObject.Value; % keep track of which criterion is at which point in the asc list
-%             handles.asc_status(8) = handles.asc_number; % set = number in row, in order to show that crit is already active and when it is to be applied
+%             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+%             handles.asc_status_IPS(8) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
 %             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
 %             guidata(hObject, handles); % Update handles structure
 %         else
@@ -264,116 +312,261 @@ switch hObject.Value
 end
 
 
+% --- Executes on selection change in lsc_popup_ILS.
+function lsc_popup_ILS_Callback(hObject, eventdata, handles)
+
+switch hObject.Value
+    case 1 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Minimum average transformation-dislocation spacing (stepwidth on interface).';
+        if handles.asc_status_ILS(1) == 0 % if inactive
+            handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
+            default_value = 5.0;
+            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_ILS(1) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+        %
+    case 2 % Criterion 2 : Maximum misorientation of CPPs {110}_alpha and {111}_gamma
+        criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
+        if handles.asc_status_ILS(2) == 0
+            handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
+            default_value = 2.0;
+            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_ILS(2) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+        %
+    case 3 % Criterion 3 has been chosen: Maximum deviation from IPS condition
+        criterion_name = 'Maximum deviation of IPS condition (difference of middle valued eigenvalue to one)';
+        if handles.asc_status_ILS(3) == 0
+            handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
+            default_value = 1.e-2;
+            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_ILS(3) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+        %
+    case 4 % Criterion 4: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
+        criterion_name = 'Maximum rotation angle of lath inclusion';
+        if handles.asc_status_ILS(4) == 0
+            handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
+            default_value = 10.0;
+            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_ILS(4) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+end
+
+% --- Executes on selection change in popup_asc_block_level.
+function popup_asc_block_level_Callback(hObject, eventdata, handles)
+
+switch hObject.Value
+    case 1 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Rotation angle of (average) block deformation.';
+        if handles.asc_status_blocks(1) == 0 % if inactive
+            handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
+            default_value = 2.0;
+            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_blocks(1) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+        %
+    case 2 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Deviation of IPS condition (middle valued eigenvalue to one).';
+        if handles.asc_status_blocks(2) == 0 % if inactive
+            handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
+            default_value = 1.e-2;
+            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_blocks(2) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+        %
+    case 3 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Deviation of block habit plane to {111}_aust';
+        if handles.asc_status_blocks(3) == 0 % if inactive
+            handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
+            default_value = 5.0;
+            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_blocks(3) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, 'Criterion - "',criterion_name,'" is already active!')
+        end
+        %
+end
+
 
 %#########################################################################
-%% --- Executes on button press in update_selection_button.
-function update_selection_button_Callback(hObject, eventdata, handles)
+%% --- Executes on button press in pushbutton_update_lath_crit.
+function pushbutton_update_lath_crit_Callback(hObject, eventdata, handles)
 %
 set(handles.InterfaceObj,'Enable','off');
-update_Selection_criteria;
-set(handles.InterfaceObj,'Enable','on');   
+update_lath_selection_criteria;
+set(handles.InterfaceObj,'Enable','on'); 
 
+% --- Executes on button press in pushbutton_update_block_crit.
+function pushbutton_update_block_crit_Callback(hObject, eventdata, handles)
+
+set(handles.InterfaceObj,'Enable','off');
+update_block_selection_criteria;
+set(handles.InterfaceObj,'Enable','on'); 
 
 
 %#########################################################################
-%% --- Executes on selection change in popup_sorting.
-function popup_sorting_Callback(hObject, eventdata, handles)
+%% --- Executes on selection change in popup_sorting_IPS.
+function popup_sorting_IPS_Callback(hObject, eventdata, handles)
 %
-% disable interface during function call
-set(handles.InterfaceObj,'Enable','off');
 %
 % reduced_solutions are now directly availble since volumetric changes are
 % thrown out immediately. -> reduced solutions
-if isempty(handles.reduced_solutions.array) %        % ~handles.reduced_solutions.solutions_available
+if isempty(handles.martensite.IPS_solutions.array)
     updateLog_MartCalc(hObject, handles,'No solutions available for sorting.')
 else
-    unsrt_sols = handles.reduced_solutions;
+    % disable interface during function call
+    set(handles.InterfaceObj,'Enable','off');
+    unsrt_sols = handles.reduced_solutions_IPS;
     try
         switch hObject.Value
             case 1
-                handles.reduced_solutions = unsrt_sols.sort( 'stepwidth' );
+                handles.reduced_solutions_IPS = unsrt_sols.sort( 'stepwidth' );
             case 2
-                handles.reduced_solutions = unsrt_sols.sort( 'eps_ips' );
+                handles.reduced_solutions_IPS = unsrt_sols.sort( 'eps_ips' );
             case 3
-                handles.reduced_solutions = unsrt_sols.sort( 'theta_CPPs' );
+                handles.reduced_solutions_IPS = unsrt_sols.sort( 'theta_CPPs' );
             case 4
-                handles.reduced_solutions = unsrt_sols.sort( 'theta_h_to_CPP' );
+                handles.reduced_solutions_IPS = unsrt_sols.sort( 'theta_h_to_CPP' );
             case 5
-                handles.reduced_solutions = unsrt_sols.sort( 'theta_KS_min' );
+                handles.reduced_solutions_IPS = unsrt_sols.sort( 'theta_KS_min' );
             case 6
-                handles.reduced_solutions = unsrt_sols.sort( 'theta_NW_min' );
+                handles.reduced_solutions_IPS = unsrt_sols.sort( 'theta_NW_min' );
             case 7
-                handles.reduced_solutions = unsrt_sols.sort('theta_max_ILSdir_to_h');
+                handles.reduced_solutions_IPS = unsrt_sols.sort('theta_max_ILSdir_to_h');
                 %         case 8
-                %             handles.reduced_solutions = unsrt_sols.sort( 'delta_determinant_max' );
+                %             handles.reduced_solutions_IPS = unsrt_sols.sort( 'delta_determinant_max' );
         end
+        updateLog_MartCalc(hObject, handles,'Sorting finished.')
     catch ME
-        updateLog_MartCalc(hObject, handles,ME)
+        updateLog_MartCalc(hObject, handles,ME.message)
     end
-    updateLog_MartCalc(hObject, handles,'Sorting finished.')
+    set(handles.InterfaceObj,'Enable','on');
 end
 guidata(hObject, handles);
 % enable interface again
-set(handles.InterfaceObj,'Enable','on');
+
+
+
+% --- Executes on selection change in popup_sorting_ILS.
+function popup_sorting_ILS_Callback(hObject, eventdata, handles)
+% hObject    handle to popup_sorting_ILS (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popup_sorting_ILS contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popup_sorting_ILS
 
 
 
 %#########################################################################
 %% BLOCK PART %%
 
-% --- Executes on button press in start_block_calc.
-function start_block_calc_Callback(hObject, eventdata, handles)
+% --- Executes on button press in pushbutton_start_block_calc.
+function pushbutton_start_block_calc_Callback(hObject, eventdata, handles)
 
 % disable interface during function call
 %set(handles.InterfaceObj,'Enable','off');
-
 updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --------------');
-% read user input from GUI for determination of solutionsh
+% read user input from GUI for determination of solutions
+
+% Minors reltation tolerances
+det_tol = num2str(handles.handles.edit_minors_det.String);
+if( det_tol > 1.e-3 )
+    updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
+    handles.input_status = false;
+end
+cof_tol = num2str(handles.handles.edit_minors_cof.String);
+if( cof_tol > 1.e-3 )
+    updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
+    handles.input_status = false;
+end
 
 if handles.input_status
-    switch handles.popup_calc_block_level.Value
-        case 1
+    
+    switch handles.popup_calc_lath_level.Value
+%    switch handles.popup_asc_block_level.Value - removed this!
+        case 1 % IPS laths
             handles.block_solutions = Solution_array_composite();
             %
             if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
-                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath solutions first')
+                updateLog_MartCalc(hObject, handles, 'Lath IPS-solutions must be calculated first')
             else
-                theta_intersec_cpdir = str2double(handles.misori_HPintersec_cpdir_edit_txt.String);
-                if ~isnan(theta_intersec_cpdir)
-                    handles.block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
-                end
-                theta_hps = str2double(handles.max_misori_HPs_laths_for_blocks_edit_txt.String);
-                if ~isnan(theta_hps)
-                    handles.block_solutions.mixing_tolerances('theta_hps') = theta_hps;
-                end
+%                 theta_intersec_cpdir = str2double(handles.misori_HPintersec_cpdir_edit_txt.String);
+%                 if ~isnan(theta_intersec_cpdir)
+%                     handles.block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
+%                 end
+%                 theta_hps = str2double(handles.max_misori_HPs_laths_for_blocks_edit_txt.String);
+%                 if ~isnan(theta_hps)
+%                     handles.block_solutions.mixing_tolerances('theta_hps') = theta_hps;
+%                 end
                 %
-                calculation_method = 'NEW - Build blocks from lath-IPS-solutions, optimized phase fractions';
+                calculation_method = 'Build blocks from lath IPS-solutions (+ optimized phase fractions)';
                 updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
                 %
-                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions, handles.block_solutions); %,'eps' );
-                updateLog_MartCalc(hObject, handles, ['Optimized determination of composite blocks from lath solutions completed.', ...
+                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_IPS, handles.block_solutions); 
+                updateLog_MartCalc(hObject, handles, ['Determination of composite blocks fullfilling minors relations from lath solutions completed.', ...
+                num2str(length(handles.block_solutions.array)),' solutions found.'] );
+            end
+        case 2 % ILS laths
+            handles.block_solutions = Solution_array_composite();
+            %
+            if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
+                updateLog_MartCalc(hObject, handles, 'Lath ILS-solutions must be calculated first')
+            else
+                calculation_method = 'Build blocks from lath IPS-solutions (+ optimized phase fractions)';
+                updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+                %
+                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_IPS, handles.block_solutions); %,'eps' );
+                updateLog_MartCalc(hObject, handles, ['Determination of composite blocks fullfilling minors relations from lath solutions completed.', ...
                     num2str(length(handles.block_solutions.array)),' solutions found.'] );
             end
-        case 2
-            get_input_MartCalc;
             
-            %% integrated file: maraging_block_sym_doubleshear.m;
-            calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
-            updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
-            %updateLog_MartCalc(hObject, handles, 'please wait...');
-            %
-            % highly symmetric mirror planes from bcc
-            % {001} family
-            sort_out_negatives = true;
-            ms = all_from_family_perms( [0 0 1], sort_out_negatives );
-            % {011} family
-            ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-            handles.martensite.mirror_planes = ms;
-            %
-            handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
-            updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-            %
-            update_Selection_criteria;
+
+            %%            Qi 2014 Acta - removed from direct block calculation
+%             get_input_MartCalc;
+%             calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
+%             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+%             %updateLog_MartCalc(hObject, handles, 'please wait...');
+%             %
+%             % highly symmetric mirror planes from bcc
+%             % {001} family
+%             sort_out_negatives = true;
+%             ms = all_from_family_perms( [0 0 1], sort_out_negatives );
+%             % {011} family
+%             ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
+%             handles.martensite.mirror_planes = ms;
+%             %
+%             handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
+%             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
+%             %
+%             update_lath_selection_criteria;
     end
     %
     guidata(hObject, handles);
@@ -387,8 +580,8 @@ guidata(hObject, handles);
    
 
 %#########################################################################
-%% --- Executes on button press in write_lath_solutions_pushbutton.
-function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
+%% --- Executes on button press in pushbutton_write_solutions.
+function pushbutton_write_solutions_Callback(hObject, eventdata, handles)
 
 % write lath solutions
 if isempty(handles.reduced_solutions.array) % ~handles.reduced_solutions.solutions_available
@@ -467,6 +660,23 @@ set(handles.InterfaceObj,'Enable','on');
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %#########################################################################
 %% all functions after this are not used...
 
@@ -474,8 +684,8 @@ set(handles.InterfaceObj,'Enable','on');
 function mixing_criteria_for_blocks_Callback(hObject, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
-function lsc_popup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to lsc_popup (see GCBO)
+function lsc_popup_IPS_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to lsc_popup_IPS (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1377,26 +1587,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
-% --- Executes on selection change in popup_calc_lath_level.
-function popup_calc_lath_level_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_calc_lath_level (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_lath_level contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_calc_lath_level
-
-% --- Executes on selection change in popup_calc_block_level.
-function popup_calc_block_level_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_calc_block_level (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_block_level contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_calc_block_level
-
-
 % --- Executes during object creation, after setting all properties.
 function popup_calc_lath_level_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to popup_calc_lath_level (see GCBO)
@@ -1410,8 +1600,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 % --- Executes during object creation, after setting all properties.
-function popup_calc_block_level_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_calc_block_level (see GCBO)
+function popup_asc_block_level_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_asc_block_level (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1435,8 +1625,8 @@ end
 
 
 % --- Executes during object creation, after setting all properties.
-function popup_sorting_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popup_sorting (see GCBO)
+function popup_sorting_IPS_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_sorting_IPS (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1555,6 +1745,242 @@ end
 % --- Executes during object creation, after setting all properties.
 function misori_HPintersec_cpdir_edit_txt_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to misori_HPintersec_cpdir_edit_txt (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function lsc_popup_ILS_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to lsc_popup_ILS (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit161_Callback(hObject, eventdata, handles)
+% hObject    handle to edit161 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit161 as text
+%        str2double(get(hObject,'String')) returns contents of edit161 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit161_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit161 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit162_Callback(hObject, eventdata, handles)
+% hObject    handle to edit162 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit162 as text
+%        str2double(get(hObject,'String')) returns contents of edit162 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit162_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit162 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit163_Callback(hObject, eventdata, handles)
+% hObject    handle to edit163 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit163 as text
+%        str2double(get(hObject,'String')) returns contents of edit163 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit163_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit163 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit164_Callback(hObject, eventdata, handles)
+% hObject    handle to edit164 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit164 as text
+%        str2double(get(hObject,'String')) returns contents of edit164 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit164_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit164 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenu11.
+function popupmenu11_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu11 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu11
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu11_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu11 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+% --- Executes during object creation, after setting all properties.
+function popup_sorting_ILS_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popup_sorting_ILS (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit169_Callback(hObject, eventdata, handles)
+% hObject    handle to edit169 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit169 as text
+%        str2double(get(hObject,'String')) returns contents of edit169 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit169_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit169 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_minors_det_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_minors_det (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_minors_det as text
+%        str2double(get(hObject,'String')) returns contents of edit_minors_det as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_minors_det_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_minors_det (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit171_Callback(hObject, eventdata, handles)
+% hObject    handle to edit171 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit171 as text
+%        str2double(get(hObject,'String')) returns contents of edit171 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit171_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit171 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit_minors_cof_Callback(hObject, eventdata, handles)
+% hObject    handle to edit_minors_cof (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit_minors_cof as text
+%        str2double(get(hObject,'String')) returns contents of edit_minors_cof as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit_minors_cof_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit_minors_cof (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

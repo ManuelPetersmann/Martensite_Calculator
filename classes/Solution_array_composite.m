@@ -5,7 +5,9 @@ classdef Solution_array_composite
         %solutions_available = false;
         %
         calculation_method; % a string specifying the method to trim the middle eigenvalue to one
-        mixing_tolerances; %  = containers.Map(); must be initialized int the constructor!!! see https://de.mathworks.com/matlabcentral/answers/331779-using-containers-map-as-a-class-s-property
+        %
+        selection_criteria; %  = containers.Map(); must be initialized int the constructor!!! see https://de.mathworks.com/matlabcentral/answers/331779-using-containers-map-as-a-class-s-property
+        %
         sorted_after = 'unsorted'; % string specifying criterion array is sorted for
     end
     
@@ -17,7 +19,7 @@ classdef Solution_array_composite
             %
             %foundnr = 0; % counter for how many matches are found for the construction of constrained solutions
             obj.array = Composite_solution();
-            obj.mixing_tolerances = containers.Map();
+            obj.selection_criteria = containers.Map();
         end
         
         

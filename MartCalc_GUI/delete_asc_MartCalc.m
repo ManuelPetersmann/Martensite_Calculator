@@ -1,11 +1,11 @@
-function [ ] = delete_asc_MartCalc( hObject,eventdata)
-%DELETE_ASC_MARTCALC Summary of this function goes here
-%   Detailed explanation goes here
+function [ ] = delete_asc_MartCalc( hObject, eventdata ) % here both: hObject and eventdata are necessary that it works!!!
+% DELETE_ASC_MARTCALC 
+
+% PET 15.11.17 - handles.pan_asc ---> handles.(handles.paneltag) ---> main_asc_panel
 
 % retrieve data of GUI
 handles = guidata(hObject);
 button_parent = get(hObject,'Parent'); % get parent panel of asc
-
 main_asc_panel = get(button_parent,'Parent'); % get main panel for asc
 
 % children(3) is the textfield with a description of the actual criterion
@@ -13,36 +13,75 @@ main_asc_panel = get(button_parent,'Parent'); % get main panel for asc
 % criteria
 criterion_number = button_parent.Children(3).Value; % children(3) is the textfield with a description of the actual criterion
 
-postion_in_asc_list = handles.asc_status(criterion_number);
+% PET 16.11.17 - Note: At the end of this file the variables are written back =)
+switch main_asc_panel
+    case handles.pan_asc_IPS
+        status     = handles.asc_status_IPS;
+        asc_number = handles.asc_number_IPS;
+        asc_list = handles.asc_list_IPS;
+    case handles.pan_asc_ILS
+        % criteria for ILS solutions
+        status     = handles.asc_status_ILS;
+        asc_number = handles.asc_number_ILS;
+        asc_list = handles.asc_list_ILS;
+    case handles.pan_asc_blocks
+        status     = handles.asc_status_blocks;
+        asc_number = handles.asc_number_blocks;
+        asc_list = handles.asc_list_blocks;
+    otherwise
+        error('This parent is not considered for deletion of panels')
+end
+
+
+%% 
+postion_in_asc_list = status(criterion_number); %handles.asc_status(criterion_number); 
 % delete actual asc panel
 % NOTE: with deletion of this panel, the following panels in the list are
 % switched one position forward in the list of .Children!
 % % % handles.pan_asc.Children(handles.asc_number-postion_in_asc_list+1).delete(); 
-handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).delete() 
-handles.asc_number = handles.asc_number - 1; % decrease number of asc
-handles.asc_status(criterion_number) = 0; % set criterion inactive
+main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).delete() 
+asc_number = asc_number - 1; % decrease number of asc
+status(criterion_number) = 0; % set criterion inactive
 
 
 % update positions of the following list entries
 % % while(handles.asc_list(postion_in_asc_list) > 0)
-while(postion_in_asc_list <= size(handles.pan_asc.Children,1))
+while(postion_in_asc_list <= size(main_asc_panel.Children,1))
    % update position of the panel
-   handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Position(2)=...
-       handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Position(2)+((handles.pan_asc.Position(4)/8)/handles.pan_asc.Position(4));
+      main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).Position(2)=...
+       main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).Position(2)+ ...
+       ((main_asc_panel.Position(4)/8)/main_asc_panel.Position(4));
    
    % update number of position in list
-   handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Children(4).String = num2str(postion_in_asc_list);
+   main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).Children(4).String = num2str(postion_in_asc_list);
    
    % update status of criterion in order to fit new position in list
-   handles.asc_status(handles.pan_asc.Children(size(handles.pan_asc.Children,1)+1-postion_in_asc_list).Children(3).Value) = postion_in_asc_list; 
+   status(main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).Children(3).Value) = postion_in_asc_list; 
    
-   handles.asc_list(postion_in_asc_list)=handles.pan_asc.Children(postion_in_asc_list).Children(3).Value;
+   asc_list(postion_in_asc_list) = main_asc_panel.Children(postion_in_asc_list).Children(3).Value;
    
    postion_in_asc_list = postion_in_asc_list+1;
 end
+%%
+
+switch main_asc_panel
+    case handles.pan_asc_IPS
+        handles.asc_status_IPS = status;
+        handles.asc_number_IPS = asc_number;
+        handles.asc_list_IPS = asc_list;
+    case handles.pan_asc_ILS
+        % criteria for ILS solutions
+        handles.asc_status_ILS = status;
+        handles.asc_number_ILS = asc_number;
+        handles.asc_list_ILS = asc_list;
+    case handles.pan_asc_blocks
+        handles.asc_status_blocks = status;
+        handles.asc_number_blocks = asc_number;
+        handles.asc_list_blocks = asc_list;
+end
 
 % update GUI data
-% % % guidata(Martensite_Calculator, handles);
-guidata(main_asc_panel, handles);
+guidata(main_asc_panel, handles); % same as - 
+%guidata(hobject, handles);
 end
 

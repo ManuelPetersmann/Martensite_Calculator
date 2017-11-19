@@ -17,16 +17,15 @@ function [block_sols, block_solutions] = deformation_mixture_tests(lath_solution
 % martensties - p.131.dö
 
 if nargin < 4
-    lambda2_tol_block_aust = 1.e-1 % doesnrt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    lambda2_tol_laths = 1.e-2
-    cof_tol = 1.e-5
-    det_tol = 1.e-5
-    block_hp_cp_aust_tol = 3.; % degree - even if i just set this only to 10 most solutions fall out  
-    %
+    % minors tolerances
+    cof_tol = 1.e-4
+    det_tol = 1.e-4
+    % block tolerances
     rot_angle_block = 3.
+    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
+    %lambda2_tol_laths = 1.e-4
 end
-
-
 
 d = det(U);
 %detU = det( B3 );
@@ -75,15 +74,15 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         x = 0.5;
         Fc = linmix2(x,F1,F2);    
         
-        %% third MINORS RULE
+        %% Minors rules
+        % third MINORS RULE
         det_Fc = det( Fc ); % plotting showed that if the determinant changes then the maximum deviation is at xi=0.5
         if abs(detU - det_Fc) > det_tol
             neg_minors = neg_minors + 1;
             continue
         end
         
-        
-        %% second MINORS RULE
+        % second MINORS RULE
         cofFc = cofactor( Fc );
         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % frob_distance(cofFc , cof_F_sum)
@@ -91,7 +90,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             continue
         end
         
-        %%
+        %% rotation of Block_inclusion
         [~,R] = polardecomposition( Fc );
         [ angle, axis ] = rotmat_to_axis_angle( R );
         %vec4 = vrrotmat2vec( R );
@@ -111,14 +110,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             continue
         end
         
-        
-        %% RANK one between laths
-%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
-%             neg_lamda2_laths = neg_lamda2_laths + 1;
-%             continue
-%         end
-        
-        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
+        % deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
 %        PET 5.11. - corrected Error > instead of < !
        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
@@ -131,6 +123,12 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 %         min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1)
 %         min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2)
         
+
+        %% RANK one between laths
+%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
+%             neg_lamda2_laths = neg_lamda2_laths + 1;
+%             continue
+%         end
 
 %%         % Considering that the two F could be equal since the slip --- basically I take care of that in an extra function
 %         deformations are not linearly independent! c.f. non-uniqueness of

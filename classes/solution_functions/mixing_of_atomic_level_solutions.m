@@ -1,5 +1,6 @@
-function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol, block_hp_cp_aust_tol, delta_F_min) % outarg - block_solutions tol) 
-% call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, tol)  % opt_func  
+function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, cof_tol, det_tol) 
+
+% call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, cof_tol, det_tol) 
 %
 % lath_solutions ... array of lath solutions for building blocks
 % block_solutions ... object of Solution_array_composite a.o. with property
@@ -22,17 +23,10 @@ function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, bloc
 % now i optimize for everything simultaneously, opt_func)  
 
 if nargin < 4
-    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    lambda2_tol_laths = 1.e-4
+    % minors tolerances
     cof_tol = 1.e-4
     det_tol = 1.e-4
-    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out 
 end
-
-    function lambda2_mix = mix_y2( x, F1, F2)
-        Fc = linmix2(x, F1, F2);
-        [~,lambda2_mix] = sorted_eig_vals_and_vecs(Fc'*Fc);
-    end
 
 calculation_method = 'NEW Approach: Build blocks from lath-IPS-solutions, optimized phase fractions';
 block_solutions.calculation_method = calculation_method;
@@ -52,20 +46,36 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         x = 0.5;
         Fc = linmix2(x,F1,F2);
         
-        %% third MINORS RULE
+        %% Minors rules
+        % third MINORS RULE
         det_Fc = det( Fc ); % plotting showed that if the determinant changes then the maximum deviation is at xi=0.5
         if abs(detU - det_Fc) > det_tol
             continue
         end
         
-        %% second MINORS RULE
+        % second MINORS RULE
         cofFc = cofactor( Fc );
         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % alternatively frob distance
             continue
         end
         
-        %% deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
+        %% rotation of Block_inclusion
+        [~,R] = polardecomposition( Fc );
+        [ angle, axis ] = rotmat_to_axis_angle( R );
+        %vec4 = vrrotmat2vec( R );
+        % convert angle to degree
+        %angle = rad2deg( vec4(4) );
+        if angle > rot_angle_block
+            continue
+        end
+
+        %% RANK one between block-aust - check deviation of lambda2
+        if (lambda2_linmix(x,F1,F2) - 1)  > lambda2_tol_block_aust
+            continue
+        end
+        
+        % deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
         [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
         % I found that automatically both h's should be within the tolerance
         if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
@@ -74,15 +84,11 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         end
         
           %% RANK one between laths
-        if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
-            continue
-        end
+%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
+%             continue
+%         end
 
-        %% RANK one between block-aust - check deviation of lambda2
-        if (mix_y2(x,F1,F2) - 1)  > lambda2_tol_block_aust
-            continue
-        end
-        
+ 
         %% Considering that the two F could be equal since the slip
         % deformations are not linearly independent! c.f. non-uniqueness of
         % plastic slip
@@ -126,7 +132,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
  
         block_sols = block_sols + 1;            
         block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
-        
+        block_solutions.array( block_sols ).Fc05 = Fc;
         
 %         if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
 %         %    block_solutions.array( block_sols ).tolerances('theta_intersec_cpdir')    = theta_intersec_cpdir;
