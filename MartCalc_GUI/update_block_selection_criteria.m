@@ -4,23 +4,6 @@
 if ( ( ~isempty(handles.martensite.IPS_solutions.array) ) && (handles.popup_calc_lath_level.Value == 1) )  || ...
    ( ( ~isempty(handles.martensite.ILS_solutions.array) ) && (handles.popup_calc_lath_level.Value == 2) )
     
-    % Minors reltation tolerances
-    det_tol = num2str(handles.handles.edit_minors_det.String);
-    if( det_tol <= 1.e-3 )
-        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX = str2num(handles.edit_minors_det.String);
-    else
-        updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
-        handles.input_status = false;
-    end
-    
-    cof_tol = num2str(handles.handles.edit_minors_cof.String);
-    if( cof_tol <= 1.e-3 )
-        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX = str2num(handles.edit_minors_cof.String);
-    else
-        updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
-        handles.input_status = false;
-    end
-    
     if handles.asc_number_blocks > 0
         
         % criterion 1: rotation angle of (average) block deformation

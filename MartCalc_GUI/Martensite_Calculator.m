@@ -450,6 +450,23 @@ function start_block_calc_Callback(hObject, eventdata, handles)
 updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --------------');
 % read user input from GUI for determination of solutions
 
+% Minors reltation tolerances
+det_tol = num2str(handles.handles.edit_minors_det.String);
+if( det_tol <= 1.e-3 )
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX = str2num(handles.edit_minors_det.String);
+else
+    updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
+    handles.input_status = false;
+end
+
+cof_tol = num2str(handles.handles.edit_minors_cof.String);
+if( cof_tol <= 1.e-3 )
+    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX = str2num(handles.edit_minors_cof.String);
+else
+    updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
+    handles.input_status = false;
+end
+
 if handles.input_status
     switch handles.popup_calc_lath_level.Value
 %    switch handles.popup_asc_block_level.Value - removed this!
