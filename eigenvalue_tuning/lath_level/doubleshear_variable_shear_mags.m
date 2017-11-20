@@ -41,7 +41,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         eps2 = eps_initial;
         % g = g_initial / 1./(norm(d11)*norm(n11));
         is_possible_solution = false;
-        S_accummulated = I;
+        S_accummulated = eye(3);
         %lambda2_smaller1 = lambda2_smaller1_initial;
         while ( ~is_possible_solution && (eps1 < eps_max) && (eps2 < eps_max) )  
             % if the solution for g is very high or low respectively, do not consider it
@@ -49,7 +49,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 error('this should not happen - fix code...')
             end
             
-            S1 =  S_accummulated * (I + delta_eps* S(:,:,is1) );  
+            S1 =  S_accummulated * (eye(3) + delta_eps* S(:,:,is1) );  
             F = martensite.U * S1;
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
             [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
@@ -58,7 +58,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             end
             new_delta_lambda2_S1 = abs(1. - lambda_2);
             
-            S2 =  S_accummulated * (I + delta_eps* S(:,:,is2) );  
+            S2 =  S_accummulated * (eye(3)+ delta_eps* S(:,:,is2) );  
             F = martensite.U * S2; % here it has been tested that the order of multiplication does not matter
                         % since the Bain is pure stretch and SS is a small strain
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
@@ -80,7 +80,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 else
                     old_min_delta_lambda2_to_1 = new_delta_lambda2_S1;
                     eps1 = eps1 + delta_eps;
-                    S_accummulated = S_accummulated * ( I + delta_eps * S(:,:,is1) );
+                    S_accummulated = S_accummulated * ( eye(3)+ delta_eps * S(:,:,is1) );
                 end
             else % (delta_lambda2_S1 > delta_lambda2_S2)
                 if ( ( lambda2_smaller1_shear2 ~= lambda2_smaller1_initial ) || ( old_min_delta_lambda2_to_1 < new_delta_lambda2_S2 ) )
@@ -88,7 +88,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 else
                     old_min_delta_lambda2_to_1 = new_delta_lambda2_S2;
                     eps2 = eps2 + delta_eps;
-                    S_accummulated = S_accummulated * ( I + delta_eps * S(:,:,is2) );
+                    S_accummulated = S_accummulated * ( eye(3)+ delta_eps * S(:,:,is2) );
                 end
             end
             
@@ -106,7 +106,7 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         if is_possible_solution
             %% calculate solution
             % calculate invariant plane vector n_i etc.
-            [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(F, I, tolerance );
+            [y1,y3, d1, d2, h1, h2, Q1, Q2] = rank_one(F, eye(3), tolerance );
             % Note habit plane solutions come in pairs!
             
             isol = isol + 2; % increase counter for number of solutions found
@@ -121,9 +121,9 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             % PET 14.11.17 - Slip_solution -> Slip_systems and made this
             % class independent from other classes
             % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2            
-            solutions.array( isol-1 ) =  IPS_solution(F, I, y1, y3, d1, h1, Q1, Q1*martensite.U);
+            solutions.array( isol-1 ) =  IPS_solution(F, eye(3), y1, y3, d1, h1, Q1, Q1*martensite.U);
             solutions.array( isol-1 ).slip = Slip_systems( eps_s, d, n );
-            solutions.array( isol )   =  IPS_solution(F, I, y1, y3, d2, h2, Q2, Q2*martensite.U);
+            solutions.array( isol )   =  IPS_solution(F, eye(3), y1, y3, d2, h2, Q2, Q2*martensite.U);
             solutions.array( isol ).slip = Slip_systems( eps_s, d, n );
             
             % reduced contructor could look like

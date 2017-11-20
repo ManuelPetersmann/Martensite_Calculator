@@ -1,8 +1,9 @@
 %% update selection criteria for BLOCKS
 
+lath_type = handles.popup_calc_lath_level.Value;
 
-if ( ( ~isempty(handles.martensite.IPS_solutions.array) ) && (handles.popup_calc_lath_level.Value == 1) )  || ...
-   ( ( ~isempty(handles.martensite.ILS_solutions.array) ) && (handles.popup_calc_lath_level.Value == 2) )
+if ( ( ~isempty(handles.martensite.IPS_solutions.array) ) && (lath_type == 1) )  || ...
+   ( ( ~isempty(handles.martensite.ILS_solutions.array) ) && (lath_type == 2) )
     
     if handles.asc_number_blocks > 0
         
@@ -55,11 +56,15 @@ if ( ( ~isempty(handles.martensite.IPS_solutions.array) ) && (handles.popup_calc
             
         end % end for
         
-        updateLog_MartCalc(hObject, handles, 'Filtering of Block solution build from IPS lath solutions after specified criteria completed.');
+        updateLog_MartCalc(hObject, handles, 'Filtering of Block solutions build from IPS lath solutions after specified criteria completed.');
     else
-        updateLog_MartCalc(hObject, handles, 'Note: No filters for Block solution build from IPS lath solutions specified.');
+        updateLog_MartCalc(hObject, handles, 'Note: No filters for Block solutions build from lath solutions specified.');
     end
 else
-    updateLog_MartCalc(hObject, handles, 'No IPS lath solutions available.');
+    if lath_type == 1
+        updateLog_MartCalc(hObject, handles, 'No lath IPS solutions available.');
+    else
+        updateLog_MartCalc(hObject, handles, 'No lath ILS solutions available.');
+    end
 end 
 

@@ -11,6 +11,7 @@ classdef ILS_solution
         id; % to know after sorting which solutions came in pairs initially 1-2, 3-4, 5-6... and for block solutions
         %
         slip; % Slip_systems()
+        shear_increments;
     end
     properties (Dependent)
         lambda2_IPS_to_one; % % characterises how close the ILS is to an IPS
@@ -70,9 +71,9 @@ classdef ILS_solution
             vec4 = cat(1,axis,angle);
         end
         %
-        function angle = get.rotangle_inclusion( obj )
+        function abs_angle = get.rotangle_inclusion( obj )
             [~,Q] = polardecomposition( obj.ST );
-            angle = signed_angle_from_rotmatrix( Q );
+            abs_angle = acosd( (trace(Q)-1.) / 2.);
         end
 
     end % methdos

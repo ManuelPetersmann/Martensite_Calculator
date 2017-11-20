@@ -192,8 +192,69 @@ block_solutions = mixing_of_atomic_level_solutions(glc, block_solutions, martens
 %% ILS approach
 martensite.ILS_solutions = invariant_line_strain(martensite, austenite);
 
+%% reduce solutions
+
+max_rot_angle_inclusion = 15. % degree
+%added_mass_angle_tolerance = rot_angle_tolerance;
+theta_CP_max = 2. % degree
+lambda2_ips_tolerance_lath = 2.e-2
+
+red_sols = Solution_array( ILS_solution, martensite.ILS_solutions, 'stepwidth', min_stepwidth, 'min');
+display([' for a stepwidth > ',num2str(min_stepwidth)] );
+
+red_sols =    Solution_array( ILS_solution, red_sols, handles.austenite.CPPs, theta_CPPs_max, 'theta_CPPs', 'closest_CPPs', 'cpps_gamma', true);
+disp([' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'°']);
+
+red_sols =    Solution_array( ILS_solution, red_sols, 'lambda2_IPS_to_one', lambda2_ips_tolerance_lath);
+disp([' for deviation from abs(lambda2_ips - 1) < ',num2str(lambda2_ips_tolerance_lath)] );
+
+red_sols =    Solution_array( ILS_solution, red_sols, 'rotangle_inclusion', max_rot_angle_inclusion);
+disp([' for an inclusion rotation angle  < ',num2str(max_rot_angle_inclusion),'°'] );
+                        
+
+%disp( [num2str(nchoosek(length(S),2)*size(us,1)),' combinations {u_i,S1_j,S2_k} tested, ', ...
+%    num2str(isol),' solutions found, ' num2str(neg_no_convergence_to_ILS), ' did not converge to ILS'] );
+%disp( ['First crit: rotation target function of lath > ', num2str(max_rot_angle_inclusion),' degree --> ', num2str(neg_rot), ' neglected'] );
+%disp( ['Second crit: lambda2_ils_tolerance_lath > ' num2str(lambda2_ips_tolerance_lath), ' --> ' num2str(neg_far_from_IPS), ' neglected'] );
+%disp( ['Third crit: theta_CP > ', num2str(theta_CP_max), ' degree --> ', num2str(neg_theta_CP) ,' neglected'] );
+
+
+
 %%
 [block_sols, block_solutions] = deformation_mixture_tests(martensite.ILS_solutions, block_solutions, martensite.U)
+
+
+
+
+
+
+
+            [~ , R_total] = polardecomposition( F_tot );
+            [angle_inclusion, ax_inclusion] = rotmat_to_axis_angle( R_total );
+            added_mass_angle = angle_ax_u + angle_inclusion; % added_mass_angle XD
+            if (angle_inclusion < max_rot_angle_inclusion)
+                %if (added_mass_angle < added_mass_angle_tolerance)
+                %[angle_lattice, ax_lattice] = rotmat_to_axis_angle( R_mod );
+                
+                [bool, lambda2] = is_rank_one_connected(F_tot,eye(3), lambda2_ips_tolerance_lath);
+                if bool
+                    
+                    LT = R_mod*martensite.U;
+                    
+                    [ theta_CP, closest_111aust_to_CP ] = min_misorientation( austenite.CPPs, LT, true );
+                    %theta_CP
+                    if theta_CP < theta_CP_max
+
+                    else
+                        neg_theta_CP = neg_theta_CP +1;
+                    end
+                else
+                    neg_far_from_IPS = neg_far_from_IPS +1;
+                end
+            else
+                neg_rot = neg_rot + 1;
+            end
+
 
 
 

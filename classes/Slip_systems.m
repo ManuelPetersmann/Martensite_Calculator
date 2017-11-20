@@ -11,6 +11,8 @@ classdef Slip_systems %< IPS_solution % PET 14.11.17 actually it should be deriv
     end % end of properties
     properties (Dependent)
         stepwidth; % ( planes_between_steps = inverse slip_density (1/g or 1/m) = average nr of slip planes between burgers vector steps 
+        max_eps_s;
+        min_stepwidth;
     end
     
     methods
@@ -41,6 +43,14 @@ classdef Slip_systems %< IPS_solution % PET 14.11.17 actually it should be deriv
         %%        
         function gg = get.stepwidth(obj)
             gg = slip_planes_between_burgerssteps( obj.shear_direction(:,1:3), obj.eps_s, obj.slip_normal_plane_vec(:,1:3), 'cubic'); %TODO generalize to %obj.Bravais_type );
+        end
+        %
+        function max_eps_s = get.max_eps_s(obj)
+            max_eps_s = max(obj.eps_s);
+        end
+        % 
+        function min_stepwidth = get.min_stepwidth(obj)
+            min_stepwidth = min(obj.stepwidth);
         end
         
     end % end methods

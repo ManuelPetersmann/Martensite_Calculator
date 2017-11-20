@@ -44,14 +44,14 @@ classdef Solution_array
                         end
                     end
                 end
-           end
+            end
             
             %%  ILS specific Stuff
             if nargin == 4 % ILS: 
                 for i = 1:size( varargin{2}.array, 2)
                     % abs(lambda2_IPS - 1) > delta_lambda2
                     % rotangle_inclusion   > max_rotation_angle_inclusion
-                    if varargin{2}.array(i).varargin{3} < varargin{4} % lambda2 or rot_angle_block
+                    if varargin{2}.array(i).(varargin{3}) < varargin{4} % lambda2 or rot_angle_block
                         foundnr = foundnr + 1;
                         obj.array(foundnr) = varargin{2}.array(i);
                     end
@@ -104,11 +104,7 @@ classdef Solution_array
                     if strcmp( varargin{5}, 'min')
                         % varargin{2}.array(i).(varargin{3})
                         % varargin{4}
-                        % here the condition is only fullfilled if all entries are bigger, i.e. the minimum counts!
-
-                        varargin{2}.array(i)
-                        obj.array
-
+                        % here the condition is only fullfilled if all entries are bigger, i.e. the minimum
                         if varargin{2}.array(i).slip.(varargin{3}) > varargin{4} % = minimal tolerated 'stepwidth' or 'm'/'g' value (inverse '1/m' is called slip density )
                             foundnr = foundnr + 1;
                             obj.array(foundnr) = varargin{2}.array(i);
@@ -146,6 +142,7 @@ classdef Solution_array
                         % vector (from the given set of vectors) and its
                         % transformed form. (Bain correspondence determines
                         % unmodified correspondence!)
+                        % min_misorientation( varargin{3}, varargin{2}.array(i).LT, varargin{8} )
                         [ varargin{2}.array(i).added_props(varargin{5}), varargin{2}.array(i).added_props( varargin{6}) ] = ...
                             min_misorientation( varargin{3}, varargin{2}.array(i).LT, varargin{8} );
                     end
@@ -179,7 +176,7 @@ classdef Solution_array
             %
             if nargin > 1
                 % after reduction of solutions check if there is at least one non-empty entry in object
-                if (size( obj.array, 2)==1) && isempty(obj.array(1).F1)
+                if isempty(obj.array) %(size( obj.array, 2)==1) && isempty(obj.array(1).F1)
                     disp('No Solution fullfilling specified criteria');
                     %    obj.solutions_available = false;
                 else

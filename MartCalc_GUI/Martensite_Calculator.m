@@ -20,7 +20,7 @@ function varargout = Martensite_Calculator(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Last Modified by GUIDE v2.5 16-Nov-2017 16:39:31
+% Last Modified by GUIDE v2.5 20-Nov-2017 08:43:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -71,13 +71,13 @@ handles.output = hObject;
 handles.asc_status_IPS = zeros(1,7);
 handles.asc_number_IPS = 0;
 handles.asc_list_IPS = zeros(1,7);
-handles.asc_IPS_maxcrit = 8;
+handles.asc_IPS_maxcrit = 7;
 %
 % criteria for ILS solutions
 handles.asc_status_ILS = zeros(1,7);
 handles.asc_number_ILS = 0;
 handles.asc_list_ILS = zeros(1,7);
-handles.asc_ILS_maxcrit = 8;
+handles.asc_ILS_maxcrit = 7;
 
 handles.asc_status_blocks = zeros(1,3);
 handles.asc_number_blocks = 0;
@@ -96,7 +96,9 @@ handles.NW = all_from_family_perms( [1 2 1], false );
 handles.input_status   = true; % will be set to false if something is wrong with the input
 %handles.log_status = 0; % variable for check if log has already been changed for a first time
 
-handles.InterfaceObj = findobj(handles.figure1,'Enable','on','-and','-not','Tag','filename_results_edittext'); % variable to disable interface during calculations
+handles.InterfaceObj = findobj(handles.figure1,'Style','pushbutton','-or','Style','popupmenu'); % variable to disable interface during calculations
+%handles.InterfaceObj = findobj(handles.figure1,'Style','pushbutton','-or','Tag','popup_sorting_ILS','-or','Tag','popup_sorting_IPS'); % variable to disable interface during calculations
+%handles.InterfaceObj = findobj(handles.figure1,'Enable','on','-and','-not','Tag','filename_results_edittext'); % variable to disable interface during calculations
 
 guidata(hObject, handles);
 
@@ -136,8 +138,8 @@ end
 guidata(hObject, handles);
 
 
-%% --- Executes on button press in start_lath_calc.
-function start_lath_calc_Callback(hObject, eventdata, handles)
+%% --- Executes on button press in pushbutton_start_lath_calc.
+function pushbutton_start_lath_calc_Callback(hObject, eventdata, handles)
 
 % disable interface during function call
 set(handles.InterfaceObj,'Enable','off');
@@ -154,7 +156,7 @@ if handles.input_status
     % store solution objects in an object array
     switch handles.popup_calc_lath_level.Value
         case 1
-            calculation_method = 'IPS by doubleshear shear, incremental minimization of (middle_eigenvalue - 1.) for slip at the lath level';
+            calculation_method = 'IPS by doubleshear shear, incremental minimization of IPS condition abs(lambda2 -1.) at the lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
             %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.IPS_solutions.calculation_method = calculation_method;
@@ -167,7 +169,8 @@ if handles.input_status
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
             %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.ILS_solutions.calculation_method = calculation_method;
-            handles.martensite.ILS_solutions = invariant_line_strain(handles.martensite, handles.austenite); 
+            %handles.martensite.ILS_solutions = invariant_line_strain_fixed_increment(handles.martensite, handles.austenite); 
+            handles.martensite.ILS_solutions = invariant_line_strain_line_search(handles.martensite, handles.austenite); 
             %
             updateLog_MartCalc(hObject, handles, ['Determination of ILS solutions for laths completed: ' num2str(size(handles.martensite.ILS_solutions.array,2)),' solutions found.'] );
             
@@ -211,89 +214,89 @@ function lsc_popup_IPS_Callback(hObject, eventdata, handles)
 
 switch hObject.Value
     case 1 % Criterion 1 has been chosen: Minimum slip plane density
+        criterion_name = 'Minimum average transformation-dislocation spacing (stepwidth on interface).';
         if handles.asc_status_IPS(1) == 0 % if inactive
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
-            criterion_name = 'Minimum average dislocation spacing (stepwidth).';
             default_value = 5.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(1) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
     %
     case 2 % Criterion 2 has been chosen: Maximum shape strain
+        criterion_name = 'Maximum (total) shape strain (eps_ips) of invariant plane strain.';
         if handles.asc_status_IPS(2) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
-            criterion_name = 'Maximum (total) shape strain (eps_ips) of invariant plane strain.';
             default_value = 0.6;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(2) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum shape strain" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
     case 3 % Criterion 3 has been chosen: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
+        criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
         if handles.asc_status_IPS(3) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
             default_value = 2.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(3) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                        
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of {111}_gamma to {110}_alpha" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
     case 4 % Criterion 4 has been chosen: Maximum misorientation of block HP to {111}_gamma
+        criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma.';
         if handles.asc_status_IPS(4) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of invariant plane to {111}_gamma.';
             default_value = 20.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(4) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                       
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of block HP to {111}_gamma" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
     case 5 % Criterion 6 has been chosen: Maximum deviation from KS OR
+        criterion_name = 'Maximum deviation of perfect KS direction parallelism.';
         if handles.asc_status_IPS(5) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of KS OR directions.';
             default_value = 5.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(5) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from KS OR directions" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
     case 6 % Criterion 7 has been chosen: Maximum deviation from NW OR
+        criterion_name = 'Maximum deviation from perfect NW direction parallelism';
         if handles.asc_status_IPS(6) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc    
-            criterion_name = 'Maximum deviation from NW OR directions';
             default_value = 8.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(6) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied       
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value); 
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation from NW OR directions" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
     case 7 % Criterion 8 has been chosen: Maximum deviation of preferred invariant line to invariant habit plane
+        criterion_name = 'Maximum tolerance angle between preferred invariant line and habit plane';
         if handles.asc_status_IPS(7) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
-            criterion_name = 'Maximum tolerance angle between preferred invariant line and habit plane';
             default_value = 3.0;
             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(7) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum tolerance angle between preferred invariant line and habit plane" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
 %     case 8 % Criterion 5 has been chosen: Maximum deviation of determinant det(F) of transformation
 %         if handles.asc_status_IPS(8) == 0
@@ -315,58 +318,102 @@ function lsc_popup_ILS_Callback(hObject, eventdata, handles)
 
 switch hObject.Value
     case 1 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Minimum average transformation-dislocation spacing (stepwidth on interface).';
         if handles.asc_status_ILS(1) == 0 % if inactive
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
-            criterion_name = 'Minimum average dislocation spacing (stepwidth).';
             default_value = 5.0;
             handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(1) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Minimum average dislocation spacing (stepwidth)" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
         %
     case 2 % Criterion 2 : Maximum misorientation of CPPs {110}_alpha and {111}_gamma
+        criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
         if handles.asc_status_ILS(2) == 0
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
-            criterion_name = 'Maximum misorientation of {111}_gamma to {110}_alpha';
             default_value = 2.0;
             handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(2) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum misorientation of {111}_gamma to {110}_alpha" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
         %
     case 3 % Criterion 3 has been chosen: Maximum deviation from IPS condition
+        criterion_name = 'Maximum deviation of IPS condition (difference of middle valued eigenvalue to one)';
         if handles.asc_status_ILS(3) == 0
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
-            criterion_name = 'Maximum deviation of IPS condition (difference of middle valued eigenvalue to one)';
             default_value = 1.e-2;
             handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(3) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of IPS condition (difference of middle valued eigenvalue to one)" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
         %
     case 4 % Criterion 4: Maximum misorientation of CPPs {110}_alpha and {111}_gamma
+        criterion_name = 'Maximum rotation angle of lath inclusion';
         if handles.asc_status_ILS(4) == 0
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
-            criterion_name = 'Maximum rotation angle of lath inclusion';
             default_value = 10.0;
             handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(4) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
             handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
             guidata(hObject, handles); % Update handles structure
         else
-            updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum rotation angle of lath inclusion" is already active!')
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
         end
 end
 
+% --- Executes on selection change in popup_asc_block_level.
+function popup_asc_block_level_Callback(hObject, eventdata, handles)
+
+switch hObject.Value
+    case 1 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Rotation angle of (average) block deformation.';
+        if handles.asc_status_blocks(1) == 0 % if inactive
+            handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
+            default_value = 2.0;
+            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_blocks(1) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
+        end
+        %
+    case 2 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Deviation of IPS condition (middle valued eigenvalue to one).';
+        if handles.asc_status_blocks(2) == 0 % if inactive
+            handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
+            default_value = 1.e-2;
+            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_blocks(2) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
+        end
+        %
+    case 3 % Criterion 1 : Minimum slip plane density
+        criterion_name = 'Deviation of block habit plane to {111}_aust';
+        if handles.asc_status_blocks(3) == 0 % if inactive
+            handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
+            default_value = 5.0;
+            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_status_blocks(3) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            guidata(hObject, handles); % Update handles structure
+        else
+            updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
+        end
+        %
+end
 
 
 %#########################################################################
@@ -442,8 +489,8 @@ function popup_sorting_ILS_Callback(hObject, eventdata, handles)
 %#########################################################################
 %% BLOCK PART %%
 
-% --- Executes on button press in start_block_calc.
-function start_block_calc_Callback(hObject, eventdata, handles)
+% --- Executes on button press in pushbutton_start_block_calc.
+function pushbutton_start_block_calc_Callback(hObject, eventdata, handles)
 
 % disable interface during function call
 %set(handles.InterfaceObj,'Enable','off');
@@ -452,48 +499,46 @@ updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --
 
 % Minors reltation tolerances
 det_tol = num2str(handles.handles.edit_minors_det.String);
-if( det_tol <= 1.e-3 )
-    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX = str2num(handles.edit_minors_det.String);
-else
+if( det_tol > 1.e-3 )
     updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
     handles.input_status = false;
 end
-
 cof_tol = num2str(handles.handles.edit_minors_cof.String);
-if( cof_tol <= 1.e-3 )
-    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX = str2num(handles.edit_minors_cof.String);
-else
+if( cof_tol > 1.e-3 )
     updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
     handles.input_status = false;
 end
 
 if handles.input_status
+    
     switch handles.popup_calc_lath_level.Value
-%    switch handles.popup_asc_block_level.Value - removed this!
         case 1 % IPS laths
             handles.block_solutions = Solution_array_composite();
             %
             if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
-                updateLog_MartCalc(hObject, handles, 'the selected function requires to calculate lath IPS-solutions first')
+                updateLog_MartCalc(hObject, handles, 'Lath IPS-solutions must be calculated first')
             else
-%                 theta_intersec_cpdir = str2double(handles.misori_HPintersec_cpdir_edit_txt.String);
-%                 if ~isnan(theta_intersec_cpdir)
-%                     handles.block_solutions.mixing_tolerances('theta_intersec_cpdir') = theta_intersec_cpdir;
-%                 end
-%                 theta_hps = str2double(handles.max_misori_HPs_laths_for_blocks_edit_txt.String);
-%                 if ~isnan(theta_hps)
-%                     handles.block_solutions.mixing_tolerances('theta_hps') = theta_hps;
-%                 end
                 %
                 calculation_method = 'Build blocks from lath IPS-solutions (+ optimized phase fractions)';
                 updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
                 %
-                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_IPS, handles.block_solutions); %,'eps' );
-                updateLog_MartCalc(hObject, handles, ['Optimized determination of composite blocks from lath solutions completed.', ...
-                    num2str(length(handles.block_solutions.array)),' solutions found.'] );
+                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_IPS, handles.block_solutions, handles.martensite.U, cof_tol, det_tol); 
+                updateLog_MartCalc(hObject, handles, ['Determination of composite blocks fullfilling minors relations from lath IPS solutions completed.', ...
+                num2str(length(handles.block_solutions.array)),' solutions found.'] );
             end
         case 2 % ILS laths
-            
+            handles.block_solutions = Solution_array_composite();
+            %
+            if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
+                updateLog_MartCalc(hObject, handles, 'Lath ILS-solutions must be calculated first')
+            else
+                calculation_method = 'Build blocks from lath ILS-solutions (+ optimized phase fractions)';
+                updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+                %
+                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_ILS, handles.block_solutions,  handles.martensite.U, cof_tol, det_tol);
+                updateLog_MartCalc(hObject, handles, ['Determination of composite blocks fullfilling minors relations from lath ILS solutions completed.', ...
+                    num2str(length(handles.block_solutions.array)),' solutions found.'] );
+            end         
 
             %%            Qi 2014 Acta - removed from direct block calculation
 %             get_input_MartCalc;
@@ -526,8 +571,8 @@ guidata(hObject, handles);
    
 
 %#########################################################################
-%% --- Executes on button press in write_lath_solutions_pushbutton.
-function write_lath_solutions_pushbutton_Callback(hObject, eventdata, handles)
+%% --- Executes on button press in pushbutton_write_solutions.
+function pushbutton_write_solutions_Callback(hObject, eventdata, handles)
 
 % write lath solutions
 if isempty(handles.reduced_solutions.array) % ~handles.reduced_solutions.solutions_available
@@ -600,6 +645,42 @@ if ~isempty(regexp(filename, '[/\*:?"<>|]', 'once'))
 end
 
 set(handles.InterfaceObj,'Enable','on');
+
+%handles.reduced_solutions_ILS.array.u
+
+% handles.reduced_solutions_ILS.array(1).shear_increments
+% handles.reduced_solutions_ILS.array(2).shear_increments
+% handles.reduced_solutions_ILS.array(3).shear_increments
+% handles.reduced_solutions_ILS.array(4).shear_increments
+% handles.reduced_solutions_ILS.array(5).shear_increments
+% handles.reduced_solutions_ILS.array(6).shear_increments
+
+handles.reduced_solutions_ILS.array.shear_increments
+
+%handles.reduced_solutions_ILS.array(5).slip.eps_s
+%handles.reduced_solutions_ILS.array.slip.slip_normal_plane_vec
+%handles.reduced_solutions_ILS.array.slip.shear_direction
+
+
+
+% save('ILS_solutions_line_search_delta_eps_ini_0_3__min_delta_res_1_e-3', 'handles.reduced_solutions_ILS' ) ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1514,17 +1595,6 @@ function corrmat_edtxt33_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-% --- Executes on selection change in popup_asc_block_level.
-function popup_asc_block_level_Callback(hObject, eventdata, handles)
-% hObject    handle to popup_asc_block_level (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popup_asc_block_level contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popup_asc_block_level
 
 
 % --- Executes during object creation, after setting all properties.

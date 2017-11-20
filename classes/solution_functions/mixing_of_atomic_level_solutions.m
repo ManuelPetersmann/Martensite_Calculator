@@ -1,5 +1,6 @@
-function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, lambda2_tol_block_aust, cof_tol, det_tol, block_hp_cp_aust_tol) 
-% call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, tol)  % opt_func  
+function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, cof_tol, det_tol) 
+
+% call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, cof_tol, det_tol) 
 %
 % lath_solutions ... array of lath solutions for building blocks
 % block_solutions ... object of Solution_array_composite a.o. with property
@@ -25,17 +26,7 @@ if nargin < 4
     % minors tolerances
     cof_tol = 1.e-4
     det_tol = 1.e-4
-    % block tolerances
-    rot_angle_block = 3.
-    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
-    %lambda2_tol_laths = 1.e-4
 end
-
-    function lambda2_mix = mix_y2( x, F1, F2)
-        Fc = linmix2(x, F1, F2);
-        [~,lambda2_mix] = sorted_eig_vals_and_vecs(Fc'*Fc);
-    end
 
 calculation_method = 'NEW Approach: Build blocks from lath-IPS-solutions, optimized phase fractions';
 block_solutions.calculation_method = calculation_method;
@@ -76,12 +67,11 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         % convert angle to degree
         %angle = rad2deg( vec4(4) );
         if angle > rot_angle_block
-            neg_rot_angle = neg_rot_angle +1;
             continue
         end
 
         %% RANK one between block-aust - check deviation of lambda2
-        if (mix_y2(x,F1,F2) - 1)  > lambda2_tol_block_aust
+        if (lambda2_linmix(x,F1,F2) - 1)  > lambda2_tol_block_aust
             continue
         end
         
@@ -142,7 +132,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
  
         block_sols = block_sols + 1;            
         block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
-        
+        block_solutions.array( block_sols ).Fc05 = Fc;
         
 %         if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
 %         %    block_solutions.array( block_sols ).tolerances('theta_intersec_cpdir')    = theta_intersec_cpdir;

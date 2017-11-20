@@ -13,7 +13,7 @@ main_asc_panel = get(button_parent,'Parent'); % get main panel for asc
 % criteria
 criterion_number = button_parent.Children(3).Value; % children(3) is the textfield with a description of the actual criterion
 
-% PET 16.11.17
+% PET 16.11.17 - Note: At the end of this file the variables are written back =)
 switch main_asc_panel
     case handles.pan_asc_IPS
         status     = handles.asc_status_IPS;
@@ -24,6 +24,10 @@ switch main_asc_panel
         status     = handles.asc_status_ILS;
         asc_number = handles.asc_number_ILS;
         asc_list = handles.asc_list_ILS;
+    case handles.pan_asc_blocks
+        status     = handles.asc_status_blocks;
+        asc_number = handles.asc_number_blocks;
+        asc_list = handles.asc_list_blocks;
     otherwise
         error('This parent is not considered for deletion of panels')
 end
@@ -60,7 +64,6 @@ while(postion_in_asc_list <= size(main_asc_panel.Children,1))
 end
 %%
 
-
 switch main_asc_panel
     case handles.pan_asc_IPS
         handles.asc_status_IPS = status;
@@ -71,6 +74,10 @@ switch main_asc_panel
         handles.asc_status_ILS = status;
         handles.asc_number_ILS = asc_number;
         handles.asc_list_ILS = asc_list;
+    case handles.pan_asc_blocks
+        handles.asc_status_blocks = status;
+        handles.asc_number_blocks = asc_number;
+        handles.asc_list_blocks = asc_list;
 end
 
 % update GUI data

@@ -67,7 +67,7 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                 %
                 red_sols = handles.martensite.IPS_solutions;
                 for criterion = 1:handles.asc_number_IPS
-                    if isempty(red_sols.array) % ~red_sols.solutions_available
+                    if size(red_sols.array,2)==1 && isempty(red_sols.array(1).F1)
                         break
                     end
                     %
@@ -100,8 +100,9 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                             %  crit = [' for (non-physical) volume change  > ',num2str(delta_determinant_max)];
                     end
                     %
-                    if isempty(red_sols.array) %red_sols.solutions_available
-                        updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped before next active selection criterion (asc). See asc list.');
+                    if isempty(red_sols.array(1).F1) %  size(red_sols.array,2)==1 &&  
+                        updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped at current selection criterion. See asc list.');
+                        break
                     else
                         updateLog_MartCalc(hObject, handles,['Solutions reduced to : ', num2str(length(red_sols.array)), crit ] );
                         handles.reduced_solutions_IPS = red_sols;
@@ -119,8 +120,9 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                 %         handles.reduced_solutions.array(1).added_props.keys
                 %         handles.reduced_solutions.array(1).F1
                 %         handles.reduced_solutions.array(2).F1
-                
-                updateLog_MartCalc(hObject, handles, 'Filtering of IPS solutions after specified criteria completed.');
+                if ~isempty(red_sols.array(1).F1)
+                    updateLog_MartCalc(hObject, handles, 'Filtering of IPS solutions after specified criteria completed.');
+                end
             else
                 updateLog_MartCalc(hObject, handles, 'Note: No filters for IPS solutions specified.');
             end
@@ -145,20 +147,14 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                     theta_CPPs_max = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(2)).Children(2).String);
                 end
                 
-                % Criterion 3 has been chosen: Maximum deviation from NW OR
-                %'Nishiyama Wassermann directions: [112]_aust || [110]_mart or equivalently [112]_aust || [110]_mart';
+                % crit 3 - deviaton from IPS condition
                 if (handles.asc_status_ILS(3) > 0)
-                    theta_NW_max = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(3)).Children(2).String);
-                end
-                
-                % crit 4 - deviaton from IPS condition
-                if (handles.asc_status_ILS(4) > 0)
-                    lambda2_ips_tolerance_lath = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(4)).Children(2).String);
+                    lambda2_ips_tolerance_lath = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(3)).Children(2).String);
                 end
                 
                 % crit 5 - maximum rotation angle of inclusion
-                if (handles.asc_status_ILS(5) > 0)
-                    max_rot_angle_inclusion = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(5)).Children(2).String);
+                if (handles.asc_status_ILS(4) > 0)
+                    max_rot_angle_inclusion = str2num(handles.pan_asc_ILS.Children(size(handles.pan_asc_ILS.Children,1)+1-handles.asc_status_ILS(4)).Children(2).String);
                 end
                 
                 
@@ -167,7 +163,7 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                 %
                 red_sols = handles.martensite.ILS_solutions;
                 for criterion = 1:handles.asc_number_ILS
-                    if isempty(red_sols.array) % ~red_sols.solutions_available
+                    if size(red_sols.array,2)==1 && isempty(red_sols.array(1).u)
                         break
                     end
                     %
@@ -191,17 +187,20 @@ switch handles.popup_calc_lath_level.Value  % PET 17.11.17
                             %     crit = [' for a maximum deviation angle between ideal NW-direction-parallelism  < ',num2str(theta_NW_max),'°'];     
                     end
                     %
-                    if isempty(red_sols.array) %red_sols.solutions_available
-                        updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped before next active selection criterion (asc). See asc list.');
+                    if size(red_sols.array,2)==1 && isempty(red_sols.array(1).u)
+                        updateLog_MartCalc(hObject, handles,'No Solution fullfilling all specified criteria. Solution reduction stopped at current selection criterion. See asc list.');
+                        break
                     else
                         updateLog_MartCalc(hObject, handles,['Solutions reduced to : ', num2str(length(red_sols.array)), crit ] );
-                        handles.reduced_solutions = red_sols;
+                        handles.reduced_solutions_ILS = red_sols;
                     end
                     %
                     guidata(hObject, handles);
                 end % end for
                 
-                updateLog_MartCalc(hObject, handles, 'Filtering of ILS solutions after specified criteria completed.');
+                if ~isempty(red_sols.array(1).u)
+                    updateLog_MartCalc(hObject, handles, 'Filtering of ILS solutions after specified criteria completed.');
+                end
             else
                 updateLog_MartCalc(hObject, handles, 'Note: No filters for ILS solutions specified.');
             end

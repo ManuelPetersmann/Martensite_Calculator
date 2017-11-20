@@ -38,5 +38,3 @@ if closest_from_vecs == zeros(1,3)
     error('error in function min_misorientation - must be fixed!')
 
 end
-
-

@@ -1,4 +1,4 @@
-function solutions = invariant_line_strain(martensite, austenite)
+function solutions = invariant_line_strain_fixed_increment(martensite, austenite)
 % calculates invariant line strain (rototated, unstreched) - per default
 % the invariant line is assummed to be the close packed direction in
 % austenite!
@@ -7,7 +7,6 @@ if isempty( martensite.invariant_lines )
     us = austenite.CP_dirs;
     % VECTORS MUST BE NORMED!
 end
-us
 
 %% NOTE: martensite is a handle class so everything that is set here is set everywhere!
 
@@ -52,7 +51,6 @@ for iu = 1:length(us)
             
             %  u = cross( ns(is1,1:3), ns(is2,1:3) );
             %  h = cross( ds(is1,1:3), ds(is2,1:3) );
-            
             %  [screw_syst] = equivalent_shear_screwdisloc( ds(i,1:3), ns(i,1:3) );
             %  fprintf(fid,'\n %s \t \t %s \t \t %s', mat2str(ds(i,1:3)), mat2str(screw_syst(1:3)), mat2str(screw_syst(4:6)) );
             
@@ -71,12 +69,13 @@ for iu = 1:length(us)
             eps2 = eps_initial;
             S_accummulated = eye(3);
             %
-            [new_res_dS1, ~] = perp_ILS( martensite.U, ( eye(3) + delta_eps*S(:,:,is1) ), u);
-            [new_res_dS2, ~] = perp_ILS( martensite.U, ( eye(3) + delta_eps*S(:,:,is1) ), u);
+            [new_res_dS1, ~] = perp_ILS( martensite.U, ( eye(3) + delta_eps*S(:,:,is1) ), S_accummulated, u);
+            [new_res_dS2, ~] = perp_ILS( martensite.U, ( eye(3) + delta_eps*S(:,:,is1) ), S_accummulated, u);
             % stop immediately if the solution does not improve at all
             % this could be moved outside the while but then the code
             % above must be written twice...
-            if ( res_old > new_res_dS1 ) && ( res_old > new_res_dS2 )
+            shear_increments = [];
+            if ( res_old > new_res_dS1 ) || ( res_old > new_res_dS2 )
                 
                 while ( ( res_old > vec_residual )  ...
                         && (eps1 < eps_max)        && (eps2 < eps_max) )
@@ -85,29 +84,12 @@ for iu = 1:length(us)
                         error('this should not happen - fix code...')
                     end
                     
-                    [new_res_dS1, R_dS1] = perp_ILS( martensite.U*S_accummulated, ( eye(3) + delta_eps*S(:,:,is1) ), u);
-                    [new_res_dS2, R_dS2] = perp_ILS( martensite.U*S_accummulated, ( eye(3) + delta_eps*S(:,:,is1) ), u);
-                    
-                    %                 u2_dS1 = martensite.U *  S_accummulated * ( eye(3) + delta_eps*S(:,:,is1) ) * u;
-                    %                 %try
-                    %                 % calculate R such that u2_dS1 is unrotated
-                    %                 R_dS1 = rotation_between_vectors( u2_dS1, u );
-                    %                 %catch
-                    %                 %    continue
-                    %                 %end
-                    %                 u2_dS1_unrot = R_dS1 * u2_dS1;
-                    %                 new_res_dS1 = norm( u - u2_dS1_unrot ); % check deviation from invariance
-                    %
-                    %
-                    %                 u2_dS2 = martensite.U *  S_accummulated * ( eye(3) + delta_eps*S(:,:,is2) ) * u;
-                    %                 %try
-                    %                 % calculate R such that u2_dS1 is unrotated
-                    %                 R_dS2 = rotation_between_vectors( u2_dS2, u );
-                    %                 %catch
-                    %                 %    continue
-                    %                 %end
-                    %                 u2_dS2_unrot = R_dS2 * u2_dS2;
-                    %                 new_res_dS2 = norm( u - u2_dS2_unrot ); % check deviation from invariance
+                    %% NOTE - new shear comes in between!! i.e.  U * dS * S_accummulated
+                    % hence this was wrong... US = martensite.U*S_accummulated;
+                    dS1 = ( eye(3) + delta_eps*S(:,:,is1) );
+                    dS2 = ( eye(3) + delta_eps*S(:,:,is2) );
+                    [new_res_dS1, R_dS1] = perp_ILS(martensite.U, dS1, S_accummulated, u);
+                    [new_res_dS2, R_dS2] = perp_ILS(martensite.U, dS2, S_accummulated, u);
                     
                     % choose the shear that approached a solution quicker with the
                     % SAME shear magnitude  - delta_eps
@@ -121,8 +103,9 @@ for iu = 1:length(us)
                         else
                             res_old = new_res_dS1;
                             eps1 = eps1 + delta_eps;
-                            S_accummulated = S_accummulated * ( I + delta_eps * S(:,:,is1) );
+                            S_accummulated = S_accummulated * dS1;
                             R_mod = R_dS1;
+                            shear_increments( : , size(shear_increments,2)+1 ) = [delta_eps; 0];
                         end
                     else % new_res_dS1 > new_res_dS2)
                         if ( res_old < new_res_dS2 ) % ( ( lambda2_smaller1_shear2 ~= lambda2_smaller1_initial ) ||
@@ -130,14 +113,16 @@ for iu = 1:length(us)
                         else
                             res_old = new_res_dS2;
                             eps2 = eps2 + delta_eps;
-                            S_accummulated = S_accummulated * ( I + delta_eps * S(:,:,is2) );
+                            S_accummulated = S_accummulated * dS2;
                             R_mod = R_dS2;
+                            shear_increments( : , size(shear_increments,2)+1 ) = [0; delta_eps];
                         end
                     end
                     
                     if (delta_eps < delta_eps_tolerance) % 0.5^16 = 1.e-5||
                         break
                     end
+                                        
                     
                 end % end while
             end
@@ -161,6 +146,7 @@ for iu = 1:length(us)
                 %solutions.array( isol-1 ) =  ILS_solution(u, F_tot, LT); % F_tot = ST...shape transformation
                 %solutions.array( isol-1 ).slip = Slip_systems( eps_s, d, n );
                 solutions.array( isol )      =  ILS_solution(u, F_tot, LT, R_Bain);
+                solutions.array( isol ).shear_increments = shear_increments;
                 solutions.array( isol ).slip = Slip_systems( eps_s, d, n );    
             %else
             %    neg_no_convergence_to_ILS = neg_no_convergence_to_ILS +1;
@@ -226,4 +212,8 @@ end
 % disp( ['Second crit: lambda2_ils_tolerance_lath > ' num2str(lambda2_ips_tolerance_lath), ' --> ' num2str(neg_far_from_IPS), ' neglected'] );
 % disp( ['Third crit: theta_CP > ', num2str(theta_CP_max), ' degree --> ', num2str(neg_theta_CP) ,' neglected'] );
 
-end
+%end
+
+% FSF_bhadeshia = [1.125317  -0.039880   0.106601;
+%                  0.023973   1.129478   0.084736;
+%                 -0.154089  -0.115519   0.791698]

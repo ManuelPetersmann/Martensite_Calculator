@@ -25,6 +25,7 @@ classdef IPS_solution
         % could then be incremented in the constructor...
         %Bain;
         slip; % Slip_systems()
+        shear_increments;
     end
     properties (Dependent)
         % shape transformation (A_D in Qi2014 Paper)
