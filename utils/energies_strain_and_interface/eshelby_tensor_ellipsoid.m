@@ -26,14 +26,23 @@ Q = 3./(8*pi*(1.-nu));
 
 R = (1.-2*nu) / (8*pi*(1.-nu));
 
-Ia = pre * (F-E) / ( (a2-b2)*sqrt(a2-c2) );
+%% ellipsoid
+% Ia = pre * (F-E) / ( (a2-b2)*sqrt(a2-c2) );
+% 
+% Ic = pre / ( (b2-c2)*sqrt(a2-c2) ) * ( b*sqrt(a2-c2) / (a*c) - E);
+% 
+% Ib = 4*pi - Ia - Ic;
 
-Ic = pre / ( (b2-c2)*sqrt(a2-c2) ) * ( b*sqrt(a2-c2) / (a*c) - E);
-
-Ib = 4*pi - Ia - Ic;
+%% elliptic cylinder after original paper eshelby 1957
+I_a = 4*pi*b / (a+b);
+I_b = 4*pi*a / (a+b);
+I_c = 0;
+I_ab = 4*pi/(3*(a+b); % not sure in paper - could be 4*pi/3*(a+b)...
+I_aa = 4*pi/(3*a^2) - I_ab; % not sure - could be 4*pi/(3*a^2 - I_ab);
+I_bb = 4*pi/(3*b^2) - I_ab; % deto
+%%
 
 I_i = [Ia, Ib, Ic];
-
 
 % I_ij = [ Iab, Iac, Iba, Ibc, Ica, Icb ]
 % indizes:   1    2    3    4    5    6
