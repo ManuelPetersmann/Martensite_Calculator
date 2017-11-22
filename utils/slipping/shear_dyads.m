@@ -45,6 +45,7 @@ if (martensite.considered_plasticity == 1 || martensite.considered_plasticity ==
     phase_identifier = 99*ones(size(martensite.slip_directions,1),1);
     ds = cat(2,martensite.slip_directions,phase_identifier);
     ns = cat(2,martensite.slip_planes,    phase_identifier);
+    disp( [num2str(length( martensite.slip_planes )), ' shear deformations active in austenite.'] );
 end
 %
 if (martensite.considered_plasticity == 2 || martensite.considered_plasticity == 3)
@@ -56,6 +57,7 @@ if (martensite.considered_plasticity == 2 || martensite.considered_plasticity ==
         ds = ds_aust;
         ns = ns_aust;
     end
+    disp( [num2str(length( austenite.slip_planes )), ' shear deformations active in austenite.'] );
 end
 %
 if martensite.considered_plasticity == 3

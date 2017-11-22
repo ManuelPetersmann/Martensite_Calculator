@@ -1,4 +1,4 @@
-function [block_sols, block_solutions] = deformation_mixture_tests(lath_solutions, block_solutions, U, lambda2_tol, cof_tol, det_tol) % outarg - block_solutions
+function block_solutions = deformation_mixture_tests(lath_solutions, U, cof_tol, det_tol) % outarg - block_solutions
 % call: block_tests(lath_solutions, block_solutions,tol)
 % function to investigate solution space of blocks
 %
@@ -20,15 +20,15 @@ if nargin < 4
     % minors tolerances
     cof_tol = 1.e-4
     det_tol = 1.e-4
-    % block tolerances
-    rot_angle_block = 3.
-    lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
-    block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
-    %lambda2_tol_laths = 1.e-4
 end
 
-d = det(U);
-%detU = det( B3 );
+%% block tolerances
+rot_angle_block = 3.
+lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
+%lambda2_tol_laths = 1.e-4
+
+detU = det(U);
 I = eye(3); % = austenite
 count = 0;
 block_sols = 0;
@@ -58,18 +58,13 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         F1 = sol1.ST;
         F2 = sol2.ST;
 
-% for is1 = 1: (size(solutions.array,2)-1)
-%     for is2 = (is1+1): size(solutions.array,2)
-%         F1 = solutions.array(is1).ST;
-%         F2 = solutions.array(is2).ST;
-
         count = count + 1;
         
         %% never seems to be the case...
-        if solutions.array(is1).u ~= solutions.array(is2).u
-            F1
-            F2
-        end
+%         if lath_solutions.array(is1).u ~= lath_solutions.array(is2).u
+%             F1
+%             F2
+%         end
         
         x = 0.5;
         Fc = linmix2(x,F1,F2);    
@@ -92,11 +87,11 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         
         %% rotation of Block_inclusion
         [~,R] = polardecomposition( Fc );
-        [ angle, axis ] = rotmat_to_axis_angle( R );
+        abs_angle = acosd( (trace(R)-1.) / 2.);
         %vec4 = vrrotmat2vec( R );
         % convert angle to degree
         %angle = rad2deg( vec4(4) );
-        if angle > rot_angle_block
+        if abs_angle > rot_angle_block
             neg_rot_angle = neg_rot_angle +1;
             continue
         end
@@ -104,7 +99,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 
                 
         %% RANK one between block-aust -check deviation of lambda2
-        if (lambda2_linmix(x,F1,F2) - 1)  >  lambda2_tol_block_aust
+        if (lambda2_linmix(x,F1,F2) - 1.)  >  lambda2_tol_block_aust
             neg_lamda2_block_aust = neg_lamda2_block_aust +1;
             % lambda2_linmix(x,F1,F2) - 1
             continue
@@ -114,7 +109,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
 %        PET 5.11. - corrected Error > instead of < !
        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
-            (min_misorientation( cpps_gamma, h2) > block_hp_cp_aust_tol) )
+            (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) > block_hp_cp_aust_tol) )
 %          if ( (min_misorientation( cpps_gamma, h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
 %               (min_misorientation( cpps_gamma, h2) > block_hp_cp_aust_tol) )
             neg_hp = neg_hp +1;
@@ -206,7 +201,7 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 
         
 %          for i=1:length(xi)
-%              x(i) = xi(i);
+% %             x(i) = xi(i);
 % % %             y2(i) = lambda2_linmix( x, F1, F2);
 %              Fc = linmix2(x,F1,F2);
 % % %             detFc(i) = detU - det(Fc);
@@ -214,30 +209,37 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 % % %             cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
 % % %             frob_dist(i) = frob_distance(cofFc , cof_F_sum);
 % %             try
-%                  [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
-%                 hx(i) = h1(1);
-%                 hy(i) = h1(2);
-%                 hz(i) = h1(3);
+% %                  [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
+% %                 hx(i) = h1(1);
+% %                 hy(i) = h1(2);
+% %                 hz(i) = h1(3);
 % %                 sqrt( h1(1)^2 + h1(2)^2 + h1(3)^2 )
 % %             catch
 % %                 continue
 % %             end
 % %            [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1, true) %, plane )
 % %            [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2, true) %, plane )
-%             [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( cpps_gamma, h1); %, plane )
-%             [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( cpps_gamma, h2); %, plane )
-%             eps(i) = sqrt(y3) - sqrt(y1);
-%         end
-% %         
-% %        
+% %             [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( cpps_gamma, h1); %, plane )
+% %             [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( cpps_gamma, h2); %, plane )
+% %             eps(i) = sqrt(y3) - sqrt(y1);
+%             
+%             [~,R] = polardecomposition( Fc );
+%             absrot_angle(i) = acosd( (trace(R)-1.) / 2.);
+%          end
+
+        
+% figure;
+% plot(xi, absrot_angle,'-o');
+% ylim([-1.e-4 , 1.e-4]);
+
 %           figure;
 %            plot(x,hx,'-o',x,hy,'-o',x,hz,'-o');
-%           
+          
 %           figure;
 %          plot(xi,theta1,'-o');
 %          hold on
 %          plot(xi,theta2,'-o');
-%        
+        
 %          figure;
 %          plot(xi,eps,'-o');
 % %         plot(xi,detFc);
@@ -245,28 +247,31 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 % %         hold on
 % %         plot(xi,y2-1.,'-o');
 % %         plot(xi,frob_dist,'-o')    
+
+
+
+% R = inverse(lath_solutions.array(is1).LT) * lath_solutions.array(is2).LT;
+% [ angle, axis ] = rotmat_to_axis_angle( R )
+% acosd( dot(axis,lath_solutions.array(is1).u) )
+% acosd( dot(axis,lath_solutions.array(is2).u) )
 % 
-%         F1
-%         F2
+% F1
+% sol1.shear_increments
+% sol1.slip.stepwidth
+% sol1.slip.shear_direction
+% sol1.slip.slip_normal_plane_vec
+% F2
+% sol2.shear_increments
+% sol2.slip.stepwidth
+% sol2.slip.shear_direction
+% sol2.slip.slip_normal_plane_vec
+% 
+% Fc
 
-% turned out that only one invariant line is found - always -- [1 1 0]
-% solutions.array(is1).u
-% solutions.array(is2).u
 
-R = inverse(solutions.array(is1).LT) * solutions.array(is2).LT;
-[ angle, axis ] = rotmat_to_axis_angle( R )
-acosd( dot(axis,solutions.array(is1).u) )
 
-%if frob_distance(F1,F2) > 0.1
-%         det(F1) - det(F2)
-%         lambda2_linmix(x,F1,F2) - 1.
+block_sols = block_sols + 1;
 
-%abs(detU - det_Fc)
-         block_sols = block_sols + 1;
-                   
-     %   block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
-         
-%end
 %          if mod(block_sols,100)==0
 %              block_sols
 %              count
@@ -281,22 +286,20 @@ count
 disp( ['First  crit: ', num2str(neg_minors), ' neglected due to minors relations (cof_tol =',num2str(cof_tol), ', det_tol =',num2str(det_tol),')'] );
 neg_rot_angle
 disp( ['Second crit: ', num2str(neg_lamda2_block_aust), ' neglected because lamda2 of block deviates more than ', num2str(lambda2_tol_block_aust), ' from 1'] );
-disp( ['Third crit: ', num2str(neg_lamda2_laths), ' neglected laths deformations of pairings are not rank one connected with tolerance ', num2str(lambda2_tol_laths) ] ); 
+%disp( ['Third crit: ', num2str(neg_lamda2_laths), ' neglected laths deformations of pairings are not rank one connected with tolerance ', num2str(lambda2_tol_laths) ] ); 
 disp( ['Fourth crit: ', num2str(neg_hp), ' neglected because ave HP deviates more than ', num2str(block_hp_cp_aust_tol),' from 111_aust']);
 %disp( ['Fourth crit: ', num2str(neg_diff), ' neglected because Fs do not differ in the d1 norm more than ', num2str(delta_F_min) ] ); 
 
 disp( ['number of potential solutions found: n_sol = ', num2str(block_sols) ] )
 
-if isKey(block_solutions.mixing_tolerances,'theta_hps')
-    disp( [ num2str(neg_mix_res_hh), ' mixings neglected due habit plane angle < ', ...
-        num2str(block_solutions.mixing_tolerances('theta_hps') ), ' on mixing laths to blocks'] )
+% if isKey(block_solutions.mixing_tolerances,'theta_hps')
+%     disp( [ num2str(neg_mix_res_hh), ' mixings neglected due habit plane angle < ', ...
+%         num2str(block_solutions.mixing_tolerances('theta_hps') ), ' on mixing laths to blocks'] )
+% end
+% if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
+%     disp( [ num2str(neg_mix_res_hc), ' mixings neglected due ang(h1 x h2, <110>_aust ) < ',...
+%         num2str(block_solutions.mixing_tolerances('theta_intersec_cpdir') ) ])
+% end
+
+
 end
-if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
-    disp( [ num2str(neg_mix_res_hc), ' mixings neglected due ang(h1 x h2, <110>_aust ) < ',...
-        num2str(block_solutions.mixing_tolerances('theta_intersec_cpdir') ) ])
-end
-
-
-
-
-%end

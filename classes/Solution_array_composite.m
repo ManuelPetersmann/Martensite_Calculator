@@ -23,7 +23,6 @@ classdef Solution_array_composite
         end
         
         
-            
         %% Sort - copied from Solution_array (laths) maybe adapt sometime
         function [obj,idx]= sort(obj, prop_name)
             %

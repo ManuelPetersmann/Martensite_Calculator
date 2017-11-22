@@ -4,7 +4,7 @@ function red_sols = multiplicity_check_due_to_slip(lath_solutions, angle_tol, de
 % Considering that the two F could be equal since the slip
 % deformations are not linearly independent! c.f. non-uniqueness of
 % plastic slip
-% loops over .F1 property and checks if same matrices appear.
+% loops over .ST property and checks if same matrices appear.
 % the difference between two matrices A and B is measured using the d1 norm:
 % sum(sum(abs(A-B)).
 % if so - add shear - slip information (slip systems and shear magnitudes)
@@ -56,15 +56,15 @@ while is1 < size(sols,2) % <= size(sols,2) -1
         % be the same, but this case should be distinguished!!!!
 %         if sum(sum(abs(s1.F1 - s2.F1 ))) < d1_tol % alternatively ST
 %       if sum(sum(abs( inverse(s1.ST)*s2.ST ))) < d1_tol
-        nf11 = norm(s1.F1(:,1));
-        nf12 = norm(s1.F1(:,2));
-        nf13 = norm(s1.F1(:,3));
-        nf21 = norm(s2.F1(:,1));
-        nf22 = norm(s2.F1(:,2));
-        nf23 = norm(s2.F1(:,3));
-        if (acosd( dot(s1.F1(:,1) / nf11 , s2.F1(:,1) / nf21 ) ) < angle_tol   && ...
-            acosd( dot(s1.F1(:,2) / nf12 , s2.F1(:,2) / nf22 ) ) < angle_tol   && ...
-            acosd( dot(s1.F1(:,3) / nf13 , s2.F1(:,3) / nf23 ) ) < angle_tol   && ...
+        nf11 = norm(s1.ST(:,1));
+        nf12 = norm(s1.ST(:,2));
+        nf13 = norm(s1.ST(:,3));
+        nf21 = norm(s2.ST(:,1));
+        nf22 = norm(s2.ST(:,2));
+        nf23 = norm(s2.ST(:,3));
+        if (acosd( dot(s1.ST(:,1) / nf11 , s2.ST(:,1) / nf21 ) ) < angle_tol   && ...
+            acosd( dot(s1.ST(:,2) / nf12 , s2.ST(:,2) / nf22 ) ) < angle_tol   && ...
+            acosd( dot(s1.ST(:,3) / nf13 , s2.ST(:,3) / nf23 ) ) < angle_tol   && ...
             nf11 - nf21 < (nf11 / 100 )*def_tol   && ...
             nf12 - nf22 < (nf12 / 100 )*def_tol   && ...
             nf13 - nf23 < (nf13 / 100 )*def_tol )   
@@ -76,14 +76,19 @@ while is1 < size(sols,2) % <= size(sols,2) -1
                 % if matrix difference small and other slip systems, both
                 % with slip magnitudes unequal 0!!!
                 % safe slip information from sol2 to sol1 then delete sol2
-                %    sols(is1).id;   sols(is2).id
+                % sols(is1).id;   sols(is2).id
+                multiplicity = multiplicity + 1;
+                                
+%                 sols(is1).id
+%                 s2.id
+%                 multiplicity
                 sols(is1).id(multiplicity) = s2.id;
                 sols(is1).slip.eps_s(:,:,multiplicity) = s2.slip.eps_s;
                 sols(is1).slip.shear_direction(:,:,multiplicity) = s2.slip.shear_direction;
                 sols(is1).slip.slip_normal_plane_vec(:,:,multiplicity) = s2.slip.slip_normal_plane_vec;
-                %
-                multiplicity = multiplicity + 1;
-                
+                % also copy ST and
+                % LT !!!
+                %                
                 % remove multiply occuring solution from array
                 sols(is2) = [];
                 % reduced_by = reduced_by + 1;

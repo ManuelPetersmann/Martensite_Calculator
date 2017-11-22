@@ -20,7 +20,7 @@ function varargout = Martensite_Calculator(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Last Modified by GUIDE v2.5 20-Nov-2017 08:43:17
+% Last Modified by GUIDE v2.5 21-Nov-2017 08:16:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -158,7 +158,6 @@ if handles.input_status
         case 1
             calculation_method = 'IPS by doubleshear shear, incremental minimization of IPS condition abs(lambda2 -1.) at the lath level';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
-            %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.IPS_solutions.calculation_method = calculation_method;
             handles.martensite.IPS_solutions = doubleshear_variable_shear_mags(handles.martensite, handles.austenite);
             %
@@ -167,7 +166,6 @@ if handles.input_status
         case 2
             calculation_method = 'ILS, doubleshear, incremental minimization of unrotated vector residual';
             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
-            %updateLog_MartCalc(hObject, handles, 'please wait...');
             handles.martensite.ILS_solutions.calculation_method = calculation_method;
             %handles.martensite.ILS_solutions = invariant_line_strain_fixed_increment(handles.martensite, handles.austenite); 
             handles.martensite.ILS_solutions = invariant_line_strain_line_search(handles.martensite, handles.austenite); 
@@ -497,73 +495,57 @@ function pushbutton_start_block_calc_Callback(hObject, eventdata, handles)
 updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --------------');
 % read user input from GUI for determination of solutions
 
-% Minors reltation tolerances
-det_tol = num2str(handles.handles.edit_minors_det.String);
-if( det_tol > 1.e-3 )
-    updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
-    handles.input_status = false;
-end
+% Minors relation tolerances
+det_tol = num2str(handles.edit_minors_det.String);  
 cof_tol = num2str(handles.handles.edit_minors_cof.String);
-if( cof_tol > 1.e-3 )
-    updateLog_MartCalc(hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
-    handles.input_status = false;
-end
-
-if handles.input_status
     
-    switch handles.popup_calc_lath_level.Value
-        case 1 % IPS laths
-            handles.block_solutions = Solution_array_composite();
+switch handles.popup_calc_lath_level.Value
+    case 1 % IPS laths
+        %
+        if isempty(handles.martensite.IPS_solutions.array) 
+            updateLog_MartCalc(hObject, handles, 'Lath IPS-solutions must be calculated first')
+        else
+            calculation_method = 'Checking minros relations and build bi-variant blocks from lath IPS-solutions (+ optimized phase fractions)';
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
             %
-            if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
-                updateLog_MartCalc(hObject, handles, 'Lath IPS-solutions must be calculated first')
-            else
-                %
-                calculation_method = 'Build blocks from lath IPS-solutions (+ optimized phase fractions)';
-                updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
-                %
-                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_IPS, handles.block_solutions, handles.martensite.U, cof_tol, det_tol); 
-                updateLog_MartCalc(hObject, handles, ['Determination of composite blocks fullfilling minors relations from lath IPS solutions completed.', ...
-                num2str(length(handles.block_solutions.array)),' solutions found.'] );
-            end
-        case 2 % ILS laths
-            handles.block_solutions = Solution_array_composite();
+            handles.martensite.block_solutions_from_IPS =  mixing_of_atomic_level_solutions( handles.reduced_solutions_IPS, handles.martensite.U, cof_tol, det_tol);
             %
-            if isempty(handles.martensite.IPS_solutions.array) % ~handles.martensite.IPS_solutions.solutions_available
-                updateLog_MartCalc(hObject, handles, 'Lath ILS-solutions must be calculated first')
-            else
-                calculation_method = 'Build blocks from lath ILS-solutions (+ optimized phase fractions)';
-                updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
-                %
-                handles.block_solutions =  mixing_of_atomic_level_solutions( handles.reduced_solutions_ILS, handles.block_solutions,  handles.martensite.U, cof_tol, det_tol);
-                updateLog_MartCalc(hObject, handles, ['Determination of composite blocks fullfilling minors relations from lath ILS solutions completed.', ...
-                    num2str(length(handles.block_solutions.array)),' solutions found.'] );
-            end         
-
-            %%            Qi 2014 Acta - removed from direct block calculation
-%             get_input_MartCalc;
-%             calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
-%             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
-%             %updateLog_MartCalc(hObject, handles, 'please wait...');
-%             %
-%             % highly symmetric mirror planes from bcc
-%             % {001} family
-%             sort_out_negatives = true;
-%             ms = all_from_family_perms( [0 0 1], sort_out_negatives );
-%             % {011} family
-%             ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
-%             handles.martensite.mirror_planes = ms;
-%             %
-%             handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
-%             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
-%             %
-%             update_lath_selection_criteria;
-    end
-    %
-    guidata(hObject, handles);
-else
-    updateLog_MartCalc(hObject, handles, 'Calculation could not be started - insufficient input - see above log messages.');
+            updateLog_MartCalc(hObject, handles, ['Determination of bi-variant blocks fullfilling minors relations from lath IPS solutions completed.', ...
+                num2str(length(handles.martensite.block_solutions_from_IPS)),' possibilites within tolerance range.'] );
+        end
+    case 2 % ILS laths
+        %
+        if isempty(handles.martensite.ILS_solutions.array) 
+            updateLog_MartCalc(hObject, handles, 'Lath ILS-solutions must be calculated first')
+        else
+            calculation_method = 'Checking minros relations and build bi-variant blocks from lath ILS-solutions (+ optimized phase fractions)';
+            updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+            %
+            handles.martensite.block_solutions_from_ILS =  mixing_of_atomic_level_solutions( handles.reduced_solutions_ILS, handles.martensite.U, cof_tol, det_tol);
+            updateLog_MartCalc(hObject, handles, ['Determination of bi-variant blocks fullfilling minors relations from lath ILS solutions completed.', ...
+                num2str(length(handles.martensite.block_solutions_from_ILS)),' possibilites within tolerance range.'] );
+        end
+        
+        %%            Qi 2014 Acta - removed from direct block calculation
+        %             get_input_MartCalc;
+        %             calculation_method = 'direct block approach, mirrorsym. & equal double-shears';
+        %             updateLog_MartCalc(hObject, handles, [calculation_method,' - started, calculating...']);
+        %             %updateLog_MartCalc(hObject, handles, 'please wait...');
+        %             %
+        %             % highly symmetric mirror planes from bcc
+        %             % {001} family
+        %             sort_out_negatives = true;
+        %             ms = all_from_family_perms( [0 0 1], sort_out_negatives );
+        %             % {011} family
+        %             ms = cat(1, ms, all_from_family_perms( [0 1 1], sort_out_negatives ) );
+        %             handles.martensite.mirror_planes = ms;
+        %             %
+        %             handles.martensite.IPS_solutions = block_symmetric_doubleshear(handles.martensite, handles.austenite);
+        %             updateLog_MartCalc(hObject, handles, ['Determination of (direct) composite block solutions completed: ' num2str(size(handles.martensite.IPS_solutions.array,2)),' solutions found.'] );
+        %             %
+        %             update_lath_selection_criteria;
 end
+
 guidata(hObject, handles);
 % enable interface again
 %set(handles.InterfaceObj,'Enable','on');
@@ -601,83 +583,76 @@ updateLog_MartCalc(hObject, handles, 'Writing results finished.');
 %% check input of EDIT TEXT fields directly after typing it in
 
 function lc_edtxt_aust_val_Callback(hObject, eventdata, handles)
-% Hints: get(hObject,'String') returns contents of lc_edtxt_aust_val as text
-%        str2double(get(hObject,'String')) returns contents of lc_edtxt_aust_val as a double
-
 % if input is a string but not a number change it back to the default value
 if isnan(str2double(get(hObject,'String') ) )
   set(hObject,'String','3.6017264');
 end
 
-handles.reduced_solutions.cryst_fams %.keys %('KS')
-
 
 function lc_edtxt_mart_val_Callback(hObject, eventdata, handles)
-
 % if input is a string but not a number change it back to the default value
 if isnan(str2double(get(hObject,'String') ) )
   set(hObject,'String','2.8807346');
 end
 
-function max_misori_HPs_laths_for_blocks_edit_txt_Callback(hObject, eventdata, handles)
 
-% if input is a string but not a number change it back to the default value
-in = str2double(get(hObject,'String') );
-if isnan( in ) || in > 90
-  set(hObject,'String','');
+function edit_minors_det_Callback(hObject, eventdata, handles)
+% 
+det_tol = str2double(get(hObject,'String') );
+if isnan(det_tol)
+    set(hObject,'String','1.e-3');
+else
+    if( det_tol > 1.e-3 )
+        updateLog_MartCalc( hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
+        set(hObject,'String','1.e-3');
+    end
 end
 
-function misori_HPintersec_cpdir_edit_txt_Callback(hObject, eventdata, handles)
-
-% if input is a string but not a number change it back to the default value
-in = str2double(get(hObject,'String') );
-if isnan( in ) || in > 90
-  set(hObject,'String','');
+function edit_minors_cof_Callback(hObject, eventdata, handles)
+%  
+cof_tol= str2double(get(hObject,'String') );
+if isnan(cof_tol)
+    set(hObject,'String','1.e-3');
+else
+    if( cof_tol > 1.e-3 )
+        updateLog_MartCalc( hObject, handles,'A higher tolerance than 1.e-3 for minors relations is not allowed.');
+        set(hObject,'String','1.e-3');
+    end
 end
+
+% function max_misori_HPs_laths_for_blocks_edit_txt_Callback(hObject, eventdata, handles)
+% % if input is a string but not a number change it back to the default value
+% in = str2double(get(hObject,'String') );
+% if isnan( in ) || in > 90
+%   set(hObject,'String','');
+% end
+% 
+% function misori_HPintersec_cpdir_edit_txt_Callback(hObject, eventdata, handles)
+% % if input is a string but not a number change it back to the default value
+% in = str2double(get(hObject,'String') );
+% if isnan( in ) || in > 90
+%   set(hObject,'String','');
+% end
+
 
 function filename_results_edittext_Callback(hObject, eventdata, handles)
-%
+% bla
 filename = get(hObject,'String');
 %if ~isempty(regexp(fname, ['^(?!^(PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*)', ...
 %        '(\..+)?$)[^\x00-\x1f\\?*:\"><|/]+$'], 'once') )
 if ~isempty(regexp(filename, '[/\*:?"<>|]', 'once'))
-   set(hObject,'String','');
+    set(hObject,'String','');
 end
 
 set(handles.InterfaceObj,'Enable','on');
 
 %handles.reduced_solutions_ILS.array.u
-
-% handles.reduced_solutions_ILS.array(1).shear_increments
-% handles.reduced_solutions_ILS.array(2).shear_increments
-% handles.reduced_solutions_ILS.array(3).shear_increments
-% handles.reduced_solutions_ILS.array(4).shear_increments
-% handles.reduced_solutions_ILS.array(5).shear_increments
-% handles.reduced_solutions_ILS.array(6).shear_increments
-
-handles.reduced_solutions_ILS.array.shear_increments
-
 %handles.reduced_solutions_ILS.array(5).slip.eps_s
 %handles.reduced_solutions_ILS.array.slip.slip_normal_plane_vec
 %handles.reduced_solutions_ILS.array.slip.shear_direction
 
-
-
 % save('ILS_solutions_line_search_delta_eps_ini_0_3__min_delta_res_1_e-3', 'handles.reduced_solutions_ILS' ) ;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+handles.reduced_solutions_ILS.array.shear_increments
 
 
 
@@ -1932,16 +1907,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-
-function edit_minors_det_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_minors_det (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_minors_det as text
-%        str2double(get(hObject,'String')) returns contents of edit_minors_det as a double
-
-
+    
 % --- Executes during object creation, after setting all properties.
 function edit_minors_det_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to edit_minors_det (see GCBO)
@@ -1976,16 +1942,6 @@ function edit171_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-function edit_minors_cof_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_minors_cof (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_minors_cof as text
-%        str2double(get(hObject,'String')) returns contents of edit_minors_cof as a double
 
 
 % --- Executes during object creation, after setting all properties.

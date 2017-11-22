@@ -1,4 +1,4 @@
-
+edit
 % densest packed plane in austenite
 cpps_gamma = all_from_family_perms( [1 1 1] );
 austenite.CPPs = cpps_gamma;
@@ -24,7 +24,7 @@ g_min = 5.; %  % could also directly be specified in mod_eigenvalue function e.g
 eps_max = 0.6; %1 0.3; % 100.; 
 
 % I put this value to 2 considering that in bcc there is no close packed  plane
-theta_CPPs_max = 5.; %3.; %1.; % 90.;  maximum misorientation angle of CP relation - due to Qi,Khachaturyan 2013
+theta_CPPs_max = 2.; %3.; %1.; % 90.;  maximum misorientation angle of CP relation - due to Qi,Khachaturyan 2013
 % misorientation-angle theta_p between the closed-packed planes (cpp) of alpha {110} and gamma {111} lattice
 
 % maximum misorientation angle of block habit-plane to {111}_gamma

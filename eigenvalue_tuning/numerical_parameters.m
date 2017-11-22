@@ -1,7 +1,9 @@
 %% options for numerical prodecures in "middle_eigenvalue_modifications"
 
 tolerance = 1.e-6; % maximum deviation of lambda_2 to 1 for IPS solution
-vec_residual = 1.e-4; % max deviatoin of least square residual for ILS solution
+
+vec_residual = 5.e-3; % 1.e-2  max deviatoin of least square residual for ILS solution
+
 %  variable tolerance (see - file numerical parameters) - for deviation of invariant line
 delta_eps_tolerance = 1.e-5; % minimum shear perturbation at which algorithm stops -> local divergence
 stepwidth_change = 0.5; % smaller and inverse to make increment bigger to escape local minima
@@ -20,7 +22,7 @@ eps_max = 1. ; % characteristic shape deformation = shear amplitude in the case 
 % this parameter corresponds to a 'g_min' of 2.5 for the [110](111)_aust system!!! therefore it is much too
 % big!!!
 eps_initial = 0.;
-delta_eps_initial = 0.05 %0.305 ; % 0.01; %
+delta_eps_initial = 0.2; %0.305 ; % 0.01; 
 
 %% other variables that are used in all solution schemes
 I = eye(3);

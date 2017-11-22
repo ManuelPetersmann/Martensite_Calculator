@@ -14,6 +14,10 @@ classdef Composite_solution %< IPS_solution
     
     properties (Dependent) % all depend on lath_id_pair
         
+        % properties for reduction
+        rotangle_inclusion
+        lambda2_IPS_to_one;
+        
         % The following cost-functions could be minimized w.r.t the phase fraction x, 1-x
         % and are stored in this class:
         

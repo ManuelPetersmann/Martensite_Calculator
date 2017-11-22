@@ -21,7 +21,7 @@ direction_families_bcc = [ [1 1 1]
 %[ ns_product, ds_product ] = independent_slipsystems( plane_families_bcc, direction_families_bcc, count_directions_extra );
 
 plane_families_fcc =     [ [1 1 1] ];
-direction_families_fcc = [ [1 1 0]; [1 1 2] ];
+direction_families_fcc = [ [1 1 0]; ] %; [1 1 2] ]; % 112 is twinning dislocation... - 112 is a partial! do not take it!
 [austenite.slip_planes, austenite.slip_directions] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 %[ ns_parent, ds_parent] = independent_slipsystems(plane_families_fcc,direction_families_fcc,count_directions_extra);
 

@@ -1,4 +1,4 @@
-function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, cof_tol, det_tol) 
+function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, U, cof_tol, det_tol) 
 
 % call: mixing_of_atomic_level_solutions(lath_solutions, block_solutions, U, cof_tol, det_tol) 
 %
@@ -28,8 +28,7 @@ if nargin < 4
     det_tol = 1.e-4
 end
 
-calculation_method = 'NEW Approach: Build blocks from lath-IPS-solutions, optimized phase fractions';
-block_solutions.calculation_method = calculation_method;
+block_solutions = Solution_array_composite();
 
 I = eye(3); % = austenite
 detU = det(U);
@@ -59,81 +58,14 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % alternatively frob distance
             continue
         end
-        
-        %% rotation of Block_inclusion
-        [~,R] = polardecomposition( Fc );
-        [ angle, axis ] = rotmat_to_axis_angle( R );
-        %vec4 = vrrotmat2vec( R );
-        % convert angle to degree
-        %angle = rad2deg( vec4(4) );
-        if angle > rot_angle_block
-            continue
-        end
 
-        %% RANK one between block-aust - check deviation of lambda2
-        if (lambda2_linmix(x,F1,F2) - 1)  > lambda2_tol_block_aust
-            continue
-        end
-        
-        % deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
-        [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
-        % I found that automatically both h's should be within the tolerance
-        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
-             (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) > block_hp_cp_aust_tol) )
-            continue
-        end
-        
-          %% RANK one between laths
-%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
-%             continue
-%         end
-
- 
-        %% Considering that the two F could be equal since the slip
-        % deformations are not linearly independent! c.f. non-uniqueness of
-        % plastic slip
-%         if sum(sum(abs(F1 - F2 ))) < delta_F % alternatively frob distance
-%             continue
-%         end
-        
-        
-        % do not mix variants not fullfilling predefined criteria
-        % e.g. habit plane deviation from {111}_aust or something else
-        % up to now there are two criteria ( both angle tolerances )
-        % first angle between common line of invariant habit planes and
-        % preferred invariant line (e.g. of set of cp-directions)
-        % second angle between habit planes
-%         if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
-%             % considering longitudinal dimension of lath -> a
-%             vec_in_both_planes = cross( sol1.h , sol2.h );
-%             % check if habit planes are not parallel
-%             if abs(vec_in_both_planes) < 1.e-8 % entry wise for all entries
-%                 theta_intersec_cpdir = misorientation_vector_and_plane( lath_solutions.cryst_fams('KS'), sol1.h );
-%             else
-%                 theta_intersec_cpdir = min_misorientation( lath_solutions.cryst_fams('KS'), vec_in_both_planes );
-%             end
-%             %
-%             if theta_intersec_cpdir  >  block_solutions.mixing_tolerances('theta_intersec_cpdir')
-%                 neglected_mixing_restrictions = neglected_mixing_restrictions +1;
-%                 continue
-%             end
-%         end                 
-%         %
-%         if isKey(block_solutions.mixing_tolerances,'theta_hps')
-%             theta_hps = get_angle( sol1.h , sol2.h );
-%             if theta_hps  >  block_solutions.mixing_tolerances('theta_hps') 
-%                 % considering width of laths -> b
-%                 neglected_mixing_restrictions = neglected_mixing_restrictions +1;
-%                 continue
-%             end
-%         end
-        
         %% ID pairs are all that is needed to form blocks and get all other information of them 
  
         block_sols = block_sols + 1;            
         block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
         block_solutions.array( block_sols ).Fc05 = Fc;
         
+        %% Currently no further a-priori mixing restrictions beside the minors conditions are implemented
 %         if isKey(block_solutions.mixing_tolerances,'theta_intersec_cpdir')
 %         %    block_solutions.array( block_sols ).tolerances('theta_intersec_cpdir')    = theta_intersec_cpdir;
 %         end
@@ -144,7 +76,6 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         
     end % end of loop 1
 end % end of loop 2
-
 
 disp( ['number of potential solutions found: n_sol = ', num2str(block_sols) ] )
 

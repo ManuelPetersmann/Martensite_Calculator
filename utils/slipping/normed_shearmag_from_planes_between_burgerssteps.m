@@ -16,12 +16,16 @@ function [ eps ] = normed_shearmag_from_planes_between_burgerssteps( b, stepwidt
 % m propto eps - hence the function slip_planes_between_burgersvec is
 % sufficient for the transformation in both "directions"
 
+%% TODO - generalize to other lattices - now only valid for cubic ones!
+    % PET: correction 21.11.17 - corrected here factor 0.5 due to
+    % Burgesvector of form a/2 * norm(b) = sqrt(3)*a /2 or sqrt(2)*a / 2
+
 for i = 1:length(stepwidth)
     % TODO add other crystal systems! and generalize Burgers vector with
     % lattice parameters in this function
     d(i) = 1/norm(plane_miller(i,:));
         
-    eps(i) = norm(b(i,:)) / (stepwidth*d);
+    eps(i) = 0.5 * norm(b(i,:)) / (stepwidth*d);
     
     % m = norm(b) / (eps * d);
 end

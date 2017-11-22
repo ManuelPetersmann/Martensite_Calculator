@@ -12,7 +12,8 @@ classdef Martensite < Base
         %R % rotational part of the
         IPS_solutions; % = Solution_array();
         ILS_solutions;
-        block_solutions;
+        block_solutions_from_IPS;
+        block_solutions_from_ILS;
         %
         considered_plasticity; % 1-only mart slip systems, 2-only austenite slip systems, 3-slip systems of both lattices
         %
@@ -27,7 +28,8 @@ classdef Martensite < Base
         function obj = Martensite()
             obj.IPS_solutions = Solution_array();
             obj.ILS_solutions = Solution_array();
-            %obj.block_solutions = Solution_array_block
+            obj.block_solutions_from_IPS = Solution_array_composite(); 
+            obj.block_solutions_from_ILS = Solution_array_composite();
         end
         %------------------------------------------------------------------
         %TODO implement loadobject
