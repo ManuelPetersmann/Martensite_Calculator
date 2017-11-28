@@ -4,7 +4,7 @@ function solutions = invariant_line_strain_fixed_increment(martensite, austenite
 % austenite!
 
 if isempty( martensite.invariant_lines )
-    us = austenite.CP_dirs;
+    us = austenite.CP_dirs
     % VECTORS MUST BE NORMED!
 end
 
@@ -35,25 +35,27 @@ for iu = 1:length(us)
     u = us(iu,:)';
     u = u / norm(u); % VECTOR MUST BE NORMED!
     u2  = martensite.U * u;
-    R_Bain   = rotation_between_vectors( u2, u );
-    %try
-    %[angle_Bain, ax_Bain] = rotmat_to_axis_angle( R_Bain );
+    %% actually this is stupid - the rotation could get bigger and it would look like the shear achieves the improvement
+    %R_Bain   = rotation_between_vectors( u2, u );
+    %[angle_Bain, ax_Bain] = rotmat_to_axis_angle( R_Bain )
     %angle_inclusion = angle_Bain;
     %ax_inclusion = ax_Bain;
-    %catch
     % it has been tested that the specific directions of <110> that
     % remain unrotated by B3 = martensite.U cannot be made any better using shears!
-    %end
-    LT_B    = R_Bain * martensite.U;
-    [ theta_cp_old, ~ ] = min_misorientation( austenite.CPPs, LT_B, true );
-    u2_unrot = R_Bain * u2;
+    %LT_B  = R_Bain * martensite.U;
+    %[ theta_cp_initial, ~ ] = min_misorientation( austenite.CPPs, LT_B, true );
+    
+    [ theta_cp_initial, ~ ] = min_misorientation( austenite.CPPs, martensite.U, true );
+    theta_cp_old = theta_cp_initial;
+    %u2_unrot = R_Bain * u2;
     %
     for is1 = 1:length(S)
         for is2 = is1+1:length(S)
             
-            res_initial = norm( u - u2_unrot ); % If an invariant line is specified a -
+            %res_initial = norm( u - u2_unrot ) 
+            res_initial = norm( u - u2 ); 
             res_old = res_initial;
-            % priori and it does not ly on the cone of undistorted line
+            % % If an invariant line is specified a-priori and it does not ly on the cone of undistorted line
             % then, even it is rotated back to its inital position it may be
             % distorted. Also the rotation to bring it back may be quite large. In
             % the following it is tried to minimize the rotation and make a given
@@ -62,24 +64,44 @@ for iu = 1:length(us)
             % res... residual - if it is zero then the vector is fully invariant
             
             %% all this is calculated only to check if an improvement is possible to begin with -
+            % stop immediately if the solution does not improve at all
             delta_eps = delta_eps_initial;
             eps1 = eps_initial;
             eps2 = eps_initial;
             S_accummulated = eye(3);
             %
             shear_increments = [];
+
             
-            % stop immediately if the solution does not improve at all
-            %if ( res_old > new_res_dS1 ) && ( res_old > new_res_dS2 )
-            %if ( old_optfunc1 > new_optfunc1 ) && ( old_optfunc2 > old_optfunc2 )
+            dS1 = eye(3) + delta_eps*S(:,:,is1);
+            dS2 = eye(3) + delta_eps*S(:,:,is2);
+%             dS1 = R_Bain*( eye(3) + delta_eps*S(:,:,is1) )*R_Bain';
+%             dS2 = R_Bain*( eye(3) + delta_eps*S(:,:,is2) )*R_Bain'';
+            [new_res_dS1, R_dS1] = perp_ILS( S_accummulated*martensite.U, dS1, u);
+            [new_res_dS2, R_dS2] = perp_ILS( S_accummulated*martensite.U, dS2, u);
+%             R_dS1 = eye(3); %R_Bain;
+%             R_dS2 = eye(3); %R_Bain;
+            
+%             LT1    = R_dS1 * martensite.U;
+%             LT2    = R_dS2 * martensite.U;
+%             [ theta_cp_new1, ~ ] = min_misorientation( austenite.CPPs, LT1, true );
+%             [ theta_cp_new2, ~ ] = min_misorientation( austenite.CPPs, LT2, true );
+            new_optfunc1 = new_res_dS1; % 1 = (theta_cp_new1 / theta_cp_old);
+            new_optfunc2 = new_res_dS2; % 2 = (theta_cp_new2 / theta_cp_old);
+
+            %% alternative without writing stuff twice
             % ensure while is entered for at least one time
-            R_dS1 = R_Bain;
-            R_dS2 = R_Bain;
-            old_optfunc = res_old;
-            new_optfunc1 = res_old -1;
-            new_optfunc2 = res_old -1;
+            %old_optfunc = res_old;
+            %new_optfunc1 = res_old -1;
+            %new_optfunc2 = res_old -1;
+
+            if ( res_old < new_res_dS1 ) && ( res_old < new_res_dS2 )
+            %if ( old_optfunc1 > new_optfunc1 ) && ( old_optfunc2 > old_optfunc2 )
             
-            while ( res_old > vec_residual )  && ( ( old_optfunc > new_optfunc1 )  || ( old_optfunc > new_optfunc2 ) ) ...
+            iteration = 0;
+            
+            %  && ( ( old_optfunc > new_optfunc1 )  || ( old_optfunc > new_optfunc2 ) ) ...
+            while ( res_old > vec_residual )  ... && (theta_cp_old > 2.)  ...
                     && (eps1 < eps_max)        && (eps2 < eps_max)
                 
                 % if the solution for 'eps' is very high or low respectively, do not consider it
@@ -95,10 +117,10 @@ for iu = 1:length(us)
                 
                 %% NOTE - new shear comes in between!! i.e.  U * dS * S_accummulated
                 % hence this was wrong... US = martensite.U*S_accummulated;
-%                 dS1 = eye(3) + delta_eps*S(:,:,is1);
-%                 dS2 = eye(3) + delta_eps*S(:,:,is2);
-                dS1 = R_dS1 * ( eye(3) + delta_eps*S(:,:,is1) ) * R_dS1';
-                dS2 = R_dS2 * ( eye(3) + delta_eps*S(:,:,is2) ) * R_dS2';
+                dS1 = eye(3) + delta_eps*S(:,:,is1);
+                dS2 = eye(3) + delta_eps*S(:,:,is2);
+%                 dS1 = R_dS1 * ( eye(3) + delta_eps*S(:,:,is1) ) * R_dS1';
+%                 dS2 = R_dS2 * ( eye(3) + delta_eps*S(:,:,is2) ) * R_dS2';
                 [new_res_dS1, R_dS1] = perp_ILS( S_accummulated*martensite.U, dS1, u);
                 [new_res_dS2, R_dS2] = perp_ILS( S_accummulated*martensite.U, dS2, u);
                 
@@ -111,7 +133,7 @@ for iu = 1:length(us)
                 
                 % choose the shear that approached a solution quicker with the
                 % SAME shear magnitude  - delta_eps
-                % if(new_res_dS1 < new_res_dS2)
+                %if(new_res_dS1 < new_res_dS2)
                 if (new_optfunc1 < new_optfunc2)
                     % here generally the minimum should be taken if the solution has not been passed already
                     % from one search direction, otherwise the shear amplitude is adopted first and only then it is
@@ -121,6 +143,9 @@ for iu = 1:length(us)
                         % i.e. the solution is passed or delta_lambda2_to_1 does not decrease, which should not happen - cut back
                         delta_eps = stepwidth_change * delta_eps;
                     else
+                        if res_old < new_res_dS1
+                            break
+                        end
                         theta_cp_old = theta_cp_new1;
                         res_old = new_res_dS1;
                         eps1 = eps1 + delta_eps;
@@ -133,6 +158,9 @@ for iu = 1:length(us)
                     if ( old_optfunc < new_optfunc2 )
                         delta_eps = stepwidth_change * delta_eps;
                     else
+                        if res_old < new_res_dS2
+                            break
+                        end
                         theta_cp_old = theta_cp_new2;
                         res_old = new_res_dS2;
                         eps2 = eps2 + delta_eps;
@@ -146,13 +174,26 @@ for iu = 1:length(us)
                     break
                 end
                 
+                iteration = iteration + 1;
+                
             end % end while
             
-            % end
-
-             if res_old < 0.005
+            if (theta_cp_initial*0.9 > theta_cp_old)  && (eps1 > 0.01 || eps2 > 0.01)  %(res_initial*0.9 > res_old)
+                disp('---------------------------');
+                res_initial
+                res_old
+                theta_cp_initial
                 theta_cp_old
+                iteration
+                delta_eps
+                eps1
+                eps2
+                shear_increments
+f            end
+            
             end
+
+
             
             if ( res_old < vec_residual ) && (theta_cp_old < 5.)
                 

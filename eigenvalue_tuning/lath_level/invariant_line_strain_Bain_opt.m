@@ -1,10 +1,10 @@
-function solutions = invariant_line_strain_fixed_increment(martensite, austenite)
+function solutions = invariant_line_strain_Bain_opt(martensite, austenite)
 % calculates invariant line strain (rototated, unstreched) - per default
 % the invariant line is assummed to be the close packed direction in
 % austenite!
 
 if isempty( martensite.invariant_lines )
-    us = austenite.CP_dirs;
+    us = austenite.CP_dirs
     % VECTORS MUST BE NORMED!
 end
 
