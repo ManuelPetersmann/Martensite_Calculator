@@ -119,7 +119,8 @@ function popup_calc_lath_level_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_lath_level contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popup_calc_lath_level
-lath_type = hObject.Value;
+
+lath_type = get(hObject,'Value');
 switch lath_type %handles.popup_calc_lath_level.Value
     case 1 % or or or...
         set(handles.pan_lsc_IPS,'visible','on')
@@ -211,15 +212,16 @@ function lsc_popup_IPS_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns lsc_popup_IPS contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from lsc_popup_IPS
 
-switch hObject.Value
+selected_crit = get(hObject,'Value');
+switch selected_crit
     case 1 % Criterion 1 has been chosen: Minimum slip plane density
         criterion_name = 'Minimum average transformation-dislocation spacing (stepwidth on interface).';
         if handles.asc_status_IPS(1) == 0 % if inactive
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 5.0;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(1) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -230,9 +232,9 @@ switch hObject.Value
         if handles.asc_status_IPS(2) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 0.6;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(2) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -242,9 +244,9 @@ switch hObject.Value
         if handles.asc_status_IPS(3) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 2.0;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(3) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                        
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit );                        
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -254,9 +256,9 @@ switch hObject.Value
         if handles.asc_status_IPS(4) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 20.0;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(4) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value );                       
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit );                       
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -266,9 +268,9 @@ switch hObject.Value
         if handles.asc_status_IPS(5) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 5.0;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(5) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -278,9 +280,9 @@ switch hObject.Value
         if handles.asc_status_IPS(6) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc    
             default_value = 8.0;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(6) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied       
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value); 
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit); 
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -290,9 +292,9 @@ switch hObject.Value
         if handles.asc_status_IPS(7) == 0
             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
             default_value = 3.0;
-            handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_IPS(7) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, hObject.Value);
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_IPS, criterion_name, default_value, selected_crit);
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -302,9 +304,9 @@ switch hObject.Value
 %             handles.asc_number_IPS = handles.asc_number_IPS + 1; % increase number of asc
 %             criterion_name = 'Maximum deviation of theoretical volume change from Bain strain.';
 %             default_value = 0.001;
-%             handles.asc_list_IPS(handles.asc_number_IPS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+%             handles.asc_list_IPS(handles.asc_number_IPS) = selected_crit; % keep track of which criterion is at which point in the asc list
 %             handles.asc_status_IPS(8) = handles.asc_number_IPS; % set = number in row, in order to show that crit is already active and when it is to be applied
-%             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, hObject.Value);
+%             handles = create_asc_panel_MartCalc(handles, criterion_name, default_value, selected_crit);
 %             guidata(hObject, handles); % Update handles structure
 %         else
 %             updateLog_MartCalc(hObject, handles, 'Criterion - "Maximum deviation of theoretical volume change from Bain strain" is already active!')
@@ -315,15 +317,16 @@ end
 % --- Executes on selection change in lsc_popup_ILS.
 function lsc_popup_ILS_Callback(hObject, eventdata, handles)
 
-switch hObject.Value
+selected_crit = get(hObject,'Value');
+switch selected_crit
     case 1 % Criterion 1 : Minimum slip plane density
         criterion_name = 'Minimum average transformation-dislocation spacing (stepwidth on interface).';
         if handles.asc_status_ILS(1) == 0 % if inactive
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
             default_value = 5.0;
-            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_ILS(handles.asc_number_ILS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(1) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -334,9 +337,9 @@ switch hObject.Value
         if handles.asc_status_ILS(2) == 0
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
             default_value = 2.0;
-            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_ILS(handles.asc_number_ILS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(2) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -347,9 +350,9 @@ switch hObject.Value
         if handles.asc_status_ILS(3) == 0
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
             default_value = 1.e-2;
-            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_ILS(handles.asc_number_ILS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(3) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -360,9 +363,9 @@ switch hObject.Value
         if handles.asc_status_ILS(4) == 0
             handles.asc_number_ILS = handles.asc_number_ILS + 1; % increase number of asc
             default_value = 10.0;
-            handles.asc_list_ILS(handles.asc_number_ILS) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_ILS(handles.asc_number_ILS) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_ILS(4) = handles.asc_number_ILS; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_ILS, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -372,15 +375,16 @@ end
 % --- Executes on selection change in popup_asc_block_level.
 function popup_asc_block_level_Callback(hObject, eventdata, handles)
 
-switch hObject.Value
+selected_crit = get(hObject,'Value');
+switch selected_crit
     case 1 % Criterion 1 : Minimum slip plane density
         criterion_name = 'Rotation angle of (average) block deformation.';
         if handles.asc_status_blocks(1) == 0 % if inactive
             handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
             default_value = 2.0;
-            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_blocks(handles.asc_number_blocks) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_blocks(1) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -391,9 +395,9 @@ switch hObject.Value
         if handles.asc_status_blocks(2) == 0 % if inactive
             handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
             default_value = 1.e-2;
-            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_blocks(handles.asc_number_blocks) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_blocks(2) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -404,9 +408,9 @@ switch hObject.Value
         if handles.asc_status_blocks(3) == 0 % if inactive
             handles.asc_number_blocks = handles.asc_number_blocks + 1; % increase number of asc
             default_value = 5.0;
-            handles.asc_list_blocks(handles.asc_number_blocks) = hObject.Value; % keep track of which criterion is at which point in the asc list
+            handles.asc_list_blocks(handles.asc_number_blocks) = selected_crit; % keep track of which criterion is at which point in the asc list
             handles.asc_status_blocks(3) = handles.asc_number_blocks; % set = number in row, in order to show that crit is already active and when it is to be applied
-            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, hObject.Value );
+            handles = create_asc_panel_MartCalc(handles, handles.pan_asc_blocks, criterion_name, default_value, selected_crit );
             guidata(hObject, handles); % Update handles structure
         else
             updateLog_MartCalc(hObject, handles, ['Criterion - "',criterion_name,'" is already active!'])
@@ -444,8 +448,9 @@ else
     % disable interface during function call
     set(handles.InterfaceObj,'Enable','off');
     unsrt_sols = handles.reduced_solutions_IPS;
+    selected_crit = get(hObject,'Value');
     try
-        switch hObject.Value
+        switch selected_crit
             case 1
                 handles.reduced_solutions_IPS = unsrt_sols.sort( 'stepwidth' );
             case 2

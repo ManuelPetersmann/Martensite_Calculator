@@ -3,18 +3,23 @@
 
 %% get lattice parameters
 % for austenite lattice
-if(num2str(handles.lc_edtxt_aust_val.String) > 0 )
-    a_aust = str2num(handles.lc_edtxt_aust_val.String);
+%if(num2str( handles.lc_edtxt_aust_val.String) > 0 )
+%    a_aust = str2num(handles.lc_edtxt_aust_val.String);
+if str2double( get( handles.lc_edtxt_aust_val,'String') ) > 0 
+    a_aust = str2double( get(handles.lc_edtxt_aust_val,'String') );
 else
     updateLog_MartCalc(hObject, handles,'No reasonable input for austenite lattice parameter - please correct!');
     %handles.input_status = false;    
 end
+
 % for martensite lattice
-if(num2str(handles.lc_edtxt_mart_val.String) > 0 )
-    a_mart = str2num(handles.lc_edtxt_mart_val.String);
+%if(num2str(handles.lc_edtxt_mart_val.String) > 0 )
+%    a_mart = str2num(handles.lc_edtxt_mart_val.String);
+if str2double( get( handles.lc_edtxt_aust_val,'String') ) > 0 
+    a_aust = str2double( get(handles.lc_edtxt_mart_val,'String') );
 else
     updateLog_MartCalc(hObject, handles,'No reasonable input for martensite lattice parameter - please correct!');
-    handles.input_status = false; 
+%    handles.input_status = false; 
 end
  
 %% get input for base vectors from GUI
