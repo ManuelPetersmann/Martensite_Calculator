@@ -119,7 +119,8 @@ function popup_calc_lath_level_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Hints: contents = cellstr(get(hObject,'String')) returns popup_calc_lath_level contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popup_calc_lath_level
-switch hObject.Value %handles.popup_calc_lath_level.Value
+lath_type = hObject.Value;
+switch lath_type %handles.popup_calc_lath_level.Value
     case 1 % or or or...
         set(handles.pan_lsc_IPS,'visible','on')
         set(handles.pan_asc_IPS,'visible','on')
