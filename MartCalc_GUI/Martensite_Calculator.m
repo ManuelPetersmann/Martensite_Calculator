@@ -590,15 +590,24 @@ updateLog_MartCalc(hObject, handles, 'Writing results finished.');
 
 function lc_edtxt_aust_val_Callback(hObject, eventdata, handles)
 % if input is a string but not a number change it back to the default value
-if isnan(str2double(get(hObject,'String') ) )
-  set(hObject,'String','3.6017264');
+%if isnan(str2double(get(hObject,'String') ) )
+%    set(hObject,'String','3.6017264');   
+%end
+if ~str2double( get( handles.lc_edtxt_aust_val,'String') ) > 0
+    set(hObject,'String','3.6017264');
+    updateLog_MartCalc(hObject, handles,'No reasonable input for austenite lattice parameter - please correct!');  
 end
+
 
 
 function lc_edtxt_mart_val_Callback(hObject, eventdata, handles)
 % if input is a string but not a number change it back to the default value
-if isnan(str2double(get(hObject,'String') ) )
-  set(hObject,'String','2.8807346');
+%if isnan(str2double(get(hObject,'String') ) )
+%  set(hObject,'String','2.8807346');
+%end
+if ~str2double( get( handles.lc_edtxt_mart_val,'String') ) > 0
+    set(hObject,'String','2.8807346');
+    updateLog_MartCalc(hObject, handles,'No reasonable input for austenite lattice parameter - please correct!');  
 end
 
 
