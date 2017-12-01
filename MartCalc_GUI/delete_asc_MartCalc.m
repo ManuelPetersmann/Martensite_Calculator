@@ -43,6 +43,8 @@ main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).d
 asc_number = asc_number - 1; % decrease number of asc
 status(criterion_number) = 0; % set criterion inactive
 
+size(main_asc_panel.Children,1)
+postion_in_asc_list
 
 % update positions of the following list entries
 % % while(handles.asc_list(postion_in_asc_list) > 0)
@@ -53,7 +55,7 @@ while(postion_in_asc_list <= size(main_asc_panel.Children,1))
        ((main_asc_panel.Position(4)/8)/main_asc_panel.Position(4));
    
    % update number of position in list
-   main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).Children(4).String = num2str(postion_in_asc_list);
+   main_asc_panel.Children( size(main_asc_panel.Children,1)+1-postion_in_asc_list).Children(4).String = num2str(postion_in_asc_list);
    
    % update status of criterion in order to fit new position in list
    status(main_asc_panel.Children(size(main_asc_panel.Children,1)+1-postion_in_asc_list).Children(3).Value) = postion_in_asc_list; 
