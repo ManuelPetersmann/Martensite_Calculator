@@ -1,5 +1,5 @@
 function [delta_eps, R_dS, new_res, dS] = linesearch_ILS( U, S, S_accummulated, u, ...
-                                                          delta_eps, initial_res, vec_residual, cpps_gamma )
+                                          delta_eps, initial_res, vec_residual, cpps_gamma )
 %
 %% Parameters here are important - is there a physical interpretation?
 % now i have a trust-region like iteration due to min_delta_res
@@ -11,12 +11,10 @@ old_res = initial_res;
 
 % First step
 dS = eye(3) + (delta_eps + dd_eps) * S;
-[new_res, R_dS] = perp_ILS(U, dS, S_accummulated, u);
+[new_res, R_dS] = perp_ILS(S_accummulated*U, dS, u);
 %
 LT    = R_dS * U;
 [ theta_cp_old, ~ ] = min_misorientation( cpps_gamma, LT, true );
-%
-new_res = new_res * (theta_cp_new1 / theta_cp_old);
 %
 delta_res = initial_res - new_res;
 %delta_theta_cp = 1.;
@@ -40,6 +38,7 @@ if ( old_res > new_res )
         end
         delta_res = old_res - new_res;
         %delta_theta_cp = theta_cp_old - theta_cp_new;
+        new_res = new_res * (theta_cp_new / theta_cp_old);
         theta_cp_old = theta_cp_new;
     end
     

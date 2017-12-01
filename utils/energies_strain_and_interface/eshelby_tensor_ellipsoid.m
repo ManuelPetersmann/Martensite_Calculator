@@ -33,36 +33,43 @@ R = (1.-2*nu) / (8*pi*(1.-nu));
 % 
 % Ib = 4*pi - Ia - Ic;
 
+% I_i = [Ia, Ib, Ic];
+% 
+% % I_ij = [ Iab, Iac, Iba, Ibc, Ica, Icb ]
+% % indizes:   1    2    3    4    5    6
+% index = 0;
+% for i = 1:3
+%     for j = 1:3
+%         if abs(i-j) > 1.e-3 % if i-not-j
+%             index = index + 1;
+%             I_ij(index) = (I_i(j) - I_i(i) ) / (3*( l2(i) - l2(j) ) );
+%         end
+%     end
+% end
+% 
+% I_kk = [I_aa, I_bb, I_cc]
+% pre2 = 3.*pi / (3.*a2);
+% for k = 1:3
+%    I_kk(k) = pre2 - I_ij( 2*k-1 ) - I_ij( 2*k );
+% end
+% 
+% S = zeros(3,3,3,3);
+
 %% elliptic cylinder after original paper eshelby 1957
-I_a = 4*pi*b / (a+b);
-I_b = 4*pi*a / (a+b);
-I_c = 0;
-I_ab = 4*pi/(3*(a+b); % not sure in paper - could be 4*pi/3*(a+b)...
+Ia = 4*pi*b / (a+b);
+Ib = 4*pi*a / (a+b);
+Ic = 0;
+I_ab = 4*pi/(3*(a+b)); % not sure in paper - could be 4*pi/3*(a+b)...
+%
 I_aa = 4*pi/(3*a^2) - I_ab; % not sure - could be 4*pi/(3*a^2 - I_ab);
 I_bb = 4*pi/(3*b^2) - I_ab; % deto
+I_ac = 0.;
+I_bc = 0.;
+I_cc = 0.;
+I_kk = [I_aa, I_bb, I_cc];
+I_ij = [ I_ab, I_ac, 0, I_bc, 0, 0 ];
+
 %%
-
-I_i = [Ia, Ib, Ic];
-
-% I_ij = [ Iab, Iac, Iba, Ibc, Ica, Icb ]
-% indizes:   1    2    3    4    5    6
-index = 0;
-for i = 1:3
-    for j = 1:3
-        if abs(i-j) > 1.e-3 % if i-not-j
-            index = index + 1;
-            I_ij(index) = (I_i(j) - I_i(i) ) / (3*( l2(i) - l2(j) ) );
-        end
-    end
-end
-
-% I_kk = [I_aa, I_bb, I_cc]
-pre2 = 3.*pi / (3.*a2);
-for k = 1:3
-   I_kk(k) = pre2 - I_ij( 2*k-1 ) - I_ij( 2*k );
-end
-
-S = zeros(3,3,3,3);
 
 % [ x1, x2, x3, x4, x5 ] = deal( 8 ); is equal to x1 = x2 = x3 = 8
 %

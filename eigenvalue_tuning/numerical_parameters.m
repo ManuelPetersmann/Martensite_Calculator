@@ -22,7 +22,7 @@ eps_max = 1. ; % characteristic shape deformation = shear amplitude in the case 
 % this parameter corresponds to a 'g_min' of 2.5 for the [110](111)_aust system!!! therefore it is much too
 % big!!!
 eps_initial = 0.;
-delta_eps_initial = 0.2; %0.305 ; % 0.01; 
+delta_eps_initial = 0.305 ; % 0.01; 
 
 %% other variables that are used in all solution schemes
 I = eye(3);

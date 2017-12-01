@@ -4,7 +4,7 @@ function solutions = invariant_line_strain_line_search(martensite, austenite)
 % austenite!
 
 if isempty( martensite.invariant_lines )
-    us = austenite.CP_dirs;
+    us = austenite.CP_dirs
 end
 
 %% NOTE: martensite is a handle class so everything that is set here is set everywhere!
@@ -60,99 +60,101 @@ for iu = 1:length(us)
             eps1 = eps_initial;
             eps2 = eps_initial;
             S_accummulated = eye(3);
+            %
+            shear_increments = [];            
             
+            % dS1 = eye(3) + delta_eps*S(:,:,is1);
+            % dS2 = eye(3) + delta_eps*S(:,:,is2);
+            % dS1 = R_Bain*( eye(3) + delta_eps*S(:,:,is1) )*R_Bain';
+            % dS2 = R_Bain*( eye(3) + delta_eps*S(:,:,is2) )*R_Bain'';
+            % [new_res_dS1, R_dS1] = perp_ILS( martensite.U, dS1, S_accummulated, u);
+            % [new_res_dS2, R_dS2] = perp_ILS( martensite.U, dS2, S_accummulated, u);
             
-%             dS1 = eye(3) + delta_eps*S(:,:,is1);
-%             dS2 = eye(3) + delta_eps*S(:,:,is2);
-%             dS1 = R_Bain*( eye(3) + delta_eps*S(:,:,is1) )*R_Bain';
-%             dS2 = R_Bain*( eye(3) + delta_eps*S(:,:,is2) )*R_Bain'';
-%             [new_res_dS1, R_dS1] = perp_ILS( martensite.U, dS1, S_accummulated, u);
-%             [new_res_dS2, R_dS2] = perp_ILS( martensite.U, dS2, S_accummulated, u);
+            % LT1    = R_dS1 * martensite.U;
+            % LT2    = R_dS2 * martensite.U;
+            % [ theta_cp_new1, ~ ] = min_misorientation( austenite.CPPs, LT1, true );
+            % [ theta_cp_new2, ~ ] = min_misorientation( austenite.CPPs, LT2, true );
+            % new_optfunc1 = new_res_dS1 * (theta_cp_new1 / theta_cp_old);
+            % new_optfunc2 = new_res_dS2 * (theta_cp_new2 / theta_cp_old);
             
-%             LT1    = R_dS1 * martensite.U;
-%             LT2    = R_dS2 * martensite.U;
-%             [ theta_cp_new1, ~ ] = min_misorientation( austenite.CPPs, LT1, true );
-%             [ theta_cp_new2, ~ ] = min_misorientation( austenite.CPPs, LT2, true );
-%             new_optfunc1 = new_res_dS1 * (theta_cp_new1 / theta_cp_old);
-%             new_optfunc2 = new_res_dS2 * (theta_cp_new2 / theta_cp_old);
+            % stop immediately if the solution does not improve at all
+            % this could be moved outside the while but then the code
+            % above must be written twice...
+            R_dS1 = R_Bain;
+            R_dS2 = R_Bain;
+            %if ( res_old < new_res_dS1 ) && ( res_old < new_res_dS2 )
+            % if ( old_optfunc1 > new_optfunc1 ) && ( old_optfunc2 > old_optfunc2 )
             
-%             stop immediately if the solution does not improve at all
-%             this could be moved outside the while but then the code
-%             above must be written twice...
-%             shear_increments = [];
-%             if ( res_old > new_res_dS1 ) || ( res_old > new_res_dS2 )
-%             if ( old_optfunc1 > new_optfunc1 ) && ( old_optfunc2 > old_optfunc2 )
-
-              while ( ( res_old > vec_residual )  || (theta_cp_old > 2.) ) ... 
-                        && (eps1 < eps_max)        && (eps2 < eps_max) 
-                    % if the solution for 'eps' is very high or low respectively, do not consider it
-                    if ((eps1 < eps_initial) || (eps2 < eps_initial))
-                        error('this should not happen - fix code...')
+            while ( res_old > vec_residual )  && (theta_cp_old > 2.)  ...
+                    && (eps1 < eps_max)        && (eps2 < eps_max)
+                % if the solution for 'eps' is very high or low respectively, do not consider it
+                if ((eps1 < eps_initial) || (eps2 < eps_initial))
+                    error('this should not happen - fix code...')
+                end
+                
+                %% NOTE - new shear multiplied from the right since inverse problem
+                % hence this was wrong... US = martensite.U*S_accummulated;
+                %                    dS1 = eye(3) + delta_eps*S(:,:,is1);
+                %                    dS2 = eye(3) + delta_eps*S(:,:,is2);
+                dS1 = R_dS1 * ( eye(3) + delta_eps*S(:,:,is1) ) * R_dS1';
+                dS2 = R_dS2 * ( eye(3) + delta_eps*S(:,:,is2) ) * R_dS2';
+                [new_res_dS1, ~] = perp_ILS(S_accummulated*martensite.U, dS1, u);
+                [new_res_dS2, ~] = perp_ILS(S_accummulated*martensite.U, dS2, u);
+                
+                % LT1    = R_dS1 * martensite.U;
+                % LT2    = R_dS2 * martenstie.U;
+                % [ theta_cp_new1, ~ ] = min_misorientation( austenite.CPPs, LT1, true );
+                % [ theta_cp_new2, ~ ] = min_misorientation( austenite.CPPs, LT2, true );
+                % new_res_dS1 = new_res_dS1 * (theta_cp_new1 / theta_cp_old);
+                % new_res_dS2 = new_res_dS2 * (theta_cp_new2 / theta_cp_old);
+                
+                % choose the shear that approached a solution quicker with the
+                % SAME shear magnitude  - delta_eps
+                if(new_res_dS1 < new_res_dS2)
+                    % here generally the minimum should be taken if the solution has not been passed already
+                    % from one search direction, otherwise the shear amplitude is adopted first and only then it is
+                    % checked again wheter a new minimum does not overshoot the solution from one direction
+                    if ( res_old < new_res_dS1 ) % ( ( lambda2_smaller1_shear1 ~= lambda2_smaller1_initial ) ||
+                        % i.e. the solution is passed or delta_lambda2_to_1 does not decrease, which should not happen - cut back
+                        delta_eps = stepwidth_change * delta_eps;
+                    else
+                        [delta_eps, R_dS, res_new, dS1] = linesearch_ILS( martensite.U, S(:,:,is1), S_accummulated, u, delta_eps, new_res_dS1, vec_residual, austenite.CPPs);
+                        res_old = res_new;
+                        eps1 = eps1 + delta_eps;
+                        S_accummulated = dS1 * S_accummulated;
+                        R_mod = R_dS;
+                        shear_increments( : , size(shear_increments,2)+1 ) = [delta_eps; 0];
                     end
-                    
-                    %% NOTE - new shear multiplied from the right since inverse problem
-                    % hence this was wrong... US = martensite.U*S_accummulated;
-%                    dS1 = eye(3) + delta_eps*S(:,:,is1);
-%                    dS2 = eye(3) + delta_eps*S(:,:,is2);
-                    dS1 = R_dS1 * ( eye(3) + delta_eps*S(:,:,is1) ) * R_dS1';
-                    dS2 = R_dS2 * ( eye(3) + delta_eps*S(:,:,is2) ) * R_dS2';
-                    [new_res_dS1, ~] = perp_ILS(martensite.U, dS1, S_accummulated, u);
-                    [new_res_dS2, ~] = perp_ILS(martensite.U, dS2, S_accummulated, u);
-                    
-%                    LT1    = R_dS1 * martensite.U;
-%                    LT2    = R_dS2 * martenstie.U;
-%                    [ theta_cp_new1, ~ ] = min_misorientation( austenite.CPPs, LT1, true );
-%                    [ theta_cp_new2, ~ ] = min_misorientation( austenite.CPPs, LT2, true );
-%                    new_res_dS1 = new_res_dS1 * (theta_cp_new1 / theta_cp_old);
-%                    new_res_dS2 = new_res_dS2 * (theta_cp_new2 / theta_cp_old);
-                    
-                    % choose the shear that approached a solution quicker with the
-                    % SAME shear magnitude  - delta_eps
-                    if(new_res_dS1 < new_res_dS2)
-                        % here generally the minimum should be taken if the solution has not been passed already
-                        % from one search direction, otherwise the shear amplitude is adopted first and only then it is
-                        % checked again wheter a new minimum does not overshoot the solution from one direction
-                        if ( res_old < new_res_dS1 ) % ( ( lambda2_smaller1_shear1 ~= lambda2_smaller1_initial ) ||
-                            % i.e. the solution is passed or delta_lambda2_to_1 does not decrease, which should not happen - cut back
-                            delta_eps = stepwidth_change * delta_eps;
-                        else
-                            [delta_eps, R_dS, res_new, dS1] = linesearch_ILS( martensite.U, S(:,:,is1), S_accummulated, u, delta_eps, new_res_dS1, vec_residual, austenite.CPPs);
-                                res_old = res_new;
-                                eps1 = eps1 + delta_eps;
-                                S_accummulated = dS1 * S_accummulated;
-                                R_mod = R_dS;
-                                shear_increments( : , size(shear_increments,2)+1 ) = [delta_eps; 0];
-                        end
-                    else % new_res_dS1 > new_res_dS2)
-                        if ( res_old < new_res_dS2 ) % ( ( lambda2_smaller1_shear2 ~= lambda2_smaller1_initial ) ||
-                            delta_eps = stepwidth_change * delta_eps;
-                        else
-                            [delta_eps, R_dS, res_new, dS2] = linesearch_ILS( martensite.U, S(:,:,is2), S_accummulated, u, delta_eps, new_res_dS2, vec_residual, austenite.CPPs);
-                                res_old = res_new;
-                                eps2 = eps2 + delta_eps;
-                                S_accummulated = dS2 * S_accummulated;
-                                R_mod = R_dS;
-                                shear_increments( : , size(shear_increments,2)+1 ) = [0; delta_eps];
-                        end
+                else % new_res_dS1 > new_res_dS2)
+                    if ( res_old < new_res_dS2 ) % ( ( lambda2_smaller1_shear2 ~= lambda2_smaller1_initial ) ||
+                        delta_eps = stepwidth_change * delta_eps;
+                    else
+                        [delta_eps, R_dS, res_new, dS2] = linesearch_ILS( martensite.U, S(:,:,is2), S_accummulated, u, delta_eps, new_res_dS2, vec_residual, austenite.CPPs);
+                        res_old = res_new;
+                        eps2 = eps2 + delta_eps;
+                        S_accummulated = dS2 * S_accummulated;
+                        R_mod = R_dS;
+                        shear_increments( : , size(shear_increments,2)+1 ) = [0; delta_eps];
                     end
-                    
-                    if (delta_eps < delta_eps_tolerance) % 0.5^16 = 1.e-5||
-                        break
-                    end
-                    
-                end % end while
+                end
+                
+                if (delta_eps < delta_eps_tolerance) % 0.5^16 = 1.e-5||
+                    break
+                end
+                
+            end % end while
             
             
-            if ( res_old < vec_residual ) && (theta_cp_old < 2.) 
+            if ( res_old < vec_residual ) && (theta_cp_old < 2.)
                 
                 F_tot = R_mod * martensite.U *  S_accummulated;
-                LT    = R_mod * martensite.U;     
+                LT    = R_mod * martensite.U;
                 
                 isol = isol + 1;
-                if mod(isol,100)==0
+                %if mod(isol,100)==0
                     isol
                     %pause(1);
-                end
+                %end
                 
                 eps_s = [eps1; eps2];
                 d = [ds(is1,:); ds(is2,:)];
@@ -163,11 +165,11 @@ for iu = 1:length(us)
                 solutions.array( isol )      =  ILS_solution(u, F_tot, LT, R_Bain);
                 solutions.array( isol ).shear_increments = shear_increments;
                 solutions.array( isol ).id   = isol;
-                solutions.array( isol ).slip = Slip_systems( eps_s, d, n );    
-            %else
-            %    neg_no_convergence_to_ILS = neg_no_convergence_to_ILS +1;
+                solutions.array( isol ).slip = Slip_systems( eps_s, d, n );
+                %else
+                %    neg_no_convergence_to_ILS = neg_no_convergence_to_ILS +1;
             end
-                
+            
         end
     end
 end
