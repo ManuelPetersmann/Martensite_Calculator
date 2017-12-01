@@ -11,7 +11,10 @@ main_asc_panel = get(button_parent,'Parent'); % get main panel for asc
 % children(3) is the textfield with a description of the actual criterion
 % its .Value property is the "internal number" for our sorting of selection
 % criteria
-criterion_number = button_parent.Children(3).Value; % children(3) is the textfield with a description of the actual criterion
+
+%criterion_number = button_parent.Children(3).Value; % children(3) is the textfield with a description of the actual criterion
+%butt_par_child = get(button_parent,'Children'); 
+criterion_number = get(button_parent.Children(3),'Value');
 
 % PET 16.11.17 - Note: At the end of this file the variables are written back =)
 switch main_asc_panel
@@ -40,13 +43,18 @@ postion_in_asc_list = status(criterion_number); %handles.asc_status(criterion_nu
 % switched one position forward in the list of .Children!
 
 main_asc_pan_childs = get(main_asc_panel,'Children');% PET 30.11.17
-main_asc_pan_pos =    get(main_asc_panel,'Position');
 
 % % % handles.pan_asc.Children(handles.asc_number-postion_in_asc_list+1).delete(); 
-main_asc_pan_childs( size(main_asc_pan_childs,1)+1-postion_in_asc_list ).delete() 
+delete( main_asc_pan_childs( size(main_asc_pan_childs,1)+1-postion_in_asc_list ) ) %.delete() 
 asc_number = asc_number - 1; % decrease number of asc
 status(criterion_number) = 0; % set criterion inactive
 
+main_asc_pan_childs = get(main_asc_panel,'Children');% PET 30.11.17
+main_asc_pan_pos =    get(main_asc_panel,'Position');
+
+% size(main_asc_pan_childs,1)
+% size(main_asc_panel.Children,1)
+% postion_in_asc_list
 
 % update positions of the following list entries
 % % while(handles.asc_list(postion_in_asc_list) > 0)
@@ -57,29 +65,31 @@ while(postion_in_asc_list <= size(main_asc_pan_childs,1))
    %pos(3) = some value;
    %set(handles.panel.Children(4), 'Position', pos);
    %% 
+   %disp('lol')
     
    % update position of the panel
+   main_asc_pan_childs = get(main_asc_panel,'Children');
    index = size(main_asc_pan_childs,1) +1 - postion_in_asc_list; 
    %temp_position = get( main_asc_pan_childs( index ) , 'Position');
-   temp_position = get( main_asc_panel.children( index ) , 'Position');
+   temp_position = get( main_asc_pan_childs( index ) , 'Position');
    temp_position(2) = temp_position(2) + (main_asc_pan_pos(4)/8)/main_asc_pan_pos(4);
    %set( temp_position(2), ...    main_asc_pan_childs( index ).Position(2) = ...
-       temp_position(2) +  ( main_asc_pan_pos(4)/8) / main_asc_pan_pos(4) );
+   %    temp_position(2) +  ( main_asc_pan_pos(4)/8) / main_asc_pan_pos(4) );
    %   main_asc_pan_childs( size(main_asc_pan_childs,1)+1-postion_in_asc_list ).Position(2)+ ...
    %   ((main_asc_pan_pos(4)/8)/main_asc_pan_pos(4));
-   set(man_asc_panel.Children( index ), 'Position', temp_position);  
+   set(main_asc_pan_childs( index ), 'Position', temp_position);  
 
    
    % update number of position in list
    %main_asc_pan_childs(index).Children(4).String = num2str(postion_in_asc_list);
-   set(main_asc_panel.Children(index),'String',num2str(postion_in_asc_list) );
+   set(main_asc_pan_childs(index).Children(4),'String',num2str(postion_in_asc_list) );
    
    % update status of criterion in order to fit new position in list
-   % status(main_asc_pan_childs(index).Children(3).Value) = postion_in_asc_list; 
-   set(status( get( main_asc_pan_childs(index).Children(3),'Value' )) , postion_in_asc_list); 
+    status(main_asc_pan_childs(index).Children(3).Value) = postion_in_asc_list; 
+   % set( status( get( main_asc_pan_childs(index).Children(3),'Value' ) ) , postion_in_asc_list); 
    
    %asc_list(postion_in_asc_list) = main_asc_pan_childs(postion_in_asc_list).Children(3).Value;
-   set( main_asc_pan_childs(postion_in_asc_list).Children(3) , 'Value', asc_list(postion_in_asc_list) );
+   asc_list(postion_in_asc_list) = get( main_asc_pan_childs(postion_in_asc_list).Children(3),'Value');
    
    postion_in_asc_list = postion_in_asc_list+1;
 end
