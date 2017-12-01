@@ -503,7 +503,7 @@ updateLog_MartCalc(hObject, handles, '------------- Retrieving input from GUI --
 
 % Minors relation tolerances
 det_tol = num2str(handles.edit_minors_det.String);  
-cof_tol = num2str(handles.handles.edit_minors_cof.String);
+cof_tol = num2str(handles.edit_minors_cof.String);
     
 switch handles.popup_calc_lath_level.Value
     case 1 % IPS laths

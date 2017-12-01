@@ -15,7 +15,8 @@ main_asc_panel = get(button_parent,'Parent'); % get main panel for asc
 %criterion_number = button_parent.Children(3).Value; % children(3) is the textfield with a description of the actual criterion
 butt_par_child = get(button_parent,'Children'); 
 criterion_number = get(butt_par_child(3),'Value');
-criterion_number
+
+%criterion_number
 %class('criterion_number')
 %criterion_number = str2num(criterion_number)
 
