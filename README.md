@@ -37,9 +37,10 @@ If you use our code for your own research, we would be grateful if you cite it v
 Zebodo DOI
 ```
 @article{disloc_lath_mart,
-	title={Unification of the non-linear geometric transformation theory of martensite and crystal plasticity - application
-to dislocated lath martensite in steels},
-	author={Petersmann, M. and Antretter, T. and Cailletaud, G. and Ehlenbröker, U. and Sannikov, A. and Fischer, F.D. },
+	title={Unification of the non-linear geometric transformation theory of 
+	martensite and crystal plasticity - applicationto dislocated lath martensite in steels},
+	author={Petersmann, M. and Antretter, T. and Cailletaud, G. and Ehlenbröker,
+	U. and Sannikov, A. and Fischer, F.D. },
 	journal={submitted},
 	year={2018}
 }
