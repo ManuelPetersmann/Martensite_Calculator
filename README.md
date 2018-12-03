@@ -50,7 +50,7 @@ Zebodo DOI
 
 This project is licensed under GPL v3 - see the [LICENSE.md](LICENSE.md) file for details
 
-Created by Manuel Petersmann 2017
+Created by Manuel Petersmann
 
 <!-- 
 ## Acknowledgments
