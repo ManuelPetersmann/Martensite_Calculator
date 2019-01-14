@@ -17,6 +17,7 @@ Right-click the folder in the current folder sidebar on the right side of the GU
 select "Add to Path" - "Selected Folders and Subfolders".
 If you want to save your path permanently just type `savepath` in the command window.
 
+To start the GUI use the command 'Martensite_Calculator' 
 
 <!-- 
 =======
