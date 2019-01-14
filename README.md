@@ -1,8 +1,8 @@
 # Martensite_Calculatur
 
-Matlab Code for the Calculation of invariant plane-strains incorporating Slip and Twinning.
+Matlab code for the calculation of invariant plane-strains incorporating slip and twinning.
 Find a problem example in Materials/Steels/...
-The code is written in an OOP Framework in Matlab R2013 to facilitate the selection of solutions the the a.m. problem.
+The code is written in an object oriented programming framework in Matlab R2013 to facilitate the selection of solutions in the combined crystal-kinematic framework of crystal plasticty and martensite transformation theory.
 
 ## Authors
 
