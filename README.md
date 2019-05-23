@@ -3,6 +3,8 @@
 Matlab code for the calculation of invariant plane-strains incorporating slip and twinning.
 Find a problem example in Materials/Steels/...
 The code is written in an object oriented programming framework in Matlab R2013 to facilitate the selection of solutions in the combined crystal-kinematic framework of crystal plasticty and martensite transformation theory.
+Here you find the open source publication in the international journal of plasticity:
+https://www.sciencedirect.com/science/article/pii/S0749641918306211
 
 ## Authors
 
@@ -35,15 +37,15 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Citation
 If you use our code for your own research, we would be grateful if you cite it via
-Zebodo DOI
 ```
 @article{disloc_lath_mart,
 	title={Unification of the non-linear geometric transformation theory of 
 	martensite and crystal plasticity - application to dislocated lath martensite in steels},
 	author={Petersmann, M. and Antretter, T. and Cailletaud, G. and Ehlenbröker,
 	U. and Sannikov, A. and Fischer, F.D. },
-	journal={submitted},
-	year={2019}
+	Journal = {International journal of Plasticity},
+  	Year = {2019},
+        Doi = {10.1016/j.ijplas.2019.02.016},
 }
 ```
 
