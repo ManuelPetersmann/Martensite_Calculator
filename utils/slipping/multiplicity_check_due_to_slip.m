@@ -1,4 +1,4 @@
-function red_sols = multiplicity_check_due_to_slip(lath_solutions, angle_tol, def_tol) %d1_tol) 
+function lath_solutions = multiplicity_check_due_to_slip(lath_solutions, angle_tol, def_tol) %d1_tol) 
 % call: multiplicity_check_due_to_slip(lath_solutions, d1_tol)
 %
 % Considering that the two F could be equal since the slip
@@ -17,11 +17,11 @@ function red_sols = multiplicity_check_due_to_slip(lath_solutions, angle_tol, de
 % active slip system (if possible) when assigning solutions to solution
 % array...
 
-
+% if < tolerance then equal (same solution)!
 if nargin < 2
-    d1_tol = 1.e-2;
-    angle_tol = 2.; % 2 degree
-    def_tol = 1.; % percent of relative stretch - for now 1 percent
+%    d1_tol = 1.e-3; % 5.e-3;
+    angle_tol = 3.; % 2 degree
+    def_tol = 1; %0.5; % percent of relative stretch - for now 1 percent
 end
 
 sols = lath_solutions.array;
@@ -54,7 +54,7 @@ while is1 < size(sols,2) % <= size(sols,2) -1
         % if similar / equal within tolerance
         % NOTE that if the F1's are different the ST's could nevertheless
         % be the same, but this case should be distinguished!!!!
-%         if sum(sum(abs(s1.F1 - s2.F1 ))) < d1_tol % alternatively ST
+%       if sum(sum(abs(s1.F1 - s2.F1 ))) < d1_tol % alternatively ST
 %       if sum(sum(abs( inverse(s1.ST)*s2.ST ))) < d1_tol
         nf11 = norm(s1.ST(:,1));
         nf12 = norm(s1.ST(:,2));
@@ -117,7 +117,6 @@ end % end of loop 2
 
 end_length = size(sols,2);
 lath_solutions.array = sols;
-red_sols = lath_solutions.array;
 
 disp( ['Solutions reduced from ',num2str(start_length),' to ',num2str(end_length),' due to equal deformations, only different active slip -> non-uniqueness, linear dependence of slip deformation'] )
 

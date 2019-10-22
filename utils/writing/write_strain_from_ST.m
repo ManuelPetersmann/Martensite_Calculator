@@ -10,9 +10,9 @@ format_block_variant = '%7.4f \t %7.4f \t %7.4f \t %7.4f \t %7.4f \t %7.4f \n'; 
 for i=1: size(mat_array,3)
     % calculate strains (infinite deformation)
     if large==0
-        strain(:,:,i) = 0.5*( mat_array(:,:,i)' + mat_array(:,:,i)) - eye(3);
+        strain(:,:,i) = Es_from_F(mat_array(:,:,i));
     else
-        strain(:,:,i) = 0.5*( mat_array(:,:,i)' * mat_array(:,:,i) - eye(3) );
+        strain(:,:,i) = El_from_F(mat_array(:,:,i));
     end
     fprintf( fileID,format_block_variant, get_order( strain(:,:,i) ) );
 end

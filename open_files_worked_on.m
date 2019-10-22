@@ -6,7 +6,6 @@ edit update_block_selection_criteria.m
 
 %% priority 2
 
-edit update_block_selection_criteria.m
 edit deformation_mixture_tests.m
 edit mixing_of_atomic_level_solutions.m
 

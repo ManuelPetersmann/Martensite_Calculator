@@ -7,12 +7,18 @@ classdef Slip_systems %< IPS_solution % PET 14.11.17 actually it should be deriv
         eps_s; % shear magnitudes of normed shear dyads S
         shear_direction; % slip directions of shears (miller indizes)
         slip_normal_plane_vec; % slip plane normals of glide system (miller indizes)
+        rotation_due_to_slip; % accummulated rotation during shearing 
+        % rotation increments of each incremental shear rotations (polar decomposition) Q_accummulated = Qn*...Q2*Q1
+        %
         mirror_plane; % mirror plane of block solution
     end % end of properties
     properties (Dependent)
         stepwidth; % ( planes_between_steps = inverse slip_density (1/g or 1/m) = average nr of slip planes between burgers vector steps 
         max_eps_s;
+        eps_s_sum;
         min_stepwidth;
+        %
+        rotation_axis_angle;
     end
     
     methods
@@ -42,15 +48,23 @@ classdef Slip_systems %< IPS_solution % PET 14.11.17 actually it should be deriv
         end % end constructors (mostly used to reduce solutions)
         %%        
         function gg = get.stepwidth(obj)
-            gg = slip_planes_between_burgerssteps( obj.shear_direction(:,1:3), obj.eps_s, obj.slip_normal_plane_vec(:,1:3), 'cubic'); %TODO generalize to %obj.Bravais_type );
+            gg = to_miller_shear( obj.shear_direction(:,1:3), obj.eps_s, obj.slip_normal_plane_vec(:,1:3), 'cubic'); %TODO generalize to %obj.Bravais_type );
         end
         %
         function max_eps_s = get.max_eps_s(obj)
             max_eps_s = max(obj.eps_s);
         end
+        %
+        function eps_s_sum = get.eps_s_sum(obj)
+            eps_s_sum = sum(obj.eps_s);
+        end
         % 
         function min_stepwidth = get.min_stepwidth(obj)
             min_stepwidth = min(obj.stepwidth);
+        end
+        %
+        function vec4 = get.rotation_axis_angle(obj)
+            [vec4(1), vec4(2:4)] = rotmat_to_axis_angle( obj.rotation_due_to_slip ); 
         end
         
     end % end methods

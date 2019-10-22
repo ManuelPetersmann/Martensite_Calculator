@@ -56,10 +56,10 @@ end
 
 %% function for writing slip system information
     function [s,m] = write_slipsys_strings( sol )
-        for j = 1:size(sol.slip_normal_plane_vec,1)
-            m = sprintf('(%d, %d, %d)_%s', sol.slip_normal_plane_vec(j,1:3), phase(sol.slip_normal_plane_vec(j,4) ) );
-            s = sprintf('[%d, %d, %d]_%s', sol.shear_direction(1,1:3),       phase(sol.shear_direction(j,4) ) );
-            fprintf( fid, ' m = %s \t s = %s \t eps_s = %5.4f \n', m, s, sol.eps_s(j) );
+        for j = 1:size(sol.slip.slip_normal_plane_vec,1)
+            m = sprintf('(%d, %d, %d)_%s', sol.slip.slip_normal_plane_vec(j,1:3), phase(sol.slip.slip_normal_plane_vec(j,4) ) );
+            s = sprintf('[%d, %d, %d]_%s', sol.slip.shear_direction(1,1:3),       phase(sol.slip.shear_direction(j,4) ) );
+            fprintf( fid, ' m = %s \t s = %s \t eps_s = %5.4f \n', m, s, sol.slip.eps_s(j) );
         end
         %
         function phase_string = phase(identifier)

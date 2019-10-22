@@ -10,20 +10,24 @@ function block_solutions = deformation_mixture_tests(lath_solutions, U, cof_tol,
 % Note, that for such an average the IPS condition is approximately
 % maintained, which has been checked to be true for various combinations.
 
-% Note: THE AVERAGE OF TWO IPS ALWAYS IS AN IPS (except for the small 
-% error that is made because the determinant is not invariant to addition)
+% Note: THE AVERAGE OF TWO IPS ALWAYS IS AN IPS in the small strain assumpiton 
+% (except for the small error that is made because the determinant is not invariant to addition)
 % In general the linear mixture rule is only valid in the case of
-% n->infinity (minor relations) see Bhattacharya - Microstructures of
-% martensties - p.131.dö
+% n --> infinity (minor relations) see Bhattacharya - Microstructures of
+% martensties - p.131.
+
+hold on
 
 if nargin < 4
     % minors tolerances
-    cof_tol = 1.e-4
-    det_tol = 1.e-4
+    cof_tol = 5.e-2
+    det_tol = 3.e-2 % with
 end
 
+block_solutions = Solution_array_composite();
+
 %% block tolerances
-rot_angle_block = 3.
+rot_angle_block = 1.
 lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
 block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
 %lambda2_tol_laths = 1.e-4
@@ -32,7 +36,6 @@ detU = det(U);
 I = eye(3); % = austenite
 count = 0;
 block_sols = 0;
-
 
 neg_minors = 0;
 %
@@ -45,10 +48,10 @@ neg_hp = 0;
 %neg_mix_res_hc = 0;
 %neg_mix_res_hh = 0;
 
-%xi = linspace(0,1,100);
+%xi = linspace(0,1,80);
 %xi = linspace(0.1,0.85,6);
-xi = linspace(0,1,10);
-
+xi = linspace(0.4,0.6,80);
+%xi = linspace(0,0.5,30);
 
 % loop over slip system combinations
 for is1 = 1: (size(lath_solutions.array,2)-1)
@@ -66,8 +69,11 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 %             F2
 %         end
         
-        x = 0.5;
+        x = 0.5; % at this point the maxima occur! therefore it is used for verification
         Fc = linmix2(x,F1,F2);    
+        
+%        Fc = linmix3( [0.25,0.25,0.5], F1, F2, eye(3) );
+%        cof_F_sum = linmix3( [x,0.5-x,0.5], cofactor(F1), cofactor(F2), cofactor(eye(3)) );
         
         %% Minors rules
         % third MINORS RULE
@@ -76,37 +82,40 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             neg_minors = neg_minors + 1;
             continue
         end
-        
-        % second MINORS RULE
+         
+%%         % second MINORS RULE
         cofFc = cofactor( Fc );
         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % frob_distance(cofFc , cof_F_sum)
             neg_minors = neg_minors +1;
             continue
         end
-        
-        %% rotation of Block_inclusion
+         
+%%         %% rotation of Block_inclusion
         [~,R] = polardecomposition( Fc );
-        abs_angle = acosd( (trace(R)-1.) / 2.);
-        %vec4 = vrrotmat2vec( R );
-        % convert angle to degree
-        %angle = rad2deg( vec4(4) );
+        abs_angle = acosd( (trace(R)-1.) / 2.); 
         if abs_angle > rot_angle_block
             neg_rot_angle = neg_rot_angle +1;
             continue
         end
-        % angle
-
-                
-        %% RANK one between block-aust -check deviation of lambda2
-        if (lambda2_linmix(x,F1,F2) - 1.)  >  lambda2_tol_block_aust
+ 
+                 
+%%         RANK one between block-aust -check deviation of lambda2
+       if ~is_rank_one_connected(Fc,I,lambda2_tol_block_aust)
             neg_lamda2_block_aust = neg_lamda2_block_aust +1;
             % lambda2_linmix(x,F1,F2) - 1
             continue
-        end
-        
-        % deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
-       [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
+       end
+
+%%         % RANK one between laths
+%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
+%             neg_lamda2_laths = neg_lamda2_laths + 1;
+%             continue
+%         end
+
+         
+%%         % deviation of average block habit plane form 111_aust -- should be sorted out afterwards !!!!
+       [y1, y3, ~, ~, h1, h2] = rank_one(Fc, I, lambda2_tol_block_aust); % last 'false' is that no lambda_2_warning occurs
 %        PET 5.11. - corrected Error > instead of < !
        if ( (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1) > block_hp_cp_aust_tol) && ... % should here be an && ?
             (min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2) > block_hp_cp_aust_tol) )
@@ -115,15 +124,11 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
             neg_hp = neg_hp +1;
             continue
         end
+%       h1
+%       h2
+% y3-y1
 %         min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1)
 %         min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2)
-        
-
-        %% RANK one between laths
-%         if ~is_rank_one_connected(F1,F2,lambda2_tol_laths)
-%             neg_lamda2_laths = neg_lamda2_laths + 1;
-%             continue
-%         end
 
 %%         % Considering that the two F could be equal since the slip --- basically I take care of that in an extra function
 %         deformations are not linearly independent! c.f. non-uniqueness of
@@ -139,7 +144,6 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 %         sol1.id
 %         sol2.id        
         
-
         % do not mix variants not fullfilling predefined criteria
         % e.g. habit plane deviation from {111}_aust or something else
         % up to now there are two criteria ( both angle tolerances )
@@ -200,56 +204,69 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 
 
         
-%          for i=1:length(xi)
-% %             x(i) = xi(i);
-% % %             y2(i) = lambda2_linmix( x, F1, F2);
-%              Fc = linmix2(x,F1,F2);
-% % %             detFc(i) = detU - det(Fc);
-% % %             cofFc = cofactor( Fc );
-% % %             cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
-% % %             frob_dist(i) = frob_distance(cofFc , cof_F_sum);
-% %             try
-% %                  [y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust, false); % last 'false' is that no lambda_2_warning occurs
-% %                 hx(i) = h1(1);
-% %                 hy(i) = h1(2);
-% %                 hz(i) = h1(3);
-% %                 sqrt( h1(1)^2 + h1(2)^2 + h1(3)^2 )
-% %             catch
-% %                 continue
-% %             end
-% %            [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1, true) %, plane )
-% %            [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2, true) %, plane )
-% %             [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( cpps_gamma, h1); %, plane )
-% %             [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( cpps_gamma, h2); %, plane )
-% %             eps(i) = sqrt(y3) - sqrt(y1);
-%             
+         for i=1:length(xi)
+%             x = xi(i);
+%             y2(i) = lambda2_linmix( x, F1, F2);
+              Fc = linmix2(xi(i),F1,F2);
+%              % Fc = linmix3( [x,0.5-x,0.5], F1, F2, eye(3) );
+%              detFc(i) = detU - det(Fc);
+%              cofFc = cofactor( Fc );
+%              %cof_F_sum = linmix3( [x,0.5-x,0.5], cofactor(F1), cofactor(F2), cofactor(eye(3)) );
+%              cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
+%              frob_dist(i) = frob(cofFc - cof_F_sum); % sum(sum(abs(cofFc - cof_F_sum))); 
+            try
+                %[y1, y3, d1, d2, h1, h2, Q1, Q2] = rank_one(Fc, I, lambda2_tol_block_aust); % last 'false' is that no lambda_2_warning occurs
+                [~, ~, ~, ~, h1, h2] = rank_one(Fc, I, lambda2_tol_block_aust);
+                %
+                xxi(i) = xi(i);
+                hx(i) = h1(1);
+                hy(i) = h1(2);
+                hz(i) = h1(3);
+                h2x(i) = h2(1);
+                h2y(i) = h2(2);
+                h2z(i) = h2(3);
+                %sqrt( h1(1)^2 + h1(2)^2 + h1(3)^2 );
+            catch
+                continue
+            end
+%            [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h1, true) %, plane )
+%            [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( lath_solutions.cryst_fams('cpps_gamma'), h2, true) %, plane )
+%             [ theta1(i), closest_from_vecs1(:,i)] = min_misorientation( cpps_gamma, h1); %, plane )
+%             [ theta2(i), closest_from_vecs2(:,i)] = min_misorientation( cpps_gamma, h2); %, plane )
+%             eps(i) = sqrt(y3) - sqrt(y1);
+            
 %             [~,R] = polardecomposition( Fc );
 %             absrot_angle(i) = acosd( (trace(R)-1.) / 2.);
-%          end
+        end
 
-        
-% figure;
-% plot(xi, absrot_angle,'-o');
+%plot(xi, absrot_angle,'-o');
+% legend('rot angle');
 % ylim([-1.e-4 , 1.e-4]);
 
-%           figure;
-%            plot(x,hx,'-o',x,hy,'-o',x,hz,'-o');
+%          figure;
+%           plot(xi,hx,'-o',xi,hy,'-o',xi,hz,'-o');
+           plot(xxi,hx,xxi,hy,xxi,hz,xxi,h2x,xxi,h2y,xxi,h2z);
           
 %           figure;
 %          plot(xi,theta1,'-o');
 %          hold on
 %          plot(xi,theta2,'-o');
         
-%          figure;
+
 %          plot(xi,eps,'-o');
-% %         plot(xi,detFc);
-% %         legend('delta_det','-o');
-% %         hold on
-% %         plot(xi,y2-1.,'-o');
-% %         plot(xi,frob_dist,'-o')    
+ %        plot(xi,detFc,'r');
+% %        legend('delta det');
+% %
+ %        plot(xi,frob_dist,'b')    
+%        legend('cof_difference');        
+%         plot(xi,y2-1.,'-o');
+
+% if is2 == 1
+%     break
+% end
 
 
-
+%%
 % R = inverse(lath_solutions.array(is1).LT) * lath_solutions.array(is2).LT;
 % [ angle, axis ] = rotmat_to_axis_angle( R )
 % acosd( dot(axis,lath_solutions.array(is1).u) )
@@ -269,18 +286,27 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
 % Fc
 
 
+%% ID pairs are all that is needed to form blocks and get all other information of them
 
 block_sols = block_sols + 1;
+
+continue
+
+block_solutions.array( block_sols ).lath_solution_pair = [sol1, sol2];  % U,tolerance]; %
+block_solutions.array( block_sols ).Fc05 = Fc;
+% calculate all optimized quantities w.r.t. xi
+block_solutions.array( block_sols ).shape_vec_opt = block_solutions.array( block_sols ).update_shape_vec_opt;
+block_solutions.array( block_sols ).gl_opt = block_solutions.array( block_sols ).update_gl_opt;
+block_solutions.array( block_sols ).disg_opt = block_solutions.array( block_sols ).update_disg_opt;
 
 %          if mod(block_sols,100)==0
 %              block_sols
 %              count
 %          end         
 
-
     end % end of loop 1
 end % end of loop 2
-
+hold off
 
 count
 disp( ['First  crit: ', num2str(neg_minors), ' neglected due to minors relations (cof_tol =',num2str(cof_tol), ', det_tol =',num2str(det_tol),')'] );

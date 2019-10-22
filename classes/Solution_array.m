@@ -101,6 +101,21 @@ classdef Solution_array
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
                     end
+                    %% the next three are for the slip shear
+                    if strcmp( varargin{5}, 'max_shear') 
+                        if varargin{2}.array(i).slip.(varargin{3}) < varargin{4} % = maximal tolerated plastic shear value (of normed shear dyads)
+                            foundnr = foundnr + 1;
+                            obj.array(foundnr) = varargin{2}.array(i);
+                        end
+                    end
+                    %
+                    if strcmp( varargin{5}, 'shear_sum')
+                        if varargin{2}.array(i).slip.(varargin{3}) < varargin{4} % = maximal tolerated plastic shear value (of normed shear dyads)
+                            foundnr = foundnr + 1;
+                            obj.array(foundnr) = varargin{2}.array(i);
+                        end
+                    end
+                    %
                     if strcmp( varargin{5}, 'min')
                         % varargin{2}.array(i).(varargin{3})
                         % varargin{4}
@@ -110,6 +125,7 @@ classdef Solution_array
                             obj.array(foundnr) = varargin{2}.array(i);
                         end
                     end
+                    %%
                     if strcmp( varargin{3}, 'delta_determinant_max')
                         % here varargin{5} is not a string but det(martenstite.U)
                         % determiannt should not change more than some value in varargin{4}
@@ -188,7 +204,7 @@ classdef Solution_array
         
         
         %% Sort
-        function [obj,idx]= sort(obj, prop_name)
+        function sorted = sort(obj, prop_name)
             %
             if isempty(obj.array) % ~obj.solutions_available
                 error('Empty solutions array cannot be sorted');
@@ -213,10 +229,13 @@ classdef Solution_array
                 end
                 %                [~,idx] = sort( prop_array, 1 );
             end
-            [~,idx] = sort( prop_array, 1 );
-            obj.array = obj.array(idx);
+            %max(prop_array)
+            %min(prop_array)
+            [~,idx] = sort( prop_array );
+            sorted = obj;
+            sorted.array = obj.array(idx);
             display(['Solutions sorted in ascending order for property: ' , prop_name ]);
-            obj.sorted_after = prop_name;
+            sorted.sorted_after = prop_name;
         end
         
         

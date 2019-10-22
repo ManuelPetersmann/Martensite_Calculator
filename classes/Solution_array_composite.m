@@ -22,6 +22,13 @@ classdef Solution_array_composite
             obj.selection_criteria = containers.Map();
         end
         
+        %%
+%         function obj = optimize_xi( obj )
+%             for i = 1:length( obj.array)
+%                 obj.array(i).optimize_xi; % call the function on each element of the array
+%             end
+%         end
+        
         
         %% Sort - copied from Solution_array (laths) maybe adapt sometime
         function [obj,idx]= sort(obj, prop_name)
@@ -30,7 +37,7 @@ classdef Solution_array_composite
                 error('Empty solutions array cannot be sorted');
             end
             if isprop(obj.array(1),prop_name)
-            [~,idx] = sort( obj.array.(prop_name)(3), 1 );
+            [~,idx] = sort( obj.array.(prop_name)); % % PET 14.03.18 removed ending "...prop_name)(3), 1 );" for dimension?
             obj.array = obj.array(idx);
             disp(['Solutions sorted in ascending order for property: ' , prop_name ]);
             obj.sorted_after = prop_name;

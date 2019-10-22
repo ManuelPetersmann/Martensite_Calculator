@@ -1,4 +1,4 @@
-function [y1,y3, a1, a2, h1, h2, Q1, Q2, info] = rank_one(F, G, tolerance, lambda2_warning)
+function [y1,y3, a1, a2, h1, h2, Q1, Q2, info] = rank_one(F, G, tolerance, lambda2_warning, four_solutions)
 % call: [eps_0, a1, a2, h1, h2, Q1, Q2] = rank_one(F, G, tolerance)
 % solves the equation for an invariant interface:
 % Q*F - G = a \otimes n
@@ -18,6 +18,10 @@ end
 
 if nargin < 4
     lambda2_warning = true;
+end
+
+if nargin < 5 
+    four_solutions = false;
 end
 
 % check if this gives the same result as that of khachaturyan 

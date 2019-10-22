@@ -24,8 +24,8 @@ function block_solutions = mixing_of_atomic_level_solutions(lath_solutions, U, c
 
 if nargin < 4
     % minors tolerances
-    cof_tol = 1.e-4
-    det_tol = 1.e-4
+    cof_tol = 1.e-3
+    det_tol = 1.e-3
 end
 
 block_solutions = Solution_array_composite();
@@ -33,6 +33,17 @@ block_solutions = Solution_array_composite();
 I = eye(3); % = austenite
 detU = det(U);
 block_sols = 0;
+
+rot_angle_block = 1.
+%lambda2_tol_block_aust = 1.e-3 % doesnt matter if 0.001 or 0.0001 !!! important! some more solutions with 0.003
+%block_hp_cp_aust_tol = 5.; % degree - even if i just set this only to 10 most solutions fall out
+%lambda2_tol_laths = 1.e-4
+
+neg_minors = 0;
+neg_rot_angle = 0;
+%neg_lamda2_block_aust = 0;
+%neg_lamda2_laths = 0;
+%neg_hp = 0;
 
 % loop over slip system combinations
 for is1 = 1: (size(lath_solutions.array,2)-1)
@@ -49,13 +60,24 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
         % third MINORS RULE
         det_Fc = det( Fc ); % plotting showed that if the determinant changes then the maximum deviation is at xi=0.5
         if abs(detU - det_Fc) > det_tol
+            neg_minors = neg_minors + 1;
             continue
         end
         
-        % second MINORS RULE
+        %% second MINORS RULE
         cofFc = cofactor( Fc );
         cof_F_sum = x * cofactor(F1)  +  (1.-x) * cofactor(F2);
         if sum(sum(abs(cofFc - cof_F_sum))) > cof_tol % alternatively frob distance
+            neg_minors = neg_minors + 1;
+            continue
+        end
+        
+                 
+%%       %% rotation of Block_inclusion
+        [~,R] = polardecomposition( Fc );
+        abs_angle = acosd( (trace(R)-1.) / 2.); 
+        if abs_angle > rot_angle_block
+            neg_rot_angle = neg_rot_angle +1;
             continue
         end
 
@@ -77,7 +99,14 @@ for is1 = 1: (size(lath_solutions.array,2)-1)
     end % end of loop 1
 end % end of loop 2
 
-disp( ['number of potential solutions found: n_sol = ', num2str(block_sols) ] )
+combinations
+disp( ['First  crit: ', num2str(neg_minors), ' neglected due to minors relations (cof_tol =',num2str(cof_tol), ', det_tol =',num2str(det_tol),')'] );
+neg_rot_angle
+%disp( ['Second crit: ', num2str(neg_lamda2_block_aust), ' neglected because lamda2 of block deviates more than ', num2str(lambda2_tol_block_aust), ' from 1'] );
+%disp( ['Third crit: ', num2str(neg_lamda2_laths), ' neglected laths deformations of pairings are not rank one connected with tolerance ', num2str(lambda2_tol_laths) ] ); 
+%disp( ['Fourth crit: ', num2str(neg_hp), ' neglected because ave HP deviates more than ', num2str(block_hp_cp_aust_tol),' from 111_aust']);
+%disp( ['Fourth crit: ', num2str(neg_diff), ' neglected because Fs do not differ in the d1 norm more than ', num2str(delta_F_min) ] ); 
 
+disp( ['number of potential solutions found: n_sol = ', num2str(block_sols) ] )
 
 end

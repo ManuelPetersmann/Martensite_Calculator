@@ -1,8 +1,9 @@
-function solutions = doubleshear_variable_shear_mags(martensite, austenite) % [solutions] = 
+function solutions = doubleshear_variable_shear_mags(martensite, austenite, update_correspondence) % [solutions] = 
 % incremental optimization of "distance to middle eigenvalue = 1" approach on the lath level of highly dislocated lath martesite
 % after Petersmann et al 2017 -Blocky lath martensite - theory,experiments and modeling - to be submitted
 % All calulations are carried out in the coordinate system of the parent phase
 % returns object array of solutions for IPSs.
+
 
 %% NOTE: martensite is a handle class so everything that is set here is set everywhere!
 
@@ -42,6 +43,11 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
         % g = g_initial / 1./(norm(d11)*norm(n11));
         is_possible_solution = false;
         S_accummulated = eye(3);
+        if nargin < 3
+            update_correspondence = false;
+        else
+            Q_accummulated = eye(3);
+        end
         %lambda2_smaller1 = lambda2_smaller1_initial;
         while ( ~is_possible_solution && (eps1 < eps_max) && (eps2 < eps_max) )  
             % if the solution for g is very high or low respectively, do not consider it
@@ -49,8 +55,8 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 error('this should not happen - fix code...')
             end
             
-            S1 =  S_accummulated * (eye(3) + delta_eps* S(:,:,is1) );  
-            F = martensite.U * S1;
+            S1 =  eye(3) + delta_eps* S(:,:,is1); 
+            F = S1 * S_accummulated * martensite.U;
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
             [ is_possible_solution , lambda2_smaller1_shear1 ] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
             if is_possible_solution
@@ -58,15 +64,15 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             end
             new_delta_lambda2_S1 = abs(1. - lambda_2);
             
-            S2 =  S_accummulated * (eye(3)+ delta_eps* S(:,:,is2) );  
-            F = martensite.U * S2; % here it has been tested that the order of multiplication does not matter
+            S2 =  eye(3) + delta_eps* S(:,:,is2);  
+            F = S2 * S_accummulated * martensite.U; % here it has been tested that the order of multiplication does not matter
                         % since the Bain is pure stretch and SS is a small strain
             [ lambda_1, lambda_2, lambda_3 ] = sorted_eig_vals_and_vecs( F'*F );
             [ is_possible_solution , lambda2_smaller1_shear2] = check_IPS_solution(lambda_1, lambda_2, lambda_3, tolerance);
             if is_possible_solution
                 break
             end
-            new_delta_lambda2_S2 = abs(1. - lambda_2);           
+            new_delta_lambda2_S2 = abs(1. - lambda_2);    
             
             % choose the shear that approached a solution quicker with the
             % SAME shear magnitude g
@@ -81,6 +87,11 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                     old_min_delta_lambda2_to_1 = new_delta_lambda2_S1;
                     eps1 = eps1 + delta_eps;
                     S_accummulated = S_accummulated * ( eye(3)+ delta_eps * S(:,:,is1) );
+                    if update_correspondence
+                        [~,Q] = polardecomposition( S1 );
+                        S(:,:,is1) = Q' * S(:,:,is1) * Q;
+                        Q_accummulated = Q * Q_accummulated;
+                    end
                 end
             else % (delta_lambda2_S1 > delta_lambda2_S2)
                 if ( ( lambda2_smaller1_shear2 ~= lambda2_smaller1_initial ) || ( old_min_delta_lambda2_to_1 < new_delta_lambda2_S2 ) )
@@ -88,7 +99,28 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
                 else
                     old_min_delta_lambda2_to_1 = new_delta_lambda2_S2;
                     eps2 = eps2 + delta_eps;
-                    S_accummulated = S_accummulated * ( eye(3)+ delta_eps * S(:,:,is2) );
+                    S_accummulated = S_accummulated * ( eye(3) + delta_eps * S(:,:,is2) );                    
+                    if update_correspondence
+                        %S(:,:,is2)
+                        [~,Q] = polardecomposition( S2 );
+                        
+%                         if ~isreal( Q )
+%                            d = ds(is2,:) 
+%                            d = martensite.cp * ds(is2,1:3)'
+%                            n = ns(is2,:) 
+%                            n = inverse(martensite.cp)' * ns(is2,1:3)'
+%                            
+%                            SS2 = ( d / norm( d ) ) * ( n / norm( n ) )' 
+%                            S(:,:,is2)
+%                            Q
+%                            imag( Q ) < 1.e-9
+%                            imag( Q ) < 1.e-4
+%                            det( Q ) 
+%                         end
+                        
+                        S(:,:,is2) = Q' * S(:,:,is2) * Q;          
+                        Q_accummulated = Q * Q_accummulated;
+                    end
                 end
             end
             
@@ -121,10 +153,16 @@ for is1 = 1:(size(ds,1)-1) % loop for first slip system
             % PET 14.11.17 - Slip_solution -> Slip_systems and made this
             % class independent from other classes
             % PET 10.10.17: replaced 'isol' and 'eps' wit y1 and y2            
-            solutions.array( isol-1 ) =  IPS_solution(F, eye(3), y1, y3, d1, h1, Q1, Q1*martensite.U);
-            solutions.array( isol-1 ).slip = Slip_systems( eps_s, d, n );
-            solutions.array( isol )   =  IPS_solution(F, eye(3), y1, y3, d2, h2, Q2, Q2*martensite.U);
-            solutions.array( isol ).slip = Slip_systems( eps_s, d, n );
+            solutions.array( isol-1 )       =  IPS_solution(F, eye(3), y1, y3, d1, h1, Q1, Q1*martensite.U);
+            solutions.array( isol-1 ).slip  = Slip_systems( eps_s, d, n);
+
+            solutions.array( isol )         =  IPS_solution(F, eye(3), y1, y3, d2, h2, Q2, Q2*martensite.U);
+            solutions.array( isol ).slip    = Slip_systems( eps_s, d, n);
+            
+            if update_correspondence
+                solutions.array( isol-1 ).slip.rotation_due_to_slip = Q_accummulated;
+                solutions.array( isol ).slip.rotation_due_to_slip = Q_accummulated;
+            end
             
             % reduced contructor could look like
             %  solutions.array( isol-1 ) =  Slip_solution(F, I, martensite.U, eps_s, d, n );
@@ -137,6 +175,7 @@ end % end of loop for first slip system
 
 if isol > 0 
 disp(['number of potential solutions found = ', num2str(isol)])
+
 % solutions.solutions_available = 1;
 end
 

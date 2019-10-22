@@ -47,6 +47,7 @@ classdef IPS_solution
         % angle_e1_to_cpdir; % angle between smallest deformation and close packed_direction; %to_Invariant line strain _KS_NW_dir_aust;
         % added via the class Solution_array_dynamically (needs information
         % from austenite object...
+        diff_rots;
     end
     
     methods
@@ -108,14 +109,19 @@ classdef IPS_solution
         %
         function vec4 = get.axis_angle_rotvec_inclusion( obj )
             [~,R] = polardecomposition( obj.ST );
-            [angle, axis] = rotmat_to_axis_angle( R ); %vrrotmat2vec( R );
-            vec4 = cat(1,axis,angle);
+            [vec4(1), vec4(2:4)] = rotmat_to_axis_angle( R ); %vrrotmat2vec( R );
+            % vec4 = cat(1,axis,angle);
         end 
         %
         function angle = get.rotangle_inclusion( obj )
             [~,R] = polardecomposition( obj.ST );
-            angle = signed_angle_from_rotmatrix( R );
+            angle = rotmat_to_axis_angle( R ); % angle in degree
+            %angle = signed_angle_from_rotmatrix( R ); % angle with sign in radians
         end
+        %
+%        function diff = get.diff_rots( obj )
+%            obj.slip.
+%       end
         
     end % methdos
     

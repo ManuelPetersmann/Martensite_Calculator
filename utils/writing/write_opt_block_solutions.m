@@ -52,36 +52,34 @@ for i=1:length( block_sols.array )
     
     s = block_sols.array(i);
     
-    fprintf( fid,'\n\n\n %s [%d , %d]','used lath solutions (IDs) = ', s.lath_id_pair);
-    %
-    if ~isempty( s.tolerances )
-        sk = s.tolerances.keys;
-        % write info on selection criteria if any are specified
-        for k = 1:length( sk ) % or keys
-            switch sk{k}
-                case 'theta_intersec_cpdir' % (minimum) misorientation angle of between two close packed planes (cpps) in parent and product phase
-                    fprintf( fid,'\t %s %5.4f ','theta_intersec_cpdir   = ',s.tolerances('theta_intersec_cpdir') );
-                    %
-                case 'theta_hps' % (minimum) misorientation angle between habit plane and nearest close packed plane
-                    fprintf( fid,'\t %s %5.4f ','theta_hps = ',s.tolerances('theta_hps') );
-            end
-        end
-    end
+%     fprintf( fid,'\n\n\n %s [%d , %d]','used lath solutions (IDs) = ', s.lath_id_pair);
+%     %
+%     if ~isempty( s.tolerances )
+%         sk = s.tolerances.keys;
+%         % write info on selection criteria if any are specified
+%         for k = 1:length( sk ) % or keys
+%             switch sk{k}
+%                 case 'theta_intersec_cpdir' % (minimum) misorientation angle of between two close packed planes (cpps) in parent and product phase
+%                     fprintf( fid,'\t %s %5.4f ','theta_intersec_cpdir   = ',s.tolerances('theta_intersec_cpdir') );
+%                     %
+%                 case 'theta_hps' % (minimum) misorientation angle between habit plane and nearest close packed plane
+%                     fprintf( fid,'\t %s %5.4f ','theta_hps = ',s.tolerances('theta_hps') );
+%             end
+%         end
+%     end
     %
     fprintf( fid,'\n');
     fprintf( fid,[' h_composite_block = ',fmat,'\t d_composite_block = ',fmat,'\n'], s.h, s.d);
     fprintf( fid,' eps_ips_composite_block = %5.4f \n',s.eps_ips);
     %
-    fprintf( fid,' x_eps = [%3.4f , %3.4f] \t eps_net = %5.4f \n', s.x_eps(1), s.x_eps(2), s.eps_net);
+    fprintf( fid,' x_eps = [%3.4f , %3.4f] \t eps_net = %5.4f \n', s.shape_vec_opt(1), s.shape_vec_opt(2), s.shape_vec_opt(3) );
     %fprintf( fid,'%s \n','F_comp_eps = ');
     %fprintf( fid,[fmat,'\n'],s.F_comp_eps);
+    %     s.x_dis      s.x_gl
     %
-    s.x_dis
-    s.x_gl
-    %
-    fprintf( fid,' x_dis = [%3.4f , %3.4f] \t frob_opt_displacement_grad = %5.4f \n',  s.x_dis, s.frob_opt_displacement_grad);
-    s.x_gl
-    fprintf( fid,' x_gl  = [%3.4f , %3.4f] \t frob_opt_green_lagrange =    %5.4f \n',  s.x_gl,  s.frob_opt_green_lagrange);    
+    fprintf( fid,' x_dis = [%3.4f , %3.4f] \t frob_opt_displacement_grad = %5.4f \n',  s.disg_opt(1), s.disg_opt(2), s.disg_opt(4) );
+    % s.x_gl
+    fprintf( fid,' x_gl  = [%3.4f , %3.4f] \t frob_opt_green_lagrange =    %5.4f \n',  s.gl_opt(1), s.gl_opt(2), s.gl_opt(5) );    
 end
 
 

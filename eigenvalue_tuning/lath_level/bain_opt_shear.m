@@ -1,4 +1,6 @@
 function [res_B, res_vec, RS] = bain_opt_shear( B, dS, S_accummulated, u )
+% try to find a shear that is similar to the bain strain - I dont think
+% this is a good idea anymore ^^
 
 [US, RS] = polardecomposition( dS * S_accummulated );
 

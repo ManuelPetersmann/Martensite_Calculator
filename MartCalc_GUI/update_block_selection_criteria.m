@@ -47,7 +47,7 @@ if ( ( ~isempty(handles.martensite.IPS_solutions.array) ) && (lath_type == 1) ) 
                     crit = [' for a shape strain  < ',num2str(eps_ips_max)];
                 case 3 % theta_h_to_cpp
                     red_sols =    Solution_array( Composite_solution, red_sols, handles.austenite.CPPs, theta_h_to_cpp, 'theta_h_to_CPP', 'closest_h_to_CPP', 'h');
-                    crit = [' for a habit plane misorientation to {111}_aust  < ',num2str(theta_h_to_cpp),'Â°'];
+                    crit = [' for a habit plane misorientation to {111}_aust  < ',num2str(theta_h_to_cpp),'°'];
             end
             %
             if isempty(red_sols.array) %red_sols.solutions_available

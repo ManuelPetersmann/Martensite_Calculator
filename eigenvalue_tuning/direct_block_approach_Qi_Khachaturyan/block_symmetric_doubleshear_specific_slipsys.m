@@ -17,9 +17,15 @@ function [solutions] = block_symmetric_doubleshear_specific_slipsys(B, cp, ms, n
 % solutions - object array of solutions for IPSs
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-numerical_parameters;
-solutions = Solution_array( Slip_solution() ); % Construct array with type of solution -> After this line, Solution_array.array is no longer a double 
+% create shorthand notation
+solutions = martensite.IPS_solutions;
+% specify type of solution array
+solutions.array = IPS_solution();
+% set calcuation method property in solution_array object
+solutions.calculation_method = 'variable doubleshear incremental optimization lath level';
 
+%% set numerical parameters (see file numerical_parameters.m)
+numerical_parameters;
 
 %% calculate only initial eigenvalues without shear modification to determine
 % the direction from which side lambda2 = 1 is approached

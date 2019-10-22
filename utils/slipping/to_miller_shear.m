@@ -1,6 +1,6 @@
-function [ stepwidth ] = slip_planes_between_burgerssteps( b, eps_s, plane_miller, lattice) 
+function [ stepwidth ] = to_miller_shear( b_miller, eps_s, plane_miller, lattice) 
 % call: slip_planes_between_burgersstep( b, eps, plane_miller)
-% b... Burgers vector of slip system (miller indizes)
+% b_miller... Burgers vector of slip system (miller indizes)
 % eps... shear magnitude of simple shear given below
 % plane_miller... normal vector of slip system plane (miller indizes) 
 % Given a simple shear of the form 
@@ -13,6 +13,13 @@ function [ stepwidth ] = slip_planes_between_burgerssteps( b, eps_s, plane_mille
 % The fourth argument is a string identifying the Bravais lattice:
 % Possible values are: 'cubic', 'tetragonal','hexagonal',rhombohedral',
 % 'monoclinic','triclinic',
+% Formally this function was called ...planes_between_burgerssteps (but
+% this was based on the non-general assumption that the shear is normal to
+% the inital interface
+
+if nargin < 4
+    lattice = 'cubic';
+end
 
 %% TODO - generalize to other lattices - now only valid for cubic ones!
 
@@ -24,7 +31,7 @@ for i = 1:length(eps_s)
     
     % PET: correction 21.11.17 - corrected here factor 0.5 due to
     % Burgesvector of form a/2 * norm(b) = sqrt(3)*a /2 or sqrt(2)*a / 2
-    stepwidth(i) = 0.5 * norm(b(i,1:3)) / (eps_s(i) * d);
+    stepwidth(i) = norm(b_miller(i,1:3)) / (eps_s(i) * d);
     % Note:  slip density = (1/stepwidth)
 end
 

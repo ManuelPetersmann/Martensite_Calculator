@@ -36,7 +36,7 @@ switch get(handles.popup_calc_lath_level,'Value')
                 end
                 
                 % Criterion 4: Maximum misorientation of block HP to {111}_gamma
-                % note 557 is 9.4Â° from 111 ! therefore this high tolerance!
+                % note 557 is 9.4° from 111 ! therefore this high tolerance!
                 % Angle between 111 and 557 habit plane
                 % acos( dot([1. 1. 1.], [5. 5. 7.])/(sqrt(3)*sqrt(99) ) ) = 9.4 degree
                 if(handles.asc_status_IPS(4) > 0)
@@ -99,16 +99,16 @@ switch get(handles.popup_calc_lath_level,'Value')
                             crit = [' for a shape strain  < ',num2str(eps_ips_max)];
                         case 3 % theta_CPPs
                             red_sols =    Solution_array( IPS_solution, red_sols, handles.austenite.CPPs, theta_CPPs_max, 'theta_CPPs', 'closest_CPPs', 'cpps_gamma', true);
-                            crit = [' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'Â°'];
+                            crit = [' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'°'];
                         case 4 % theta_h_to_cpp
                             red_sols =    Solution_array( IPS_solution, red_sols, handles.austenite.CPPs, theta_h_to_cpp, 'theta_h_to_CPP', 'closest_h_to_CPP', 'h');
-                            crit = [' for a habit plane misorientation to {111}_aust  < ',num2str(theta_h_to_cpp),'Â°'];
+                            crit = [' for a habit plane misorientation to {111}_aust  < ',num2str(theta_h_to_cpp),'°'];
                         case 5
                             red_sols =    Solution_array( IPS_solution, red_sols, handles.austenite.CP_dirs, theta_KS_max, 'theta_KS_min', 'closest_KS', 'KS', false );
-                            crit = [' for a maximum deviation angle between ideal KS-direction-parallelism  < ',num2str(theta_KS_max),'Â°'];
+                            crit = [' for a maximum deviation angle between ideal KS-direction-parallelism  < ',num2str(theta_KS_max),'°'];
                         case 6
                             red_sols =    Solution_array( IPS_solution, red_sols, handles.NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
-                            crit = [' for a maximum deviation angle between ideal NW-direction-parallelism  < ',num2str(theta_NW_max),'Â°'];
+                            crit = [' for a maximum deviation angle between ideal NW-direction-parallelism  < ',num2str(theta_NW_max),'°'];
                         case 7 % theta_max_ILSdir_to_h
                             red_sols =   Solution_array( IPS_solution, red_sols, handles.austenite.CP_dirs, theta_max_ILSdir_to_h, 'theta_preferred_ILSdir_to_h', 'closest_ILSdir_to_h','KS');
                             crit = [' for a maximum deviation angle of preferred invariant line from invariant habit plane < ',num2str(theta_max_ILSdir_to_h)];
@@ -211,16 +211,16 @@ switch get(handles.popup_calc_lath_level,'Value')
                             crit = [' for a stepwidth > ',num2str(min_stepwidth)];
                         case 2 % deviation of IPS condition
                             red_sols =    Solution_array( ILS_solution, red_sols, handles.austenite.CPPs, theta_CPPs_max, 'theta_CPPs', 'closest_CPPs', 'cpps_gamma', true);
-                            crit = [' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'Â°'];
+                            crit = [' for deviation from ideal CP relation  < ',num2str(theta_CPPs_max),'°'];
                         case 3
                             red_sols =    Solution_array( ILS_solution, red_sols, 'lambda2_IPS_to_one', lambda2_ips_tolerance_lath);
                             crit = [' for deviation from abs(lambda2_ips - 1) < ',num2str(lambda2_ips_tolerance_lath)];
                         case 4
                             red_sols =    Solution_array( ILS_solution, red_sols, 'rotangle_inclusion', max_rot_angle_inclusion);
-                            crit = [' for an inclusion rotation angle  < ',num2str(max_rot_angle_inclusion),'Â°'];
+                            crit = [' for an inclusion rotation angle  < ',num2str(max_rot_angle_inclusion),'°'];
                             %case 5% theta_NW
                             %     red_sols =    Solution_array( IPS_solution, red_sols, handles.NW, theta_NW_max, 'theta_NW_min', 'closest_NW', 'NW', false);
-                            %     crit = [' for a maximum deviation angle between ideal NW-direction-parallelism  < ',num2str(theta_NW_max),'Â°'];     
+                            %     crit = [' for a maximum deviation angle between ideal NW-direction-parallelism  < ',num2str(theta_NW_max),'°'];     
                     end
                     %
                     if size(red_sols.array,2)==1 && isempty(red_sols.array(1).u)

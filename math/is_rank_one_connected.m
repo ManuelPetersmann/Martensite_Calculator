@@ -4,6 +4,7 @@ bool = true;
 
 Ct = inverse(G)'*(F'*F)*inverse(G); 
 
+% no habit plane in this case
 if abs(Ct - eye(3)) < tolerance
     bool = false;
     return

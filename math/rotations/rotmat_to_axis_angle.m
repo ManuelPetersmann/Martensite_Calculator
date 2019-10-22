@@ -1,6 +1,7 @@
 function [ angle, axis ] = rotmat_to_axis_angle( R )
-% call: [ angle, axis ] = axis_angle_to_rotmat( R )
-% return the axis angle representation ([1x3 unit vec], angle in degree) of a general 3D rotation
+% call: [ angle, axis ] = rotmat_to_axis_angle( R )
+% return the axis angle representation ([1x3 unit vec], 
+% angle in degree) of a general 3D rotation
 
 % moved this check to function - signed_angle_from_rotmatrix
 % if abs(det(R)- 1.) < 1.e-5

@@ -1,4 +1,4 @@
-function [x,d,Fcomp] = mixture_matrix_lin_least_squares_opt( in )
+function x = mixture_matrix_lin_least_squares_opt( in )
 % call: x = mixture_matrix_least_squares_opt( in )
 % in... 3x3xn array of matrices
 % optimize linear mixture rule x1 P1 + x2 P2 +.... xn Pn = Fcomp; 
@@ -29,10 +29,11 @@ ub = ones(1,nr); %[1.;1.];
 x = lsqlin(Fc,d,A,b,Aeq,beq,lb,ub);
 %toc
 
-E = Fc*x - d;
-% e.g. forbenius norm of displacement gradient
-d = sum(dot(E,E));
-Fcomp = reshape(Fc*x,3,3);
+% H = Fc*x - d;
+% H = reshape(H,3,3);
+% % e.g. frobenius norm of displacement gradient
+% d = frob(H);
+% Fcomp = reshape(Fc*x,3,3);
 
 %% quadratic programming solution
 % min_x   1/2  x^T * H * x - f^t * x    with constraints

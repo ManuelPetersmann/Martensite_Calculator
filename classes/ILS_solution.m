@@ -2,7 +2,7 @@ classdef ILS_solution
     % ILS_solution
     
     properties (Access = public)
-        u; % invariant line vector
+        k; % invariant line vector
         ST; % (ST= R*B*S2*S1) u = u   % shape transformation for invariant line
         LT; % lattice transformation - RB
         R_Bain; % rotation necessary to bring  B*u - back to u (same direction but in general stretched!)

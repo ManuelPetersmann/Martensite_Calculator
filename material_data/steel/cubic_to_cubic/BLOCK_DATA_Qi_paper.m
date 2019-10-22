@@ -2,7 +2,7 @@ function [ VariantenSort, strainSort  ] = BLOCK_DATA_Qi_paper( )  %[ blockpairs,
 %all Angels in Radians!!! Matlab Standard
 
 clc
-format long
+format short
 
 % Qi, Khachaturyan Paper 2014.
 % Relative Änderung Volumsdehnungen:
@@ -21,6 +21,7 @@ n3 = a_mart / a_aust; % this is one form of three possible for the bain strain
 B3_Qi = [n1 0    0   
        0  n1  0
        0  0  n3];
+GL_B3_qi = 0.5*(B3_Qi'*B3_Qi) - eye(3)
 % 
  display('volume change Bain - Qi')
  det(B3_Qi)
@@ -40,10 +41,27 @@ block = [1.0981   0.0981  0.1022;
          0.0981   1.0981  0.1022;  
         -0.1475  -0.1475  0.8464];
 %     
-%     eigs(block)
-%     
+%[W1,D1] = eigs(block)
+%det(W1)
+
+%[~,R] = polardecomposition( block );
+%[vec4(4), vec4(1:3)]  = rotmat_to_axis_angle(R); %vrrotmat2vec( R );
+%vec4
+block = block * 1.00135 % tune determinant to one
+E = 0.5*(block'*block) - eye(3)
+frob(E)
+%[W2,D2] = eigs(E)
+
+%det(W1)
+%det(W2)
+
+%RFE = W1*inverse(W2);
+%[vec4RFE(4), vec4RFE(1:3)]  = rotmat_to_axis_angle(RFE); %vrrotmat2vec( R );
+%vecRFE4
+
 display('volume change - shape transformation variant block - Qi')
 det(block)
+det(block * 1.00135)
 
 ( det(B3_Qi) - det(block) )*100
 

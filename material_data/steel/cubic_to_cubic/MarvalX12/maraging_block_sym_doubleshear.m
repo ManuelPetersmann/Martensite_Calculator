@@ -1,6 +1,6 @@
 % First execute File - Bain_and_Correspondence_mavalX12
-clear all;
-clc;
+%clear all;
+%clc;
 
 %% set lattice parameters 
 a_aust = 3.6017264; % for 140 Grad Celsius, 3.5975576 for 80 Grad Celsius

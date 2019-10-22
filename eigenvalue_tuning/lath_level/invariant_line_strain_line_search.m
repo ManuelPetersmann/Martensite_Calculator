@@ -31,7 +31,7 @@ for iu = 1:length(us)
     u = us(iu,:)';
     u = u / norm(u); % VECTOR MUST BE NORMED!
     u2  = martensite.U * u;
-    R_Bain   = rotation_between_vectors( u2,     u );
+    R_Bain   = rotation_between_vectors( u2,     u ); % I think it is not necessary to rotate anything due to the Bain strain!!!
     %try
     %[angle_Bain, ax_Bain] = rotmat_to_axis_angle( R_Bain );
     %angle_inclusion = angle_Bain;
@@ -80,8 +80,8 @@ for iu = 1:length(us)
             % stop immediately if the solution does not improve at all
             % this could be moved outside the while but then the code
             % above must be written twice...
-            R_dS1 = R_Bain;
-            R_dS2 = R_Bain;
+            R_dS1 = eye(3); % R_Bain;
+            R_dS2 = eye(3); % R_Bain;
             %if ( res_old < new_res_dS1 ) && ( res_old < new_res_dS2 )
             % if ( old_optfunc1 > new_optfunc1 ) && ( old_optfunc2 > old_optfunc2 )
             

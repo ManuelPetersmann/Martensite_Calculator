@@ -1,0 +1,7 @@
+edit plot_block_properties.m
+%edit numerical_parameters.m
+%edit maraging_MarescaCurtin_test.m
+%edit interface_defects_doubleshear_MarescaCurtin.m
+edit maraging_variable_doubleshear.m
+edit deformation_mixture_tests.m
+edit write_opt_block_solutions.m

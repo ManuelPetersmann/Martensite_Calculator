@@ -22,7 +22,7 @@ if ( old_res > new_res )
     
     while   ( old_res > vec_residual )  && ...        % optimization goal is reached
             ( old_res > new_res )
-%            ( delta_res / delta_eps > 0.001 ) %&& ...  % improvement is not good enough
+    %         ( delta_res / delta_eps > 0.001 ) % && ...  % improvement is not good enough
     %        ( delta_theta_cp > 0 )                    % MULTI OBJECTIVE OPTIMIZATION 
     %        ( delta_res > vec_residual )              % change of solution is not good enough
         

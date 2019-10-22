@@ -45,8 +45,12 @@ for iu = 1:length(us)
     %LT_B  = R_Bain * martensite.U;
     %[ theta_cp_initial, ~ ] = min_misorientation( austenite.CPPs, LT_B, true );
     
-    [ theta_cp_initial, ~ ] = min_misorientation( austenite.CPPs, martensite.U, true );
-    theta_cp_old = theta_cp_initial;
+    % I DO NOT THINK THAT THE BAIN STRAIN AT THE INTERFACE INDUCES A
+    % ROTATION IT JUST MUST BE CONTAINED IN THE FINAL SOLUTION SINCE ITS
+    % OPTIMAL !!!
+    %[ theta_cp_initial, ~ ] = min_misorientation( austenite.CPPs, martensite.U, true );
+    %theta_cp_old = theta_cp_initial;
+    
     %u2_unrot = R_Bain * u2;
     %
     for is1 = 1:length(S)
@@ -72,7 +76,7 @@ for iu = 1:length(us)
             %
             shear_increments = [];
 
-            
+        
             dS1 = eye(3) + delta_eps*S(:,:,is1);
             dS2 = eye(3) + delta_eps*S(:,:,is2);
 %             dS1 = R_Bain*( eye(3) + delta_eps*S(:,:,is1) )*R_Bain';

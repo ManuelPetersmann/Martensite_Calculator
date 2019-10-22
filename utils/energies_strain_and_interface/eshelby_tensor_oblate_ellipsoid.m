@@ -1,10 +1,9 @@
-function S = eshelby_tensor_ellipsoid( nu, a,b,c )
-% call: eshelby_tensor_ellipsoid(G,nu,a,b,c)
+function S = eshelby_tensor_oblate_ellipsoid( nu, a,c )
+% call: eshelby_tensor_oblate_ellipsoid( nu, a,c )
 % This function takes the Poissons ratio....nu and the half axis lengths
-% of an ellipsoid: a > b > c and calculates the Eshelby tensor
+% of an prolate ellipsoid: a = b > c and calculates the Eshelby tensor
 
 a2 = a^2;
-b2 = b^2;
 c2 = c^2;
 l2 = [a2,b2,c2];
 
@@ -27,11 +26,16 @@ Q = 3./(8*pi*(1.-nu));
 R = (1.-2*nu) / (8*pi*(1.-nu));
 
 %% ellipsoid
-Ia = pre * (F-E) / ( (a2-b2)*sqrt(a2-c2) );
+%Ia = pre * (F-E) / ( (a2-b2)*sqrt(a2-c2) );
 
-Ic = pre / ( (b2-c2)*sqrt(a2-c2) ) * ( b*sqrt(a2-c2) / (a*c) - E);
+%Ic = pre / ( (b2-c2)*sqrt(a2-c2) ) * ( b*sqrt(a2-c2) / (a*c) - E);
 
-Ib = 4*pi - Ia - Ic;
+%Ib = 4*pi - Ia - Ic;
+
+Ia = 2*pi*a2*c / (a2-c2)^(3/2);
+Ia = Ia * ( acos(c/a) - (c/a)*sqrt(1.-c2/a2) );
+Ib = Ia;
+
 
 I_i = [Ia, Ib, Ic];
 
@@ -46,6 +50,8 @@ for i = 1:3
         end
     end
 end
+% replace I_ij = I_ab with right expression - note I_ij(2) = I_ac
+I_ij(1) = pi/(3*a2) - I_ij(2) / 4;
 
 I_kk = [I_aa, I_bb, I_cc];
 pre2 = 3.*pi / (3.*a2);

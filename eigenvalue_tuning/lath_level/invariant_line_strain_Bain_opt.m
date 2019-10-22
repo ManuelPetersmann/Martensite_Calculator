@@ -39,8 +39,8 @@ for iu = 1:length(us)
     for is1 = 1:length(S)
         for is2 = is1+1:length(S)
             
-            res_initial = norm( u - u2_unrot ); % If an invariant line is specified a -
-            res_old = res_initial;
+            % res_initial = norm( u - u2_unrot ); % If an invariant line is specified a -
+            % res_old = res_initial;
             
             %% all this is calculated only to check if an improvement is possible to begin with - 
             delta_eps = delta_eps_initial;

@@ -15,12 +15,18 @@ for i = 1:length(x)
 end
 
 figure;
-plot(x,cumulative)
-xlabel( prop_string,'Interpreter', 'none' ) % x-axis label
+plot(x,cumulative,'r-x')
+xlabel( prop_string,'Interpreter', 'tex' ) % x-axis label
 ylabel( 'Nr of IPS solutions' ) % y-axis label
-ax = gca;
-ax.YLim = [0,5000];
-    
+ax = gca; % get-current-axis
+%ax.YLim = [0,700];
+
+%NameArray = {'Marker','LineWidth'}; %,'Tag'};
+%ValueArray = {'x',2}; % 'Decaying Exponential';...
+%    'square','Growing Exponential';...
+%    '*','Steady State'};
+%set(S,NameArray,ValueArray)
+
 % if nargin > 3
 %     xlabel( xlab ) % x-axis label
 %     ylabel( ylab ) % y-axis label
@@ -39,14 +45,19 @@ ax.YLim = [0,5000];
         else
             if isprop( all_sols.array(1), prop_string) || isprop( all_sols.array(1).slip, prop_string)
                 for j = 1 : size(all_sols.array, 2)
-                    if strcmp(prop_string,'stepwidth') % two values - sort for the smaller one 1/stepwidth \propto eps_s (plastic shear magnitude)
-                        if  min(all_sols.array(j).slip.(prop_string)) < maxi
-                            amount = amount+1;
-                        end
-                    else
-                        if all_sols.array(j).( prop_string ) < maxi
-                            amount = amount+1;
-                        end
+                    switch prop_string
+                        case 'max_eps_s' % if strcmp(prop_string,'max_eps_s') % two values - sort for the smaller one 1/stepwidth \propto eps_s (plastic shear magnitude)
+                            if  all_sols.array(j).slip.(prop_string) < maxi
+                                amount = amount+1;
+                            end
+                        case 'eps_s_sum' %else
+                            if  all_sols.array(j).slip.(prop_string) < maxi
+                                amount = amount+1;
+                            end
+                        otherwise
+                            if all_sols.array(j).( prop_string ) < maxi
+                                amount = amount+1;
+                            end
                     end
                 end
             else

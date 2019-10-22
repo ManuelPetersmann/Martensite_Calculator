@@ -20,7 +20,7 @@ function varargout = Martensite_Calculator(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Last Modified by GUIDE v2.5 21-Nov-2017 08:16:14
+% Last Modified by GUIDE v2.5 27-May-2018 20:59:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -562,27 +562,34 @@ guidata(hObject, handles);
 %% --- Executes on button press in pushbutton_write_solutions.
 function pushbutton_write_solutions_Callback(hObject, eventdata, handles)
 
-% write lath solutions
-if isempty(handles.reduced_solutions.array) % ~handles.reduced_solutions.solutions_available
-    updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
-else
-    filename = handles.filename_results_edittext.String; %{1};
-    write_input_parameters(filename,'w', handles.martensite, handles.austenite);
-    %
-    if isfield(handles,'reduced_solutions')
-        write_calc_specs_laths(filename, 'a',     handles.martensite, handles.reduced_solutions);
-        write_lath_solutions(filename, 'a', handles.martensite, handles.reduced_solutions);
+if isfield(handles,'reduced_solutions_IPS')
+    % write lath IPS solutions
+    if isempty(handles.reduced_solutions_IPS.array) % ~handles.reduced_solutions.solutions_available
+        updateLog_MartCalc(hObject, handles, 'No lath solutions available.');
     else
-        write_calc_specs_laths(filename, 'a',     handles.martensite);
-        write_lath_solutions(filename, 'a', handles.martensite);
+        filename = handles.filename_results_edittext.String; %{1};
+        write_input_parameters(filename,'w', handles.martensite, handles.austenite);
+        %
+%        if isfield(handles,'reduced_solutions')
+            write_calc_specs_laths(filename, 'a',     handles.martensite, handles.reduced_solutions_IPS);
+            write_lath_solutions(filename, 'a', handles.martensite, handles.reduced_solutions_IPS);
+%        else
+%            write_calc_specs_laths(filename, 'a', handles.martensite);
+%            write_lath_solutions(filename, 'a', handles.martensite);
+%        end
+    end % end if solutions_available = true
+    
+    % write optimized block solutions from lath solutions
+    if isfield(handles,'block_solutions')
+        write_opt_block_solutions(filename, 'a',handles.block_solutions)
     end
-end % end if solutions_available = true
-
-% write optimized block solutions from lath solutions
-if isfield(handles,'block_solutions')
-   write_opt_block_solutions(filename, 'a',handles.block_solutions)                  
+    updateLog_MartCalc(hObject, handles, 'Writing results finished.');
+    
+else
+    updateLog_MartCalc(hObject, handles, 'Please execute lath calculations and reduction first!');
 end
-updateLog_MartCalc(hObject, handles, 'Writing results finished.');
+
+
 
 
 %#########################################################################
@@ -667,7 +674,7 @@ set(handles.InterfaceObj,'Enable','on');
 %handles.reduced_solutions_ILS.array.slip.shear_direction
 
 % save('ILS_solutions_line_search_delta_eps_ini_0_3__min_delta_res_1_e-3', 'handles.reduced_solutions_ILS' ) ;
-handles.reduced_solutions_ILS.array.shear_increments
+% handles.reduced_solutions_ILS.array.shear_increments
 
 
 
@@ -1970,3 +1977,4 @@ function edit_minors_cof_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+

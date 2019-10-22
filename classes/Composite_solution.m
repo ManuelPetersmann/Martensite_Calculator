@@ -10,13 +10,17 @@ classdef Composite_solution %< IPS_solution
     properties %(Access = public)
         lath_solution_pair; % type (e.g. IPS_solution or Slip_solution) is set in the constructor
         Fc05; % linear mixture of deformations at xi=0.5
-    end
-    
-    properties (Dependent) % all depend on lath_id_pair
+        % opt_func; %'shape_vec'  -   'disg'  - 'green_lagrange'
+        
+    %end
+    %properties % (SetAccess = private) %Dependent) % all depend on lath_id_pair
         
         % properties for reduction
-        rotangle_inclusion
-        lambda2_IPS_to_one;
+        %rotangle_inclusion
+        %lambda2_IPS_to_one;
+   
+        %strain_large;
+        %strain_small;   
         
         % The following cost-functions could be minimized w.r.t the phase fraction x, 1-x
         % and are stored in this class:
@@ -24,7 +28,7 @@ classdef Composite_solution %< IPS_solution
         % 1 ) 'eps': the magnitude of the linearly mixed shape strain vector as a measure of
         % self accommodation.  % F_composite = I + eps * d_composite \otimes h_composite
         % min_norm2( eps1*d1 + eps2*d2)--> linear constrained optimization
-        shape_vec_opt; % =[ x_eps, eps_net, delta_hps_svo, rot_svo]
+        shape_vec_opt; % =[ x_eps, eps_ips, frob_disg, frob_gl, delta_hps_svo, rot_svo]
         % x_eps - [x, 1-x] optimized phase fractions of linear mixture
         % eps_net -  minimum magnitude of shape vector by means of linear mixture of shape vectors of IPS solutions
         % svo_delta_hps  -  get function takes cryst family, e.g. {111} and gives min misorientation to it.
@@ -32,7 +36,7 @@ classdef Composite_solution %< IPS_solution
         
         
         % 2 ) 'disg':  | F_composite -I |                   - displacement gradient
-        disg_opt; % = [x_dis, frob_opt_displacement_grad, disg_delta_hps, rot_svo]
+        disg_opt; % = [x_dis, eps_ips, frob_opt_displacement_grad, frob_gl, disg_delta_hps, disg_rot]
         % x_dis  -   minimum frobenius norm of displacement gradient for linear mixture Fcomp
         % frob_opt_displacement_grad  -  optimized phase fractions of linear mixture
         % disg_delta_hps  -  get function takes cryst family, e.g. {111} and gives min misorientation to it.
@@ -40,7 +44,7 @@ classdef Composite_solution %< IPS_solution
         
         
         % 3 ) 'gl':    | F_composite^T F_composite - I |    - c.f. Green-Lagrange (no rotation)
-        gl_opt; % = [x_gl, frob_opt_green_lagrange, gl_delta_hps, rot_svo]
+        gl_opt; % = [x_gl, eps_ips, disg_rot, frob_opt_green_lagrange, gl_delta_hps, gl_rot]
         % x_gl - optimized phase fractions of linear mixture
         % frob_opt_green_lagrange -  minimum frobenius norm of 2*green_lagrange tensor of linear mixture Fcomp
         % gl_delta_hps - get function takes cryst family, e.g. {111} and gives min misorientation to it.
@@ -52,8 +56,16 @@ classdef Composite_solution %< IPS_solution
         % change (det(Bain)) - used e.g. in Qi2014 - though I think this is not reasonable
     end
     
+%     properties (Dependent)
+%         Fcmix; % dependent on the optimized xi, 1-xi
+%     end
+    
     
     methods
+        
+        function obj = Composite_solution()
+            % Constructor - not needed for now
+        end
         
         function obj = set.lath_solution_pair(obj, sols) % Composite_solution( sol1, sol2) 
             lath_class_name = class( sols(1) ); % output string
@@ -64,47 +76,71 @@ classdef Composite_solution %< IPS_solution
                     obj.lath_solution_pair = Slip_solution();
             end
             obj.lath_solution_pair = sols;
+            %obj.lath_solution_pair(1)
+            %obj.lath_solution_pair(2)
+            
             % NECESSARY ??? - eps_ips almost doesn't change...
             % obj = obj@IPS_solution( super_args{lath_sols, Bain, tolerance} ); 
             % obj.tolerances = containers.Map();
-        end  
+        end
         
-%         function Fc05 = get.Fc05( obj )
-%          Fc05 = linmix2( 0.5, obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST );
-%         end
+        %%
+        function F = Fcmix( obj, xi )
+             F = linmix2( xi, obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST );
+        end
+        
         %% phase fraction (x) optimization methods
         % x = fmincon(@myfun,x0,A,b)
-        function svo = get.shape_vec_opt( obj )
-            [x_eps, eps_block] = mixture_vecs_lin_least_squares_opt( ...
+        
+%    end    
+%    methods (Access = private)       
+        
+        function svo = update_shape_vec_opt( obj )
+            [x_eps, eps_ips] = mixture_vecs_lin_least_squares_opt( ...
                 cat(2,obj.lath_solution_pair(1).eps_ips*obj.lath_solution_pair(1).d , obj.lath_solution_pair(2).eps_ips*obj.lath_solution_pair(2).d) );
             %
             Fc = linmix2( x_eps, obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST );
+            frob_disg = frob(Fc - eye(3) );
+            frob_gl = frob( Fc'*Fc - eye(3) );
+            %
             svo_delta_hps = delta_hps( Fc );
-            svo_rot = axis_angle_rotvec_inclusion( Fc );
-            svo = [ x_eps', eps_block, svo_delta_hps, svo_rot];
+            svo_rot = axis_angle_rotvec_inclusion( Fc );            
+            svo = [ x_eps', eps_ips, frob_disg, frob_gl, svo_delta_hps, svo_rot];
         end
         
-        function dgo = get.disg_opt( obj )
-            [x_dis, d_dis] = mixture_matrix_lin_least_squares_opt( ...
-                cat(3,obj.lath_solution_pair(1).ST, obj.lath_solution_pair(1).ST) );
+        function dgo = update_disg_opt( obj )
+            x_dis = mixture_matrix_lin_least_squares_opt( ...
+                cat(3,obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST) );
             %
+            eps_ips = norm( linmix2(x_dis, obj.lath_solution_pair(1).eps_ips*obj.lath_solution_pair(1).d , ...
+                                     obj.lath_solution_pair(2).eps_ips*obj.lath_solution_pair(2).d ) );
             Fc = linmix2( x_dis, obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST );
+            frob_disg = frob(Fc - eye(3) );
+            frob_gl = frob( Fc'*Fc - eye(3) );
+            %
             disg_delta_hps = delta_hps( Fc );
             disg_rot = axis_angle_rotvec_inclusion( Fc );
-            dgo = [x_dis', d_dis, disg_delta_hps, disg_rot];
+            dgo = [x_dis', eps_ips, frob_disg, frob_gl, disg_delta_hps, disg_rot];
         end
         
-        function glo = get.gl_opt( obj )
-            [x_gl,  d_gl] = frob_min_green_lagrange_composite_block( ...
-                obj.lath_solution_pair(1).ST, obj.lath_solution_pair(1).ST, obj.shape_vec_opt(1) ); % x_eps(1) );
+        function glo = update_gl_opt( obj )
+            x_gl = frob_min_green_lagrange_composite_block( ... 
+                obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST, obj.shape_vec_opt(1) ); % x_eps(1) );
+            % here the optimization starts from minimum of shape_vec_opt
             %
+            eps_ips = norm( linmix2(x_gl, obj.lath_solution_pair(1).eps_ips*obj.lath_solution_pair(1).d , ...
+                                     obj.lath_solution_pair(2).eps_ips*obj.lath_solution_pair(2).d ) );
             Fc = linmix2( x_gl, obj.lath_solution_pair(1).ST, obj.lath_solution_pair(2).ST );
+            frob_disg = frob(Fc - eye(3) );
+            frob_gl = frob( Fc'*Fc - eye(3) );
+            %
             gl_delta_hps =  delta_hps( Fc );
-            rot_svo = axis_angle_rotvec_inclusion( Fc );
-            glo = [x_gl', d_gl, gl_delta_hps, rot_svo];
+            gl_rot = axis_angle_rotvec_inclusion( Fc );
+            glo = [x_gl', eps_ips, frob_disg, frob_gl, gl_delta_hps, gl_rot];
         end 
         
     end % end methods
+    
 end % class 
 
     %% other functions as constructors, get or set functions        
@@ -120,11 +156,19 @@ end % class
         % rotation of average (homogenized) deformation of block
         function vec4 = axis_angle_rotvec_inclusion( Fc )
             [~,R] = polardecomposition( Fc );
-            vec4 = vrrotmat2vec( R );
-            % convert ange to degree
-            vec4(4) = rad2deg( vec4(4) );
+            [vec4(4), vec4(1:3)]  = rotmat_to_axis_angle(R); %vrrotmat2vec( R );
         end
         
+         
+%         function
+%         	strain_small = 0.5*( F' + F - eye(3);
+%         end
+%         
+%         function
+%             strain_large = 0.5*( F'*F - eye(3) );
+%         end
+        
+
         %         function obj = set.lath_id_pair(obj, ids)
         %             if length(ids) ~= 2
         %                 error('excatly two ids are needed');
