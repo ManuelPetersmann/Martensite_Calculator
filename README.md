@@ -1,8 +1,10 @@
 # Martensite_Calculatur
 
-Matlab Code for the Calculation of invariant plane-strains incorporating Slip and Twinning.
+Matlab code for the calculation of invariant plane-strains incorporating slip and twinning.
 Find a problem example in Materials/Steels/...
-The code is written in an OOP Framework in Matlab R2013 to facilitate the selection of solutions the the a.m. problem.
+The code is written in an object oriented programming framework in Matlab R2013 to facilitate the selection of solutions in the combined crystal-kinematic framework of crystal plasticty and martensite transformation theory.
+Here you find the open source publication in the international journal of plasticity:
+https://www.sciencedirect.com/science/article/pii/S0749641918306211
 
 ## Authors
 
@@ -17,6 +19,7 @@ Right-click the folder in the current folder sidebar on the right side of the GU
 select "Add to Path" - "Selected Folders and Subfolders".
 If you want to save your path permanently just type `savepath` in the command window.
 
+To start the GUI type `Martensite_Calculator` into the Matlab console. 
 
 <!-- 
 =======
@@ -34,13 +37,23 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Citation
 If you use our code for your own research, we would be grateful if you cite it via
-Zebodo DOI
 ```
+<<<<<<< HEAD
 @article{lath_mart_2017,
 	title={Blocky lath martensite: Theory, experiment and modelling},
 	author={Petersmann, Manuel and Ehlenbr\"{o}ker, Ulrich and Sannikov, Alexander and Antretter, Thomas and Mahnken, Rolf and Cailletaud, Georges},
 	journal={to be submitted},
 	year={2017}
+=======
+@article{disloc_lath_mart,
+	title={Unification of the non-linear geometric transformation theory of 
+	martensite and crystal plasticity - application to dislocated lath martensite in steels},
+	author={Petersmann, M. and Antretter, T. and Cailletaud, G. and Ehlenbröker,
+	U. and Sannikov, A. and Fischer, F.D. },
+	Journal = {International journal of Plasticity},
+  	Year = {2019},
+        Doi = {10.1016/j.ijplas.2019.02.016},
+>>>>>>> 72b19d68addfaf94d912eb7d0f3c39c9ce0db83f
 }
 ```
 
@@ -48,7 +61,7 @@ Zebodo DOI
 
 This project is licensed under GPL v3 - see the [LICENSE.md](LICENSE.md) file for details
 
-Created by Manuel Petersmann 2017
+Created by Manuel Petersmann
 
 <!-- 
 ## Acknowledgments
