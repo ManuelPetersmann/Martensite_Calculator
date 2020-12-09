@@ -3,10 +3,15 @@ Literature
 saves_local
 integrate
 depreached
+tests
+todo.txt
 
 utils/plotting
 material_data/NiTi/
 material_data/TiAl/
+material_data/Co-Cr-WMo/
+material_data/steel/
+material_data/SiC/
 
 # this is a comment
 # /material_data
