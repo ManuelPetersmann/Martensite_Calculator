@@ -7,6 +7,10 @@ material_data/NiTi/
 material_data/TiAl/
 material_data/steel/
 
+depreached/
+tests/
+todo.txt
+
 # this is a comment
 # /material_data
 #utils/writing
