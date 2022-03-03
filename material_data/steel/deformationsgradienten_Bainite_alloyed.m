@@ -18,13 +18,13 @@ format long
 a_fe = 2.8664 
 
 % BCC Austenite constituents in weight percent
-M_C = 0.1 %0.75
+M_C  = 0.1 %0.75
 M_Si = 1.63
 M_Mn = 1.95
 M_Ni = 0.
 M_Mo = 0.29
 M_Cr = 0.1
-M_V = 0.01
+M_V  = 0.01
 %
 M_Al = 0
 w_i = [M_C, M_Si, M_Mn, M_Ni, M_Mo, M_Cr, M_V];
@@ -107,5 +107,3 @@ end
 VariantenSort = matrixArray_reduzieren(Varianten, 1e-6);
 
 end
-
-

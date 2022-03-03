@@ -20,7 +20,7 @@ function varargout = Martensite_Calculator(varargin)
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Last Modified by GUIDE v2.5 27-May-2018 20:59:02
+% Last Modified by GUIDE v2.5 22-Sep-2021 15:53:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1977,4 +1977,3 @@ function edit_minors_cof_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-

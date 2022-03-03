@@ -227,14 +227,14 @@ classdef Solution_array
                         error('Solutions cannot be sorted for selection since it is not specified in the selection criteria!');
                     end
                 end
-                %                [~,idx] = sort( prop_array, 1 );
+                %    [~,idx] = sort( prop_array, 1 );
             end
-            %max(prop_array)
-            %min(prop_array)
+            % max(prop_array)
+            % min(prop_array)
             [~,idx] = sort( prop_array );
             sorted = obj;
             sorted.array = obj.array(idx);
-            display(['Solutions sorted in ascending order for property: ' , prop_name ]);
+            display( [ 'Solutions sorted in ascending order for property: ' , prop_name ] );
             sorted.sorted_after = prop_name;
         end
         
